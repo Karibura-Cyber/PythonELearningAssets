@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --border: #2a2a38;
+  --text: #e8e8f0;
+  --muted: #6b6b88;
+  --accent: #7c6af7;
+  --accent2: #4ecdc4;
+  --c-compare: #f7c948;
+  --c-swap:    #e8485a;
+  --c-sorted:  #4ecdc4;
+  --c-pivot:   #c94bdb;
+  --c-found:   #4ecdc4;
+  --c-search:  #f48a3e;
+  --c-visited: #7c6af7;
+  --c-queue:   #f7c948;
+  --c-path:    #4ecdc4;
+  --c-default: #3a3a52;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Syne','Noto Sans Thai',sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none; z-index:0;
+}
+
+/* ── Header ── */
+header {
+  position:relative; z-index:10;
+  padding:60px 40px 20px;
+  max-width:1200px; margin:0 auto;
+  animation: fadeUp .6s ease both;
+}
+.badge {
+  display:inline-block;
+  font-family:'DM Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent); border:1px solid var(--accent);
+  padding:4px 12px; border-radius:2px; margin-bottom:20px;
+}
+h1 {
+  font-size:clamp(36px,5vw,64px); font-weight:800;
+  line-height:1.05; letter-spacing:-2px;
+  background:linear-gradient(135deg,#fff 30%,var(--accent));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.subtitle {
+  font-family:'Noto Sans Thai',sans-serif; font-weight:300;
+  color:var(--muted); margin-top:10px; font-size:15px; line-height:1.7;
+}
+
+/* ── Main layout ── */
+main {
+  position:relative; z-index:10;
+  max-width:1200px; margin:0 auto;
+  padding:0 40px 80px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display:flex; gap:4px; margin-bottom:32px;
+  border-bottom:1px solid var(--border); padding-bottom:0;
+  animation: fadeUp .5s .1s ease both;
+}
+.tab-btn {
+  font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;
+  text-transform:uppercase; padding:12px 20px;
+  background:transparent; border:none; color:var(--muted);
+  cursor:pointer; transition:all .2s;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* ── Panel ── */
+.panel { display:none; animation: fadeUp .4s ease both; }
+.panel.active { display:block; }
+
+/* ── Algo selector ── */
+.algo-select-row {
+  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px;
+  align-items:center;
+}
+.algo-btn {
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px;
+  text-transform:uppercase; padding:7px 16px; border-radius:6px;
+  border:1px solid var(--border); background:transparent;
+  color:var(--muted); cursor:pointer; transition:all .2s;
+}
+.algo-btn:hover { color:var(--text); border-color:var(--accent); }
+.algo-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* ── Viz container ── */
+.viz-box {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:28px; margin-bottom:20px;
+}
+
+/* ── Controls ── */
+.controls {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:24px;
+}
+.ctrl-btn {
+  font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;
+  padding:8px 20px; border-radius:8px; border:1px solid var(--border);
+  cursor:pointer; transition:all .2s; text-transform:uppercase;
+}
+.ctrl-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.ctrl-btn.primary:hover { background:#6a59e0; }
+.ctrl-btn.secondary { background:transparent; color:var(--muted); }
+.ctrl-btn.secondary:hover { color:var(--text); border-color:var(--accent); }
+.ctrl-btn:disabled { opacity:.35; cursor:not-allowed; }
+
+.speed-wrap {
+  display:flex; align-items:center; gap:10px; margin-left:auto;
+}
+.speed-wrap label {
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:1px;
+}
+input[type=range] {
+  width:100px; -webkit-appearance:none;
+  height:3px; background:var(--border); border-radius:2px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px;
+  border-radius:50%; background:var(--accent); cursor:pointer;
+}
+
+/* ── Sort bars ── */
+.bars-wrap {
+  display:flex; align-items:flex-end; gap:4px;
+  height:220px; padding:0 4px;
+}
+.bar {
+  flex:1; border-radius:4px 4px 0 0;
+  background:var(--c-default);
+  transition: height .1s ease, background .15s ease;
+  position:relative; min-width:8px;
+}
+.bar-label {
+  position:absolute; bottom:-20px; left:50%;
+  transform:translateX(-50%);
+  font-family:'DM Mono',monospace; font-size:10px;
+  color:var(--muted); white-space:nowrap;
+}
+.bar.compare { background:var(--c-compare); }
+.bar.swap    { background:var(--c-swap); }
+.bar.sorted  { background:var(--c-sorted); }
+.bar.pivot   { background:var(--c-pivot); }
+
+/* ── Stats row ── */
+.stats-row {
+  display:flex; gap:24px; margin-top:28px; flex-wrap:wrap;
+}
+.stat {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:10px 18px; display:flex; gap:8px;
+  align-items:baseline;
+}
+.stat-val {
+  font-family:'DM Mono',monospace; font-size:20px;
+  font-weight:500; color:var(--accent);
+}
+.stat-label {
+  font-family:'DM Mono',monospace; font-size:10px;
+  letter-spacing:1px; text-transform:uppercase; color:var(--muted);
+}
+
+/* ── Legend ── */
+.legend {
+  display:flex; gap:16px; flex-wrap:wrap; margin-top:16px;
+}
+.leg-item {
+  display:flex; align-items:center; gap:6px;
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+}
+.leg-dot {
+  width:10px; height:10px; border-radius:2px; flex-shrink:0;
+}
+
+/* ── Log ── */
+.log-box {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:10px; padding:16px; max-height:80px;
+  overflow-y:auto; font-family:'DM Mono',monospace;
+  font-size:12px; color:var(--muted); margin-top:16px;
+  line-height:1.6;
+}
+.log-box span.hi { color:var(--accent); }
+.log-box span.ok { color:var(--c-sorted); }
+.log-box span.sw { color:var(--c-swap); }
+
+/* ── Search viz ── */
+.search-wrap {
+  display:flex; align-items:flex-end; gap:6px;
+  flex-wrap:wrap; padding:8px 4px 28px;
+}
+.search-cell {
+  width:52px; height:52px; border-radius:8px;
+  background:var(--c-default); border:2px solid transparent;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; transition:all .2s; position:relative;
+  flex-shrink:0;
+}
+.search-cell .idx {
+  font-family:'DM Mono',monospace; font-size:9px; color:var(--muted);
+  position:absolute; top:4px; left:50%; transform:translateX(-50%);
+}
+.search-cell .val {
+  font-family:'DM Mono',monospace; font-size:16px; font-weight:500;
+}
+.search-cell.active  { background:var(--c-search); border-color:var(--c-search); color:#111; }
+.search-cell.found   { background:var(--c-found); border-color:var(--c-found); color:#111; }
+.search-cell.visited { background:#2a2a38; border-color:var(--border); opacity:.5; }
+.search-cell.low,.search-cell.high { border-color:var(--c-pivot); }
+.search-cell.mid     { background:var(--c-compare); border-color:var(--c-compare); color:#111; }
+
+.search-input-row {
+  display:flex; gap:10px; align-items:center; margin-bottom:20px; flex-wrap:wrap;
+}
+.search-input-row label {
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap;
+}
+.search-input-row input[type=number] {
+  width:80px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:6px; padding:7px 12px; color:var(--text);
+  font-family:'DM Mono',monospace; font-size:13px; outline:none;
+  transition:border-color .2s;
+}
+.search-input-row input[type=number]:focus { border-color:var(--accent); }
+
+/* ── Graph viz ── */
+.graph-canvas-wrap {
+  position:relative; width:100%; height:380px;
+}
+canvas.graph-canvas {
+  width:100% !important; height:380px !important;
+}
+.graph-controls {
+  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;
+  align-items:center;
+}
+.node-select-label {
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+}
+select.start-select {
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--text); font-family:'DM Mono',monospace; font-size:12px;
+  padding:6px 12px; border-radius:6px; outline:none; cursor:pointer;
+}
+
+/* ── Info card ── */
+.info-card {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:12px; padding:20px 24px; margin-top:16px;
+}
+.info-card h3 {
+  font-size:13px; font-family:'DM Mono',monospace; letter-spacing:1px;
+  text-transform:uppercase; color:var(--accent); margin-bottom:10px;
+}
+.info-card p {
+  font-family:'Noto Sans Thai',sans-serif; font-size:14px;
+  color:var(--muted); line-height:1.7; font-weight:300;
+}
+.complexity-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.chip {
+  font-family:'DM Mono',monospace; font-size:11px;
+  padding:4px 10px; border-radius:4px;
+  border:1px solid var(--border); color:var(--muted);
+}
+.chip span { color:var(--accent); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@media (max-width:600px) {
+  header, main { padding-left:16px; padding-right:16px; }
+  .bars-wrap { gap:2px; }
+  .search-cell { width:40px; height:40px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Week 3 · Algorithm Visualizer</div>
+  <h1>Algorithm<br>Visualizer</h1>
+  <p class="subtitle">ดู Algorithm ทำงานทีละ Step — Sorting, Searching และ Graph Traversal</p>
+</header>
+
+<main>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('sorting',this)">Sorting</button>
+    <button class="tab-btn" onclick="switchTab('searching',this)">Searching</button>
+    <button class="tab-btn" onclick="switchTab('graph',this)">Graph</button>
+  </div>
+
+  <!-- ════════════════ SORTING ════════════════ -->
+  <div class="panel active" id="panel-sorting">
+    <div class="algo-select-row">
+      <button class="algo-btn active" data-sort="bubble" onclick="selectSort('bubble',this)">Bubble Sort</button>
+      <button class="algo-btn" data-sort="merge" onclick="selectSort('merge',this)">Merge Sort</button>
+      <button class="algo-btn" data-sort="quick" onclick="selectSort('quick',this)">Quick Sort</button>
+    </div>
+
+    <div class="viz-box">
+      <div class="controls">
+        <button class="ctrl-btn primary" id="sort-play" onclick="startSort()">▶ Play</button>
+        <button class="ctrl-btn secondary" onclick="resetSort()">↺ Reset</button>
+        <button class="ctrl-btn secondary" onclick="shuffleSort()">⇄ Shuffle</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Size</label>
+          <input type="range" id="size-slider" min="8" max="30" value="16" oninput="onSizeChange(this.value)">
+          <span id="size-val" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)">16</span>
+        </div>
+        <div class="speed-wrap">
+          <label>Speed</label>
+          <input type="range" id="sort-speed" min="1" max="10" value="5">
+        </div>
+      </div>
+
+      <div class="bars-wrap" id="bars-wrap"></div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val" id="s-comps">0</span><span class="stat-label">Comparisons</span></div>
+        <div class="stat"><span class="stat-val" id="s-swaps">0</span><span class="stat-label">Swaps</span></div>
+        <div class="stat"><span class="stat-val" id="s-time">—</span><span class="stat-label">ms</span></div>
+        <div class="stat"><span class="stat-val" id="s-big">O(?)</span><span class="stat-label">Big O</span></div>
+      </div>
+
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-compare)"></div>Comparing</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-swap)"></div>Swapping</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-pivot)"></div>Pivot</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-sorted)"></div>Sorted</div>
+      </div>
+
+      <div class="log-box" id="sort-log">Ready — press Play to begin.</div>
+    </div>
+
+    <div class="info-card" id="sort-info"></div>
+  </div>
+
+  <!-- ════════════════ SEARCHING ════════════════ -->
+  <div class="panel" id="panel-searching">
+    <div class="algo-select-row">
+      <button class="algo-btn active" data-search="linear" onclick="selectSearch('linear',this)">Linear Search</button>
+      <button class="algo-btn" data-search="binary" onclick="selectSearch('binary',this)">Binary Search</button>
+    </div>
+
+    <div class="viz-box">
+      <div class="search-input-row">
+        <label>Target:</label>
+        <input type="number" id="search-target" value="42" min="1" max="99">
+        <button class="ctrl-btn primary" id="search-play" onclick="startSearch()">▶ Search</button>
+        <button class="ctrl-btn secondary" onclick="resetSearch()">↺ Reset</button>
+        <div class="speed-wrap">
+          <label>Speed</label>
+          <input type="range" id="search-speed" min="1" max="10" value="4">
+        </div>
+      </div>
+
+      <div class="search-wrap" id="search-wrap"></div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val" id="sr-steps">0</span><span class="stat-label">Steps</span></div>
+        <div class="stat"><span class="stat-val" id="sr-result">—</span><span class="stat-label">Result</span></div>
+        <div class="stat"><span class="stat-val" id="sr-big">O(?)</span><span class="stat-label">Big O</span></div>
+      </div>
+
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-search)"></div>Checking</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-compare)"></div>Mid (Binary)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-found)"></div>Found!</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#2a2a38"></div>Eliminated</div>
+      </div>
+
+      <div class="log-box" id="search-log">Ready — enter a target value and press Search.</div>
+    </div>
+
+    <div class="info-card" id="search-info"></div>
+  </div>
+
+  <!-- ════════════════ GRAPH ════════════════ -->
+  <div class="panel" id="panel-graph">
+    <div class="algo-select-row">
+      <button class="algo-btn active" data-graph="bfs" onclick="selectGraph('bfs',this)">BFS</button>
+      <button class="algo-btn" data-graph="dfs" onclick="selectGraph('dfs',this)">DFS</button>
+    </div>
+
+    <div class="viz-box">
+      <div class="graph-controls">
+        <label class="node-select-label">Start Node:</label>
+        <select class="start-select" id="start-node">
+          <option value="0">A</option><option value="1">B</option>
+          <option value="2">C</option><option value="3">D</option>
+          <option value="4">E</option><option value="5">F</option>
+          <option value="6">G</option>
+        </select>
+        <button class="ctrl-btn primary" id="graph-play" onclick="startGraph()">▶ Start</button>
+        <button class="ctrl-btn secondary" onclick="resetGraph()">↺ Reset</button>
+        <button class="ctrl-btn secondary" onclick="newGraph()">⇄ New Graph</button>
+        <div class="speed-wrap">
+          <label>Speed</label>
+          <input type="range" id="graph-speed" min="1" max="10" value="4">
+        </div>
+      </div>
+
+      <div class="graph-canvas-wrap">
+        <canvas id="graph-canvas" class="graph-canvas"></canvas>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val" id="g-visited">0</span><span class="stat-label">Visited</span></div>
+        <div class="stat"><span class="stat-val" id="g-order" style="font-size:13px;max-width:200px;word-break:break-all">—</span><span class="stat-label">Order</span></div>
+        <div class="stat"><span class="stat-val" id="g-big">O(?)</span><span class="stat-label">Big O</span></div>
+      </div>
+
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div>Start</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-compare)"></div>Queue/Stack</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-visited)"></div>Visiting</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-sorted)"></div>Visited</div>
+      </div>
+
+      <div class="log-box" id="graph-log">Ready — select start node and press Start.</div>
+    </div>
+
+    <div class="info-card" id="graph-info"></div>
+  </div>
+</main>
+
+<footer style="text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;position:relative;z-index:10;">
+  Algorithm Visualizer · CS Education Tool
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function getSpeed(id){ const v=+document.getElementById(id).value; return Math.round(1000/v/v*2); }
+
+let running = false;
+function setRunning(v){
+  running=v;
+  ['sort-play','search-play','graph-play'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.disabled=v; el.textContent=v?'⏸ Running':'▶ '+(id==='sort-play'?'Play':id==='search-play'?'Search':'Start'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════
+function switchTab(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  SORTING
+// ═══════════════════════════════════════════════════
+const SORT_INFO = {
+  bubble: {
+    title:'Bubble Sort', big:'O(n²)',
+    desc:'เปรียบเทียบและสลับตัวเลขที่อยู่ติดกันซ้ำๆ ค่าที่ใหญ่สุดจะ "ลอย" ขึ้นไปด้านบนทีละรอบ เหมือนฟองอากาศลอยขึ้น',
+    time:'O(n²)', space:'O(1)', stable:'Yes'
+  },
+  merge: {
+    title:'Merge Sort', big:'O(n log n)',
+    desc:'แบ่ง Array ออกเป็นครึ่งซ้ำๆ จนเหลือชิ้นละ 1 element แล้วค่อยรวมกลับและเรียงลำดับระหว่างรวม (Divide & Conquer)',
+    time:'O(n log n)', space:'O(n)', stable:'Yes'
+  },
+  quick: {
+    title:'Quick Sort', big:'O(n log n) avg',
+    desc:'เลือก Pivot แล้วแบ่งข้อมูลออกเป็น 2 ฝั่ง — น้อยกว่า Pivot ไปซ้าย มากกว่าไปขวา ทำซ้ำแบบ Recursive',
+    time:'O(n log n)', space:'O(log n)', stable:'No'
+  }
+};
+
+let sortArr = [];
+let sortAlgo = 'bubble';
+let sortComps = 0, sortSwaps = 0;
+
+function selectSort(algo, btn){
+  sortAlgo = algo;
+  document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  resetSort();
+  updateSortInfo();
+}
+
+function updateSortInfo(){
+  const info = SORT_INFO[sortAlgo];
+  document.getElementById('sort-info').innerHTML = `
+    <h3>${info.title}</h3>
+    <p>${info.desc}</p>
+    <div class="complexity-chips">
+      <div class="chip">Time: <span>${info.time}</span></div>
+      <div class="chip">Space: <span>${info.space}</span></div>
+      <div class="chip">Stable: <span>${info.stable}</span></div>
+    </div>`;
+  document.getElementById('s-big').textContent = info.big;
+}
+
+function initSortArr(n){
+  sortArr = Array.from({length:n}, (_,i)=>rnd(10,100));
+}
+
+function renderBars(highlights={}){
+  const wrap = document.getElementById('bars-wrap');
+  const maxV = Math.max(...sortArr);
+  const showLabels = sortArr.length <= 20;
+  wrap.innerHTML = sortArr.map((v,i)=>{
+    let cls = 'bar';
+    if(highlights.sorted && highlights.sorted.has(i)) cls+=' sorted';
+    else if(highlights.pivot===i) cls+=' pivot';
+    else if(highlights.compare && highlights.compare.includes(i)) cls+=' compare';
+    else if(highlights.swap && highlights.swap.includes(i)) cls+=' swap';
+    const h = Math.max(8, Math.round((v/maxV)*200));
+    return `<div class="${cls}" style="height:${h}px">${showLabels?`<span class="bar-label">${v}</span>`:''}</div>`;
+  }).join('');
+}
+
+function setLog(id, html){ document.getElementById(id).innerHTML = html; }
+
+function resetSort(){
+  if(running) return;
+  const n = +document.getElementById('size-slider').value;
+  initSortArr(n);
+  sortComps=0; sortSwaps=0;
+  document.getElementById('s-comps').textContent='0';
+  document.getElementById('s-swaps').textContent='0';
+  document.getElementById('s-time').textContent='—';
+  renderBars();
+  setLog('sort-log','Ready — press Play to begin.');
+  updateSortInfo();
+}
+
+function shuffleSort(){
+  if(running) return;
+  const n = +document.getElementById('size-slider').value;
+  initSortArr(n);
+  renderBars();
+  sortComps=0; sortSwaps=0;
+  document.getElementById('s-comps').textContent='0';
+  document.getElementById('s-swaps').textContent='0';
+  document.getElementById('s-time').textContent='—';
+}
+
+function onSizeChange(v){
+  document.getElementById('size-val').textContent=v;
+  if(!running) resetSort();
+}
+
+async function startSort(){
+  if(running) return;
+  setRunning(true);
+  sortComps=0; sortSwaps=0;
+  const t0 = performance.now();
+  const arr = [...sortArr];
+
+  if(sortAlgo==='bubble') await bubbleSort(arr);
+  else if(sortAlgo==='merge') await mergeSort(arr, 0, arr.length-1);
+  else if(sortAlgo==='quick') await quickSort(arr, 0, arr.length-1);
+
+  sortArr = arr;
+  const sorted = new Set(arr.map((_,i)=>i));
+  renderBars({sorted});
+  const ms = (performance.now()-t0).toFixed(1);
+  document.getElementById('s-time').textContent = ms;
+  setLog('sort-log',`<span class="ok">✓ Done! ${sortComps} comparisons, ${sortSwaps} swaps in ${ms}ms</span>`);
+  setRunning(false);
+}
+
+async function bubbleSort(arr){
+  const n=arr.length; const sorted=new Set();
+  for(let i=0;i<n-1;i++){
+    for(let j=0;j<n-1-i;j++){
+      sortComps++;
+      document.getElementById('s-comps').textContent=sortComps;
+      renderBars({compare:[j,j+1], sorted});
+      await sleep(getSpeed('sort-speed'));
+      if(arr[j]>arr[j+1]){
+        [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+        sortSwaps++;
+        document.getElementById('s-swaps').textContent=sortSwaps;
+        sortArr=[...arr];
+        renderBars({swap:[j,j+1], sorted});
+        setLog('sort-log',`Swap <span class="sw">${arr[j+1]}</span> ↔ <span class="sw">${arr[j]}</span>`);
+        await sleep(getSpeed('sort-speed'));
+      }
+    }
+    sorted.add(n-1-i);
+  }
+  sorted.add(0);
+}
+
+async function mergeSort(arr, l, r){
+  if(l>=r) return;
+  const m=Math.floor((l+r)/2);
+  await mergeSort(arr,l,m);
+  await mergeSort(arr,m+1,r);
+  await merge(arr,l,m,r);
+}
+
+async function merge(arr,l,m,r){
+  const L=arr.slice(l,m+1), R=arr.slice(m+1,r+1);
+  let i=0,j=0,k=l;
+  while(i<L.length&&j<R.length){
+    sortComps++;
+    document.getElementById('s-comps').textContent=sortComps;
+    if(L[i]<=R[j]){ arr[k]=L[i++]; }
+    else { arr[k]=R[j++]; sortSwaps++; document.getElementById('s-swaps').textContent=sortSwaps; }
+    sortArr=[...arr];
+    renderBars({compare:[k]});
+    setLog('sort-log',`Merging <span class="hi">[${l}..${r}]</span>`);
+    await sleep(getSpeed('sort-speed'));
+    k++;
+  }
+  while(i<L.length){ arr[k++]=L[i++]; sortArr=[...arr]; renderBars({}); await sleep(getSpeed('sort-speed')/2); }
+  while(j<R.length){ arr[k++]=R[j++]; sortArr=[...arr]; renderBars({}); await sleep(getSpeed('sort-speed')/2); }
+}
+
+async function quickSort(arr, lo, hi){
+  if(lo>=hi) return;
+  const p = await partition(arr,lo,hi);
+  await quickSort(arr,lo,p-1);
+  await quickSort(arr,p+1,hi);
+}
+
+async function partition(arr,lo,hi){
+  const pivot=arr[hi]; let i=lo-1;
+  for(let j=lo;j<hi;j++){
+    sortComps++;
+    document.getElementById('s-comps').textContent=sortComps;
+    renderBars({compare:[j], pivot:hi});
+    setLog('sort-log',`Pivot <span class="hi">${pivot}</span> — comparing index ${j}`);
+    await sleep(getSpeed('sort-speed'));
+    if(arr[j]<=pivot){
+      i++;
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+      sortSwaps++; document.getElementById('s-swaps').textContent=sortSwaps;
+      sortArr=[...arr];
+      renderBars({swap:[i,j], pivot:hi});
+      await sleep(getSpeed('sort-speed'));
+    }
+  }
+  [arr[i+1],arr[hi]]=[arr[hi],arr[i+1]];
+  sortArr=[...arr];
+  renderBars({pivot:i+1});
+  await sleep(getSpeed('sort-speed'));
+  return i+1;
+}
+
+// ═══════════════════════════════════════════════════
+//  SEARCHING
+// ═══════════════════════════════════════════════════
+const SEARCH_INFO = {
+  linear: {
+    title:'Linear Search', big:'O(n)',
+    desc:'ตรวจสอบทุก element ทีละตัวจากซ้ายไปขวา จนกว่าจะพบค่าที่ต้องการ ไม่จำเป็นต้องเรียงข้อมูล',
+    time:'O(n)', space:'O(1)'
+  },
+  binary: {
+    title:'Binary Search', big:'O(log n)',
+    desc:'ต้องการ Sorted Array — เปรียบเทียบกับตัวกลาง ถ้าน้อยกว่าไปหาครึ่งซ้าย ถ้ามากกว่าไปหาครึ่งขวา ลดพื้นที่ค้นหาลงครึ่งในแต่ละรอบ',
+    time:'O(log n)', space:'O(1)'
+  }
+};
+
+let searchAlgo = 'linear';
+let searchArr = [];
+
+function selectSearch(algo, btn){
+  searchAlgo = algo;
+  document.querySelectorAll('[data-search]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  resetSearch();
+  updateSearchInfo();
+}
+
+function updateSearchInfo(){
+  const info = SEARCH_INFO[searchAlgo];
+  document.getElementById('search-info').innerHTML = `
+    <h3>${info.title}</h3>
+    <p>${info.desc}</p>
+    <div class="complexity-chips">
+      <div class="chip">Time: <span>${info.time}</span></div>
+      <div class="chip">Space: <span>${info.space}</span></div>
+    </div>`;
+  document.getElementById('sr-big').textContent = info.big;
+}
+
+function initSearchArr(){
+  const n=14;
+  if(searchAlgo==='binary'){
+    const tmp = new Set();
+    while(tmp.size<n) tmp.add(rnd(1,99));
+    searchArr = [...tmp].sort((a,b)=>a-b);
+  } else {
+    searchArr = Array.from({length:n},()=>rnd(1,99));
+  }
+}
+
+function renderSearchCells(states={}){
+  const wrap = document.getElementById('search-wrap');
+  wrap.innerHTML = searchArr.map((v,i)=>{
+    let cls = 'search-cell';
+    if(states.found===i) cls+=' found';
+    else if(states.active===i) cls+=' active';
+    else if(states.mid===i) cls+=' mid';
+    else if(states.visited && states.visited.has(i)) cls+=' visited';
+    if(states.low===i||states.high===i) cls+=' low';
+    return `<div class="${cls}"><span class="idx">[${i}]</span><span class="val">${v}</span></div>`;
+  }).join('');
+}
+
+function resetSearch(){
+  if(running) return;
+  initSearchArr();
+  document.getElementById('sr-steps').textContent='0';
+  document.getElementById('sr-result').textContent='—';
+  renderSearchCells();
+  setLog('search-log','Ready — enter a target value and press Search.');
+  updateSearchInfo();
+}
+
+async function startSearch(){
+  if(running) return;
+  const target = +document.getElementById('search-target').value;
+  setRunning(true);
+  let steps=0;
+  const visited = new Set();
+
+  if(searchAlgo==='linear'){
+    let found=-1;
+    for(let i=0;i<searchArr.length;i++){
+      steps++;
+      document.getElementById('sr-steps').textContent=steps;
+      renderSearchCells({active:i, visited});
+      setLog('search-log',`Checking index <span class="hi">${i}</span>: value = <span class="hi">${searchArr[i]}</span>`);
+      await sleep(getSpeed('search-speed'));
+      if(searchArr[i]===target){ found=i; break; }
+      visited.add(i);
+    }
+    if(found>=0){
+      renderSearchCells({found, visited});
+      document.getElementById('sr-result').textContent='idx '+found;
+      setLog('search-log',`<span class="ok">✓ Found ${target} at index ${found} in ${steps} steps</span>`);
+    } else {
+      renderSearchCells({visited});
+      document.getElementById('sr-result').textContent='Not Found';
+      setLog('search-log',`<span class="sw">✗ ${target} not found after checking all ${steps} elements</span>`);
+    }
+  } else {
+    // Binary Search
+    let lo=0, hi=searchArr.length-1, found=-1;
+    while(lo<=hi){
+      steps++;
+      document.getElementById('sr-steps').textContent=steps;
+      const mid=Math.floor((lo+hi)/2);
+      renderSearchCells({mid, low:lo, high:hi, visited});
+      setLog('search-log',`lo=${lo} hi=${hi} → mid=${mid}: <span class="hi">${searchArr[mid]}</span> vs target <span class="hi">${target}</span>`);
+      await sleep(getSpeed('search-speed'));
+      if(searchArr[mid]===target){ found=mid; break; }
+      else if(searchArr[mid]<target){
+        for(let i=lo;i<=mid;i++) visited.add(i);
+        lo=mid+1;
+      } else {
+        for(let i=mid;i<=hi;i++) visited.add(i);
+        hi=mid-1;
+      }
+    }
+    if(found>=0){
+      renderSearchCells({found, visited});
+      document.getElementById('sr-result').textContent='idx '+found;
+      setLog('search-log',`<span class="ok">✓ Found ${target} at index ${found} in ${steps} steps</span>`);
+    } else {
+      renderSearchCells({visited});
+      document.getElementById('sr-result').textContent='Not Found';
+      setLog('search-log',`<span class="sw">✗ ${target} not found in ${steps} steps</span>`);
+    }
+  }
+  setRunning(false);
+}
+
+// ═══════════════════════════════════════════════════
+//  GRAPH
+// ═══════════════════════════════════════════════════
+const GRAPH_INFO = {
+  bfs: {
+    title:'Breadth-First Search (BFS)', big:'O(V+E)',
+    desc:'탐색ท่อง Graph โดยเริ่มจาก Node ต้นทาง แล้วเยี่ยม Node เพื่อนบ้านทั้งหมดก่อน จากนั้นค่อยไปลึกขึ้น ใช้ Queue ในการเก็บ Node ที่รอเยี่ยม',
+    time:'O(V+E)', space:'O(V)'
+  },
+  dfs: {
+    title:'Depth-First Search (DFS)', big:'O(V+E)',
+    desc:'탐색ท่อง Graph โดยเดินลึกเข้าไปใน Path เดียวจนสุดก่อน แล้วค่อย Backtrack กลับมาลอง Path อื่น ใช้ Stack (หรือ Recursion)',
+    time:'O(V+E)', space:'O(V)'
+  }
+};
+
+const NODE_LABELS = ['A','B','C','D','E','F','G'];
+let graphAlgo = 'bfs';
+let graphEdges = [];
+let graphNodes = [];
+let graphState = {};
+let animFrame;
+
+function selectGraph(algo, btn){
+  graphAlgo=algo;
+  document.querySelectorAll('[data-graph]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  resetGraph();
+  updateGraphInfo();
+}
+
+function updateGraphInfo(){
+  const info = GRAPH_INFO[graphAlgo];
+  document.getElementById('graph-info').innerHTML = `
+    <h3>${info.title}</h3>
+    <p>${info.desc}</p>
+    <div class="complexity-chips">
+      <div class="chip">Time: <span>${info.time}</span></div>
+      <div class="chip">Space: <span>${info.space}</span></div>
+    </div>`;
+  document.getElementById('g-big').textContent = info.big;
+}
+
+function newGraph(){
+  if(running) return;
+  // Build random connected graph with 7 nodes
+  const n=7;
+  graphNodes = [];
+  const canvas = document.getElementById('graph-canvas');
+  const W=canvas.offsetWidth||700, H=380;
+  // Place nodes in circle + center
+  const cx=W/2, cy=H/2-10, r=Math.min(W,H)*0.35;
+  for(let i=0;i<n;i++){
+    const angle = (i/n)*Math.PI*2 - Math.PI/2;
+    graphNodes.push({ x: cx+r*Math.cos(angle), y: cy+r*Math.sin(angle), id:i });
+  }
+  // Random edges, ensure connected
+  const adj = Array.from({length:n},()=>new Set());
+  // Spanning tree first
+  const order = [...Array(n).keys()].sort(()=>Math.random()-.5);
+  for(let i=1;i<n;i++){
+    const a=order[i-1],b=order[i];
+    adj[a].add(b); adj[b].add(a);
+  }
+  // Extra random edges
+  const extras = rnd(2,5);
+  for(let e=0;e<extras;e++){
+    const a=rnd(0,n-1), b=rnd(0,n-1);
+    if(a!==b){ adj[a].add(b); adj[b].add(a); }
+  }
+  graphEdges = [];
+  for(let i=0;i<n;i++)
+    for(const j of adj[i])
+      if(j>i) graphEdges.push([i,j]);
+
+  graphState = { visited:new Set(), queue:new Set(), current:-1, path:[] };
+  drawGraph();
+}
+
+function resetGraph(){
+  if(running) return;
+  graphState = { visited:new Set(), queue:new Set(), current:-1, path:[] };
+  document.getElementById('g-visited').textContent='0';
+  document.getElementById('g-order').textContent='—';
+  drawGraph();
+  setLog('graph-log','Ready — select start node and press Start.');
+  updateGraphInfo();
+}
+
+function drawGraph(){
+  const canvas = document.getElementById('graph-canvas');
+  const W=canvas.offsetWidth||700;
+  canvas.width=W; canvas.height=380;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,380);
+
+  if(!graphNodes.length) return;
+
+  // Draw edges
+  graphEdges.forEach(([a,b])=>{
+    const na=graphNodes[a], nb=graphNodes[b];
+    ctx.beginPath();
+    ctx.moveTo(na.x,na.y); ctx.lineTo(nb.x,nb.y);
+    // Highlight if both visited
+    const both = graphState.visited.has(a) && graphState.visited.has(b);
+    ctx.strokeStyle = both ? '#4ecdc444' : '#2a2a38';
+    ctx.lineWidth = both ? 3 : 1.5;
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  graphNodes.forEach((nd,i)=>{
+    const visited=graphState.visited.has(i);
+    const inQueue=graphState.queue.has(i);
+    const isCurrent=graphState.current===i;
+    const isStart = graphState.start===i;
+
+    let fill='#1e1e2a', stroke='#3a3a52', textColor='#6b6b88';
+    let r=20;
+    if(isStart&&visited){ fill='#7c6af7'; stroke='#7c6af7'; textColor='#fff'; }
+    else if(isCurrent){ fill='#7c6af7'; stroke='#c084fc'; textColor='#fff'; r=23; }
+    else if(visited){ fill='#4ecdc422'; stroke='#4ecdc4'; textColor='#4ecdc4'; }
+    else if(inQueue){ fill='#f7c94822'; stroke='#f7c948'; textColor='#f7c948'; }
+
+    ctx.beginPath();
+    ctx.arc(nd.x,nd.y,r,0,Math.PI*2);
+    ctx.fillStyle=fill;
+    ctx.fill();
+    ctx.strokeStyle=stroke;
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    ctx.fillStyle=textColor;
+    ctx.font=`600 ${r*0.8}px 'Syne', sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(NODE_LABELS[i],nd.x,nd.y);
+  });
+}
+
+async function startGraph(){
+  if(running) return;
+  const start = +document.getElementById('start-node').value;
+  setRunning(true);
+  graphState = { visited:new Set(), queue:new Set(), current:-1, path:[], start };
+
+  // Build adjacency list
+  const n=graphNodes.length;
+  const adj = Array.from({length:n},()=>[]);
+  graphEdges.forEach(([a,b])=>{ adj[a].push(b); adj[b].push(a); });
+
+  const order=[];
+
+  if(graphAlgo==='bfs'){
+    const queue=[start];
+    graphState.visited.add(start);
+    graphState.queue=new Set(queue);
+    setLog('graph-log',`BFS start from <span class="hi">${NODE_LABELS[start]}</span> — queue: [${NODE_LABELS[start]}]`);
+    while(queue.length){
+      const node=queue.shift();
+      graphState.current=node; graphState.queue.delete(node);
+      order.push(NODE_LABELS[node]);
+      document.getElementById('g-visited').textContent=graphState.visited.size;
+      document.getElementById('g-order').textContent=order.join(' → ');
+      drawGraph();
+      setLog('graph-log',`Visiting <span class="hi">${NODE_LABELS[node]}</span> | Queue: [${[...graphState.queue].map(x=>NODE_LABELS[x]).join(', ')}]`);
+      await sleep(getSpeed('graph-speed'));
+      for(const nb of adj[node].sort()){
+        if(!graphState.visited.has(nb)){
+          graphState.visited.add(nb);
+          queue.push(nb);
+          graphState.queue.add(nb);
+        }
+      }
+      drawGraph();
+      await sleep(getSpeed('graph-speed')/2);
+    }
+  } else {
+    // DFS iterative
+    const stack=[start];
+    const visited2=new Set();
+    while(stack.length){
+      const node=stack.pop();
+      if(visited2.has(node)) continue;
+      visited2.add(node);
+      graphState.visited=new Set(visited2);
+      graphState.current=node;
+      graphState.queue=new Set(stack);
+      order.push(NODE_LABELS[node]);
+      document.getElementById('g-visited').textContent=visited2.size;
+      document.getElementById('g-order').textContent=order.join(' → ');
+      drawGraph();
+      setLog('graph-log',`Visiting <span class="hi">${NODE_LABELS[node]}</span> | Stack: [${stack.map(x=>NODE_LABELS[x]).join(', ')}]`);
+      await sleep(getSpeed('graph-speed'));
+      for(const nb of adj[node].sort().reverse()){
+        if(!visited2.has(nb)) stack.push(nb);
+      }
+    }
+  }
+
+  graphState.current=-1;
+  drawGraph();
+  setLog('graph-log',`<span class="ok">✓ Done! Visited: ${order.join(' → ')}</span>`);
+  setRunning(false);
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  resetSort();
+  resetSearch();
+  newGraph(); resetGraph(); updateGraphInfo();
+});
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('panel-graph').classList.contains('active')) drawGraph();
+});
+</script>
+</body>
+</html>

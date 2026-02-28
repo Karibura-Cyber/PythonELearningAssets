@@ -1,0 +1,487 @@
+/* ============================================================
+   LAYOUT.CSS  —  Page-specific Layouts
+   
+   Depends on: theme.css + components.css
+   
+   To build a NEW page with the same design system:
+     - Keep theme.css + components.css as-is
+     - Replace this file with your own layout
+   
+   Sections:
+     - Learn page  (#learn-page)
+     - Quiz page   (#quiz-page)
+     - Big-O page  (#bigo-page)
+     - Responsive  (@media)
+   ============================================================ */
+
+/* ── LEARN PAGE ─────────────────────────────────────────────── */
+#learn-page {
+  flex-direction: row;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.learn-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.practice-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── QUIZ PAGE ──────────────────────────────────────────────── */
+#quiz-page {
+  padding: 2rem;
+  overflow-y: auto;
+  background: var(--bg-deep);
+}
+
+.quiz-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.quiz-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.quiz-layout {
+  display: flex;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+/* Problem list panel */
+.problem-list {
+  width: 260px;
+  min-width: 260px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.problem-list-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.problem-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 3px;
+  border: 1px solid transparent;
+}
+
+.problem-item:hover         { background: var(--bg-hover); }
+.problem-item.active        { background: rgba(0,245,255,0.07); border-color: rgba(0,245,255,0.25); }
+.problem-item.solved        { border-color: rgba(57,255,20,0.25); }
+
+.problem-num {
+  width: 26px; height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.problem-item.active .problem-num {
+  background: rgba(0,245,255,0.15);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.problem-item.solved .problem-num {
+  background: rgba(57,255,20,0.15);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+
+.problem-title-small {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* Problem workspace */
+.problem-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.problem-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.problem-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.problem-card-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.problem-description {
+  padding: 1.25rem 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.problem-description code {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--neon-cyan);
+}
+
+.io-examples {
+  padding: 0 1.5rem 1.25rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.io-box {
+  flex: 1;
+  min-width: 180px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+}
+
+.io-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.io-value {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--neon-green);
+}
+
+/* Quiz editor card */
+.quiz-editor-container {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.quiz-output-panel {
+  background: #040508;
+  border-top: 1px solid var(--border);
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ── BIG-O PAGE ─────────────────────────────────────────────── */
+#bigo-page {
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.bigo-hero {
+  text-align: center;
+  padding: 2rem 0 3rem;
+}
+
+.bigo-hero h1 {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.75rem;
+}
+
+.bigo-hero p { color: var(--text-secondary); font-size: 1.05rem; }
+
+/* Card grid */
+.bigo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.25rem;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+/* Individual Big-O card */
+.bigo-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Colored top-border accent set via JS: style="--card-accent:#00f5ff" */
+.bigo-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--card-accent, var(--neon-cyan));
+}
+
+.bigo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-panel);
+  border-color: var(--border-glow);
+}
+
+.bigo-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.bigo-notation {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--card-accent, var(--neon-cyan));
+}
+
+.bigo-name {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.bigo-rating {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  height: fit-content;
+}
+
+.rating-best      { color: #39ff14;            border-color: #39ff14;            background: rgba(57,255,20,0.08);  }
+.rating-good      { color: #a0f000;            border-color: #a0f000;            background: rgba(160,240,0,0.08); }
+.rating-fair      { color: var(--neon-yellow); border-color: var(--neon-yellow); background: rgba(255,230,0,0.08); }
+.rating-bad       { color: var(--neon-orange); border-color: var(--neon-orange); background: rgba(255,107,53,0.08);}
+.rating-terrible  { color: var(--neon-pink);   border-color: var(--neon-pink);   background: rgba(255,45,120,0.08);}
+
+.bigo-desc {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  margin-bottom: 1rem;
+}
+
+.bigo-example {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #a8d8ea;
+  line-height: 1.6;
+}
+
+/* Mini bar chart inside each card */
+.bigo-mini-bars {
+  display: flex;
+  gap: 4px;
+  margin-top: 1rem;
+  align-items: flex-end;
+  height: 48px;
+}
+
+.mini-bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.bigo-card:hover .mini-bar { opacity: 1; }
+
+/* Interactive visualizer panel */
+.bigo-visualizer {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+}
+
+.bigo-visualizer h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+/* Toggle buttons — active color set via JS: style="--toggle-color:#39ff14" */
+.viz-toggle {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.viz-toggle.active {
+  border-color: var(--toggle-color, var(--neon-cyan));
+  color: var(--toggle-color, var(--neon-cyan));
+  background: rgba(0,245,255,0.06);
+}
+
+#bigo-main-canvas {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--radius-md);
+  background: #040508;
+  border: 1px solid var(--border);
+}
+
+.n-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.n-slider-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.n-value {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--neon-cyan);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Legend row below canvas */
+.bigo-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  #learn-page       { flex-direction: column; height: auto; overflow: visible; }
+  .sidebar          { width: 100%; min-width: unset; max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; flex-direction: row; }
+  .sidebar-section  { display: flex; gap: 8px; padding: 1rem; flex-wrap: nowrap; }
+  .tab-content      { min-height: 60vh; }
+  .quiz-layout      { flex-direction: column; }
+  .problem-list     { width: 100%; min-width: unset; position: static; }
+  .bigo-grid        { grid-template-columns: 1fr; }
+  .bigo-hero h1     { font-size: 2rem; }
+}

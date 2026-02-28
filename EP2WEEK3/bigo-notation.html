@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big O Notation — Interactive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a38;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --accent: #7c6af7;
+    --accent2: #4ecdc4;
+
+    --c1: #7c6af7;   /* O(1) */
+    --cn: #4ecdc4;   /* O(log n) */
+    --cn2: #f7c948;  /* O(n) */
+    --cn3: #f48a3e;  /* O(n log n) */
+    --cn4: #e8485a;  /* O(n²) */
+    --cn5: #c94bdb;  /* O(2ⁿ) */
+    --cn6: #ff3366;  /* O(n!) */
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', 'Noto Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 60px 40px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-weight: 300;
+    color: var(--muted);
+    margin-top: 12px;
+    font-size: 16px;
+    max-width: 500px;
+    line-height: 1.7;
+  }
+
+  /* ── Layout ── */
+  main {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* ── Chart section ── */
+  .chart-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .chart-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .toggle-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn.active {
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .toggle-btn[data-o="O1"].active  { background: var(--c1); }
+  .toggle-btn[data-o="Ologn"].active { background: var(--cn); color: #111; }
+  .toggle-btn[data-o="On"].active  { background: var(--cn2); color: #111; }
+  .toggle-btn[data-o="Onlogn"].active { background: var(--cn3); }
+  .toggle-btn[data-o="On2"].active  { background: var(--cn4); }
+  .toggle-btn[data-o="O2n"].active  { background: var(--cn5); }
+  .toggle-btn[data-o="Onfact"].active { background: var(--cn6); }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 340px;
+  }
+
+  canvas#bigochart {
+    width: 100% !important;
+    height: 340px !important;
+    border-radius: 8px;
+  }
+
+  .n-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .n-slider-wrap label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  #nval {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ── Cards grid ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.25s, transform 0.25s;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .card-notation {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .card-name {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .card-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-best { background: rgba(78,205,196,0.15); color: var(--cn); border: 1px solid rgba(78,205,196,0.3); }
+  .badge-good { background: rgba(124,106,247,0.15); color: var(--c1); border: 1px solid rgba(124,106,247,0.3); }
+  .badge-fair { background: rgba(247,201,72,0.15); color: var(--cn2); border: 1px solid rgba(247,201,72,0.3); }
+  .badge-bad  { background: rgba(232,72,90,0.15); color: var(--cn4); border: 1px solid rgba(232,72,90,0.3); }
+  .badge-worst{ background: rgba(201,75,219,0.15); color: var(--cn5); border: 1px solid rgba(201,75,219,0.3); }
+  .badge-evil { background: rgba(255,51,102,0.15); color: var(--cn6); border: 1px solid rgba(255,51,102,0.3); }
+
+  .card-desc {
+    padding: 0 24px 16px;
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .card-bar-wrap {
+    padding: 0 24px 20px;
+  }
+
+  .card-bar {
+    height: 4px;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  /* Code block */
+  .card-code {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  .card-code.open {
+    max-height: 500px;
+  }
+
+  .code-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    user-select: none;
+    border-top: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+
+  .code-toggle:hover { color: var(--text); }
+
+  .code-toggle .arrow {
+    transition: transform 0.3s;
+    font-size: 10px;
+  }
+
+  .code-toggle.open .arrow { transform: rotate(180deg); }
+
+  pre {
+    padding: 20px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #c8c8e8;
+    overflow-x: auto;
+    tab-size: 4;
+  }
+
+  .kw { color: #c084fc; }
+  .fn { color: #7dd3fc; }
+  .str { color: #86efac; }
+  .cm { color: #4a4a68; font-style: italic; }
+  .num { color: #fda4af; }
+
+  /* ── Complexity table ── */
+  .table-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 40px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    font-weight: 400;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(42,42,56,0.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  tr:last-child td { border-bottom: none; }
+
+  .speed-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    header, main { padding-left: 20px; padding-right: 20px; }
+    h1 { letter-spacing: -1px; }
+    .chart-section, .table-section { padding: 20px; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  header { animation: fadeUp 0.6s ease both; }
+  .chart-section { animation: fadeUp 0.6s 0.1s ease both; }
+  .card:nth-child(1) { animation: fadeUp 0.5s 0.15s ease both; }
+  .card:nth-child(2) { animation: fadeUp 0.5s 0.2s  ease both; }
+  .card:nth-child(3) { animation: fadeUp 0.5s 0.25s ease both; }
+  .card:nth-child(4) { animation: fadeUp 0.5s 0.3s  ease both; }
+  .card:nth-child(5) { animation: fadeUp 0.5s 0.35s ease both; }
+  .card:nth-child(6) { animation: fadeUp 0.5s 0.4s  ease both; }
+  .card:nth-child(7) { animation: fadeUp 0.5s 0.45s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Week 3 · Algorithm Analysis</div>
+  <h1>Big O<br>Notation</h1>
+  <p class="subtitle">มาตรฐานการวัดความเร็วของอัลกอริทึม — เรียนรู้ผ่านการ Visualize และตัวอย่างโค้ด Python</p>
+</header>
+
+<main>
+
+  <!-- Chart -->
+  <div class="chart-section">
+    <div class="section-title">/ Complexity Visualizer</div>
+    <div class="chart-controls">
+      <button class="toggle-btn active" data-o="O1">O(1)</button>
+      <button class="toggle-btn active" data-o="Ologn">O(log n)</button>
+      <button class="toggle-btn active" data-o="On">O(n)</button>
+      <button class="toggle-btn active" data-o="Onlogn">O(n log n)</button>
+      <button class="toggle-btn active" data-o="On2">O(n²)</button>
+      <button class="toggle-btn active" data-o="O2n">O(2ⁿ)</button>
+      <button class="toggle-btn active" data-o="Onfact">O(n!)</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="bigochart"></canvas>
+    </div>
+    <div class="n-slider-wrap">
+      <label>MAX n =</label>
+      <input type="range" id="nslider" min="5" max="20" value="12" step="1">
+      <span id="nval">12</span>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="section-title" style="margin-bottom:20px;">/ Complexity Types</div>
+  <div class="cards-grid" id="cards"></div>
+
+  <!-- Table -->
+  <div class="table-section">
+    <div class="section-title">/ Comparison Table</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Notation</th>
+          <th>Name</th>
+          <th>n = 10</th>
+          <th>n = 100</th>
+          <th>n = 1,000</th>
+          <th>Performance</th>
+          <th>Use Case</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>Built for CS Education · Big O Notation Interactive Guide</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const DATA = [
+  {
+    key: 'O1',
+    notation: 'O(1)',
+    name: 'Constant',
+    color: '#7c6af7',
+    badgeClass: 'badge-good',
+    badgeText: 'Excellent',
+    desc: 'เวลาทำงานคงที่ ไม่ว่า Input จะมีขนาดเท่าไหร่ก็ตาม เป็นประเภทที่ดีมาก ตัวอย่างเช่น การเข้าถึงสมาชิกใน Array ด้วย Index',
+    barWidth: 5,
+    fn: n => 1,
+    t10: '1', t100: '1', t1000: '1',
+    perf: 'Excellent',
+    use: 'Array access, Hash lookup',
+    code: `<span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">evenOdd</span>(number):
+    <span class="kw">if</span> (number % <span class="num">2</span>) == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="kw">False</span>
+
+user_input = <span class="fn">int</span>(<span class="fn">input</span>())
+start_time = time.time()
+<span class="fn">print</span>(f<span class="str">"{user_input} is even: {evenOdd(user_input)}"</span>)
+<span class="fn">print</span>(f<span class="str">"Time: {(time.time() - start_time) * 1000:.2f} ms"</span>)`
+  },
+  {
+    key: 'Ologn',
+    notation: 'O(log n)',
+    name: 'Logarithmic',
+    color: '#4ecdc4',
+    badgeClass: 'badge-best',
+    badgeText: 'Very Good',
+    desc: 'ลดจำนวนการทำงานลงครึ่งหนึ่งในแต่ละรอบ มักพบใน Binary Search — ค้นหาตำแหน่งของตัวเลขใน Sorted Array ได้อย่างรวดเร็ว',
+    barWidth: 12,
+    fn: n => Math.log2(n),
+    t10: '≈3', t100: '≈7', t1000: '≈10',
+    perf: 'Very Good',
+    use: 'Binary Search, Balanced BST',
+    code: `<span class="kw">def</span> <span class="fn">binarySearch</span>(arr, value, first, last):
+    <span class="kw">if</span> last >= first:
+        mid = first + (last - first) // <span class="num">2</span>
+        <span class="kw">if</span> arr[mid] == value:
+            <span class="kw">return</span> mid
+        <span class="kw">elif</span> arr[mid] > value:
+            <span class="kw">return</span> <span class="fn">binarySearch</span>(arr, value, first, mid - <span class="num">1</span>)
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="fn">binarySearch</span>(arr, value, mid + <span class="num">1</span>, last)
+    <span class="kw">else</span>:
+        <span class="kw">return</span> -<span class="num">1</span>
+
+numArray = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">7</span>, <span class="num">10</span>, <span class="num">22</span>, <span class="num">31</span>]
+result = <span class="fn">binarySearch</span>(numArray, <span class="num">22</span>, <span class="num">0</span>, <span class="fn">len</span>(numArray) - <span class="num">1</span>)`
+  },
+  {
+    key: 'On',
+    notation: 'O(n)',
+    name: 'Linear',
+    color: '#f7c948',
+    badgeClass: 'badge-fair',
+    badgeText: 'Good',
+    desc: 'เวลาทำงานเพิ่มขึ้นตามจำนวน Input ใช้งานได้ดี ตัวอย่างเช่น Linear Search — ค้นหาข้อมูลโดยไม่มีการเรียงลำดับก่อน',
+    barWidth: 25,
+    fn: n => n,
+    t10: '10', t100: '100', t1000: '1,000',
+    perf: 'Good',
+    use: 'Linear Search, Single loop',
+    code: `<span class="kw">def</span> <span class="fn">searchNumber</span>(arr, value):
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(arr)):
+        <span class="kw">if</span>(arr[i] == value):
+            <span class="kw">return</span> i
+    <span class="kw">return</span> -<span class="num">1</span>
+
+<span class="cm"># ค้นหาเลข 1 ใน array แบบ Linear</span>
+numArray = [<span class="num">5</span>, <span class="num">3</span>, <span class="num">8</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">2</span>]
+result = <span class="fn">searchNumber</span>(numArray, <span class="num">1</span>)
+<span class="fn">print</span>(f<span class="str">"Found at index: {result}"</span>)`
+  },
+  {
+    key: 'Onlogn',
+    notation: 'O(n log n)',
+    name: 'Linearithmic',
+    color: '#f48a3e',
+    badgeClass: 'badge-fair',
+    badgeText: 'Acceptable',
+    desc: 'วนซ้ำ n รอบและภายในมี log n รอบอยู่ด้วย มักพบใน Merge Sort และ Heap Sort ถือเป็นระดับกลาง ๆ',
+    barWidth: 40,
+    fn: n => n * Math.log2(n),
+    t10: '≈33', t100: '≈664', t1000: '≈9,966',
+    perf: 'Acceptable',
+    use: 'Merge Sort, Heap Sort',
+    code: `<span class="kw">def</span> <span class="fn">mergeSort</span>(arr, l, r):
+    <span class="kw">if</span> l < r:
+        m = l + (r - l) // <span class="num">2</span>
+        <span class="fn">mergeSort</span>(arr, l, m)
+        <span class="fn">mergeSort</span>(arr, m + <span class="num">1</span>, r)
+        <span class="fn">merge</span>(arr, l, m, r)
+
+<span class="kw">def</span> <span class="fn">merge</span>(arr, l, m, r):
+    L = arr[l:m+<span class="num">1</span>]
+    R = arr[m+<span class="num">1</span>:r+<span class="num">1</span>]
+    i = j = <span class="num">0</span>; k = l
+    <span class="kw">while</span> i < <span class="fn">len</span>(L) <span class="kw">and</span> j < <span class="fn">len</span>(R):
+        <span class="kw">if</span> L[i] <= R[j]: arr[k] = L[i]; i += <span class="num">1</span>
+        <span class="kw">else</span>: arr[k] = R[j]; j += <span class="num">1</span>
+        k += <span class="num">1</span>`
+  },
+  {
+    key: 'On2',
+    notation: 'O(n²)',
+    name: 'Quadratic',
+    color: '#e8485a',
+    badgeClass: 'badge-bad',
+    badgeText: 'Slow',
+    desc: 'เวลาทำงานเพิ่มเป็น n² ซึ่งเริ่มช้ามาก มักเกิดจาก Loop ซ้อน Loop ตัวอย่างเช่น การค้นหาข้อมูลที่ซ้ำกันภายใน Array',
+    barWidth: 60,
+    fn: n => n * n,
+    t10: '100', t100: '10,000', t1000: '1,000,000',
+    perf: 'Slow',
+    use: 'Bubble Sort, Nested loops',
+    code: `<span class="kw">def</span> <span class="fn">duplicateCheck</span>(arr):
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(arr)):
+        a = arr[i]
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i+<span class="num">1</span>, <span class="fn">len</span>(arr)):
+            b = arr[j]
+            <span class="kw">if</span>(a == b):
+                <span class="kw">return</span> <span class="str">"duplicated"</span>
+    <span class="kw">return</span> <span class="str">"not duplicate"</span>
+
+numArray = [<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">9</span>]
+<span class="fn">print</span>(<span class="fn">duplicateCheck</span>(numArray))`
+  },
+  {
+    key: 'O2n',
+    notation: 'O(2ⁿ)',
+    name: 'Exponential',
+    color: '#c94bdb',
+    badgeClass: 'badge-worst',
+    badgeText: 'Very Slow',
+    desc: 'เข้าขั้นวิกฤต ข้อมูลเพียงแค่เพิ่มขึ้นนิดเดียวก็ทำให้เวลาทำงานเพิ่มขึ้นมหาศาล ตัวอย่างคือ Fibonacci แบบ Recursive',
+    barWidth: 80,
+    fn: n => Math.pow(2, n),
+    t10: '1,024', t100: '1.27×10³⁰', t1000: '∞',
+    perf: 'Very Slow',
+    use: 'Naive Fibonacci, Brute force',
+    code: `<span class="kw">def</span> <span class="fn">fibonacci</span>(n):
+    <span class="kw">if</span> n == <span class="num">1</span>:
+        <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">elif</span> n == <span class="num">2</span>:
+        <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> (<span class="fn">fibonacci</span>(n-<span class="num">1</span>) + <span class="fn">fibonacci</span>(n-<span class="num">2</span>))
+
+<span class="fn">print</span>(<span class="fn">fibonacci</span>(<span class="num">5</span>))   <span class="cm"># 3</span>
+<span class="fn">print</span>(<span class="fn">fibonacci</span>(<span class="num">10</span>))  <span class="cm"># 34</span>`
+  },
+  {
+    key: 'Onfact',
+    notation: 'O(n!)',
+    name: 'Factorial',
+    color: '#ff3366',
+    badgeClass: 'badge-evil',
+    badgeText: 'Worst',
+    desc: 'เลวร้ายที่สุดในบรรดา Big O ทั้งหมด ตัวอย่างในชีวิตจริงคือการคำนวณค่า Factorial และ Travelling Salesman แบบ Brute Force',
+    barWidth: 100,
+    fn: n => { let r=1; for(let i=2;i<=n;i++) r*=i; return r; },
+    t10: '3,628,800', t100: '∞', t1000: '∞',
+    perf: 'Worst',
+    use: 'Permutations, TSP brute force',
+    code: `<span class="kw">def</span> <span class="fn">factorial</span>(num):
+    <span class="kw">if</span>(num == <span class="num">1</span>):
+        <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, num):
+        <span class="kw">return</span> num * <span class="fn">factorial</span>(num - <span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="num">9</span>))  <span class="cm"># 362880</span>`
+  }
+];
+
+// ── Render Cards ──
+const cardsEl = document.getElementById('cards');
+DATA.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.key = d.key;
+  card.style.borderColor = d.color + '22';
+  card.innerHTML = `
+    <div class="card-header">
+      <div>
+        <div class="card-notation" style="color:${d.color}">${d.notation}</div>
+        <div class="card-name">${d.name}</div>
+      </div>
+      <span class="card-badge ${d.badgeClass}">${d.badgeText}</span>
+    </div>
+    <div class="card-desc">${d.desc}</div>
+    <div class="card-bar-wrap">
+      <div class="card-bar" style="background:${d.color}33; width:0%" data-w="${d.barWidth}"></div>
+    </div>
+    <div class="code-toggle" onclick="toggleCode(this)">
+      <span>VIEW PYTHON CODE</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="card-code">
+      <pre>${d.code}</pre>
+    </div>
+  `;
+  cardsEl.appendChild(card);
+});
+
+// Animate bars
+setTimeout(() => {
+  document.querySelectorAll('.card-bar').forEach(b => {
+    b.style.width = b.dataset.w + '%';
+  });
+}, 300);
+
+function toggleCode(btn) {
+  const code = btn.nextElementSibling;
+  code.classList.toggle('open');
+  btn.classList.toggle('open');
+  btn.querySelector('span:first-child').textContent =
+    code.classList.contains('open') ? 'HIDE CODE' : 'VIEW PYTHON CODE';
+}
+
+// ── Table ──
+const tbody = document.getElementById('tableBody');
+DATA.forEach(d => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="speed-dot" style="background:${d.color}"></span>${d.notation}</td>
+    <td style="color:${d.muted}">${d.name}</td>
+    <td>${d.t10}</td>
+    <td>${d.t100}</td>
+    <td>${d.t1000}</td>
+    <td><span class="card-badge ${d.badgeClass}" style="font-size:10px">${d.perf}</span></td>
+    <td style="color:var(--muted);font-size:11px">${d.use}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ── Chart ──
+const ctx = document.getElementById('bigochart').getContext('2d');
+let maxN = 12;
+let visible = { O1:true, Ologn:true, On:true, Onlogn:true, On2:true, O2n:true, Onfact:true };
+
+function getPoints(fn, n) {
+  return Array.from({length: n+1}, (_, i) => ({x: i, y: fn(i)}));
+}
+
+function buildDatasets() {
+  const cap = 1e6;
+  return DATA.map(d => ({
+    label: d.notation,
+    data: getPoints(d.fn, maxN).map(p => ({x:p.x, y: Math.min(p.y, cap)})),
+    borderColor: d.color,
+    backgroundColor: d.color + '18',
+    borderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    tension: 0.3,
+    fill: false,
+    hidden: !visible[d.key],
+  }));
+}
+
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: { datasets: buildDatasets() },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: {
+        type: 'linear',
+        title: { display: true, text: 'n (Input Size)', color: '#6b6b88', font: { family: 'DM Mono', size: 11 } },
+        grid: { color: '#1e1e2a' },
+        ticks: { color: '#6b6b88', font: { family: 'DM Mono', size: 11 } },
+        min: 0, max: maxN,
+      },
+      y: {
+        type: 'linear',
+        title: { display: true, text: 'Operations', color: '#6b6b88', font: { family: 'DM Mono', size: 11 } },
+        grid: { color: '#1e1e2a' },
+        ticks: { color: '#6b6b88', font: { family: 'DM Mono', size: 11 },
+          callback: v => v >= 1e6 ? (v/1e6).toFixed(0)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v
+        },
+        min: 0,
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: '#6b6b88', font: { family: 'DM Mono', size: 11 }, boxWidth: 14, padding: 16 }
+      },
+      tooltip: {
+        backgroundColor: '#1a1a24',
+        borderColor: '#2a2a38',
+        borderWidth: 1,
+        titleFont: { family: 'DM Mono', size: 12 },
+        bodyFont: { family: 'DM Mono', size: 12 },
+        titleColor: '#e8e8f0',
+        bodyColor: '#6b6b88',
+        callbacks: {
+          label: ctx => {
+            let v = ctx.parsed.y;
+            let s = v >= 1e6 ? (v/1e6).toFixed(2)+'M' : v >= 1000 ? (v/1000).toFixed(1)+'K' : v.toFixed(2);
+            return ` ${ctx.dataset.label}: ${s}`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// Toggle buttons
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.o;
+    visible[key] = !visible[key];
+    btn.classList.toggle('active', visible[key]);
+    chart.data.datasets.forEach((ds, i) => {
+      if (DATA[i].key === key) ds.hidden = !visible[key];
+    });
+    chart.update();
+  });
+});
+
+// Slider
+const slider = document.getElementById('nslider');
+const nvalEl = document.getElementById('nval');
+slider.addEventListener('input', () => {
+  maxN = +slider.value;
+  nvalEl.textContent = maxN;
+  chart.options.scales.x.max = maxN;
+  chart.data.datasets = buildDatasets();
+  chart.update();
+});
+</script>
+</body>
+</html>

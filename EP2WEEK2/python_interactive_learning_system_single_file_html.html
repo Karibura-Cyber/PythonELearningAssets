@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Interactive Learning System</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a2e; --panel2:#0c1628; --text:#e8eefc; --muted:#9bb0da;
+      --accent:#5eead4; --accent2:#60a5fa; --danger:#fb7185; --warn:#fbbf24; --ok:#34d399;
+      --border:rgba(255,255,255,.08);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 900px at 20% 10%, rgba(94,234,212,.12), transparent 55%),
+                  radial-gradient(900px 600px at 80% 15%, rgba(96,165,250,.10), transparent 50%),
+                  radial-gradient(1000px 700px at 60% 90%, rgba(251,191,36,.06), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+    a{color:inherit}
+
+    .app{display:grid; grid-template-columns: 340px 1fr; height:100%}
+
+    /* Sidebar */
+    .sidebar{
+      border-right:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      padding:18px;
+      overflow:auto;
+    }
+    .brand{display:flex; gap:12px; align-items:center; padding:8px 10px; border-radius:14px;}
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(94,234,212,.85), rgba(96,165,250,.85));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      color:#04101e; font-weight:900;
+    }
+    .brand h1{font-size:16px; margin:0; line-height:1.1}
+    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+
+    .pillrow{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 10px;}
+    .pill{font-size:12px; color:var(--muted); border:1px solid var(--border); padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.02)}
+    .pill strong{color:var(--text)}
+
+    .search{margin:12px 0 10px;}
+    .search input{
+      width:100%; padding:10px 12px;
+      border-radius:12px; border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      color:var(--text);
+      outline:none;
+    }
+    .search input::placeholder{color:rgba(155,176,218,.7)}
+
+    .sectionTitle{margin:14px 8px 8px; color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase}
+
+    .lessonList{display:flex; flex-direction:column; gap:10px; padding:6px 2px 20px;}
+    .lessonCard{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius:16px;
+      padding:12px;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+    }
+    .lessonCard:hover{transform: translateY(-1px); background: rgba(255,255,255,.03)}
+    .lessonCard.active{border-color: rgba(94,234,212,.45); background: rgba(94,234,212,.06)}
+    .lessonTop{display:flex; justify-content:space-between; align-items:center; gap:10px}
+    .lessonTitle{font-size:14px; margin:0;}
+    .tag{font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted)}
+    .lessonMeta{margin-top:6px; font-size:12px; color:var(--muted); display:flex; gap:10px; align-items:center}
+    .dot{width:6px; height:6px; border-radius:999px; background: rgba(155,176,218,.5)}
+    .dot.done{background: var(--ok)}
+
+    .sidebarFooter{
+      position:sticky; bottom:0; padding:12px 0 2px;
+      background: linear-gradient(180deg, transparent, rgba(11,18,32,.92) 25%, rgba(11,18,32,1));
+    }
+    .progressBar{height:10px; border-radius:999px; background: rgba(255,255,255,.06); border:1px solid var(--border); overflow:hidden}
+    .progressFill{height:100%; width:0%; background: linear-gradient(90deg, rgba(94,234,212,.9), rgba(96,165,250,.9));}
+    .progressText{margin:10px 2px 0; font-size:12px; color:var(--muted)}
+
+    /* Main */
+    .main{display:flex; flex-direction:column; height:100%; overflow:hidden;}
+
+    .topbar{
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+    }
+    .topbar h2{margin:0; font-size:16px}
+    .topbar .sub{margin:2px 0 0; font-size:12px; color:var(--muted)}
+
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      appearance:none; border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      display:inline-flex; gap:8px; align-items:center;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.03)}
+    .btn.primary{border-color: rgba(94,234,212,.45); background: rgba(94,234,212,.10)}
+    .btn.danger{border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.10)}
+
+    .content{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; padding:14px; height:100%; overflow:hidden;}
+
+    .panel{border:1px solid var(--border); background: rgba(255,255,255,.02); border-radius:var(--radius); box-shadow: var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:0;}
+    .panelHead{padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .panelHead .title{font-size:13px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase}
+    .panelBody{padding:14px; overflow:auto; min-height:0}
+
+    .lessonIntro h3{margin:0 0 10px; font-size:18px}
+    .lessonIntro p{margin:0 0 10px; color:var(--muted); line-height:1.55}
+    .callout{
+      border:1px solid rgba(96,165,250,.35);
+      background: rgba(96,165,250,.08);
+      padding:12px;
+      border-radius:14px;
+      color: rgba(232,238,252,.92);
+      margin:10px 0 14px;
+    }
+    .callout small{color:rgba(232,238,252,.72)}
+
+    .grid{display:grid; gap:12px}
+    .card{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius:16px;
+      padding:12px;
+    }
+    .card h4{margin:0 0 8px; font-size:14px}
+    .card p{margin:0 0 10px; color:var(--muted); line-height:1.55; font-size:13px}
+    .kbd{font-family:var(--mono); font-size:12px; padding:2px 6px; border-radius:8px; border:1px solid var(--border); background: rgba(255,255,255,.02)}
+
+    .editorWrap{display:flex; flex-direction:column; gap:10px; height:100%; min-height:0}
+    .editor{
+      width:100%;
+      flex:1;
+      min-height:260px;
+      resize:none;
+      font-family:var(--mono);
+      font-size:13px;
+      line-height:1.55;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(12,22,40,.65);
+      color:var(--text);
+      outline:none;
+      tab-size:2;
+    }
+
+    .split{display:grid; grid-template-columns: 1fr; gap:10px; min-height:0}
+
+    .output{
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.5;
+      white-space:pre-wrap;
+      background: rgba(12,22,40,.6);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      min-height:150px;
+      overflow:auto;
+    }
+
+    .statusLine{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap}
+    .statusBadge{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted)}
+    .statusBadge.ok{border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.10); color: rgba(232,238,252,.92)}
+    .statusBadge.bad{border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.10); color: rgba(232,238,252,.92)}
+    .statusBadge.warn{border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.10); color: rgba(232,238,252,.92)}
+
+    details{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background: rgba(255,255,255,.02)}
+    details summary{cursor:pointer; color:rgba(232,238,252,.92);}
+    details p{color:var(--muted); margin:10px 0 0; font-size:13px; line-height:1.55}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      padding:10px 12px; border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(15,26,46,.92);
+      box-shadow: var(--shadow);
+      font-size:13px;
+      color: rgba(232,238,252,.92);
+      opacity:0; pointer-events:none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-2px)}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      body{overflow:auto}
+      .app{grid-template-columns:1fr; height:auto; min-height:100%}
+      .sidebar{position:relative}
+      .main{height:auto}
+      .content{grid-template-columns:1fr; height:auto}
+      .panel{min-height:420px}
+    }
+  
+    /* Interactive widgets */
+    .widget{border:1px solid var(--border); background: rgba(255,255,255,.02); border-radius:16px; padding:12px; margin:12px 0;}
+    .widget h4{margin:0 0 10px; font-size:14px}
+    .widgetGrid{display:grid; grid-template-columns: 1fr; gap:10px}
+    .widgetRow{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+    .widgetRow label{font-size:12px; color:var(--muted)}
+    .widgetRow input, .widgetRow select{
+      padding:8px 10px; border-radius:12px; border:1px solid var(--border);
+      background: rgba(255,255,255,.02); color:var(--text);
+      outline:none; font-family:var(--mono); font-size:12px;
+    }
+    .miniBtn{padding:8px 10px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.02);
+      color:var(--text); cursor:pointer; font-size:12px; display:inline-flex; align-items:center; gap:6px;
+    }
+    .miniBtn:hover{background: rgba(255,255,255,.03)}
+    .miniBtn.ok{border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.10)}
+    .miniBtn.warn{border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.10)}
+    .miniBtn.bad{border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.10)}
+    .chipBar{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+    .chip{font-family:var(--mono); font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border);
+      background: rgba(12,22,40,.55); color: rgba(232,238,252,.92)}
+    .chip .idx{color: rgba(155,176,218,.9)}
+    .chip.highlight{border-color: rgba(94,234,212,.55); background: rgba(94,234,212,.12)}
+    .widgetNote{font-size:12px; color:var(--muted); line-height:1.55}
+    .twoCol{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .setBox{border:1px solid var(--border); border-radius:14px; padding:10px; background: rgba(12,22,40,.5)}
+    .setBox h5{margin:0 0 6px; font-size:12px; color:rgba(232,238,252,.9)}
+    .setView{font-family:var(--mono); font-size:12px; color:rgba(232,238,252,.92); white-space:pre-wrap}
+    .resultBox{border:1px solid rgba(96,165,250,.35); background: rgba(96,165,250,.08); border-radius:14px; padding:10px}
+    .resultBox h5{margin:0 0 6px; font-size:12px; color:rgba(232,238,252,.92)}
+    .resultBox .setView{color: rgba(232,238,252,.95)}
+
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+    <aside class="sidebar" aria-label="Lesson navigation">
+      <div class="brand" title="Single-file learning app">
+        <div class="logo">Py</div>
+        <div>
+          <h1>Python Interactive Learning</h1>
+          <p>Lists, Slicing, LC, Matrix — practice + auto-check</p>
+        </div>
+      </div>
+
+      <div class="pillrow">
+        <div class="pill"><strong id="pyStatus">Python</strong>: <span id="pyStatusText">Loading…</span></div>
+        <div class="pill"><strong id="saveStatus">Save</strong>: <span id="saveStatusText">Local</span></div>
+      </div>
+
+      <div class="search">
+        <input id="search" type="text" placeholder="Search lessons (e.g., slicing, matrix)" autocomplete="off" />
+      </div>
+
+      <div class="sectionTitle">Curriculum</div>
+      <div id="lessonList" class="lessonList"></div>
+
+      <div class="sidebarFooter">
+        <div class="progressBar" aria-label="Course progress">
+          <div id="progressFill" class="progressFill"></div>
+        </div>
+        <div id="progressText" class="progressText">Progress: 0/0</div>
+      </div>
+    </aside>
+
+    <main class="main" aria-label="Learning workspace">
+      <header class="topbar">
+        <div>
+          <h2 id="lessonHeader">—</h2>
+          <div class="sub" id="lessonSub">Select a lesson from the left.</div>
+        </div>
+        <div class="btnRow">
+          <button class="btn" id="btnReset" title="Reset editor to starter code">↺ Reset</button>
+          <button class="btn" id="btnSave" title="Save your code">💾 Save</button>
+          <button class="btn primary" id="btnRun" title="Run code">▶ Run</button>
+          <button class="btn primary" id="btnCheck" title="Run tests">✅ Check</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="panel" aria-label="Lesson">
+          <div class="panelHead">
+            <div class="title">Lesson</div>
+            <div class="statusBadge" id="lessonBadge">Not started</div>
+          </div>
+          <div class="panelBody" id="lessonBody"></div>
+        </div>
+
+        <div class="panel" aria-label="Practice">
+          <div class="panelHead">
+            <div class="title">Practice</div>
+            <div class="statusBadge" id="runBadge">—</div>
+          </div>
+          <div class="panelBody">
+            <div class="editorWrap">
+              <textarea id="editor" class="editor" spellcheck="false" aria-label="Python code editor"></textarea>
+              <div class="split">
+                <div>
+                  <div class="statusLine">
+                    <div class="statusBadge" id="testBadge">Ready</div>
+                    <div class="statusBadge" id="hintBadge">Hints available</div>
+                  </div>
+                </div>
+                <div class="output" id="output" aria-label="Program output"></div>
+                <details id="hints" open>
+                  <summary>Hints</summary>
+                  <div id="hintBody"></div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Pyodide (Python in the browser). If it fails to load, the app still works as a reading + quiz tool. -->
+  <script>
+    // Note: This is optional. The app falls back gracefully if unavailable.
+    // You can change the version if needed.
+    const PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
+  </script>
+  <script>
+    /**
+     * Single-file Python learning system.
+     * - Lessons + practice
+     * - Auto-check (unit-style tests)
+     * - Progress persistence in localStorage
+     *
+     * Tip: If you host this file, ensure internet access for Pyodide.
+     */
+
+    // -----------------------
+    // Curriculum
+    // -----------------------
+    const lessons = [
+      {
+        id: "list-methods",
+        title: "List Methods (append/pop/insert/remove)",
+        tag: "Lists",
+        minutes: 12,
+        summary: "Manipulate a list like a stack/queue and update inventory.",
+        concepts: ["Index starts at 0", ".append(x)", ".pop()", ".insert(i, x)", ".remove(x)"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>List Methods: your ‘magic box’</h3>
+            <p>A <span class="kbd">list</span> stores multiple values in order. You can add, remove, and insert items.</p>
+            <div class="callout">
+              <div><strong>Core methods to remember</strong></div>
+              <small>append = add to end • pop = remove last • insert = add at position • remove = delete first match</small>
+            </div>
+            <div class="grid">
+              <div class="card">
+                <h4>Mini example</h4>
+                <p><span class="kbd">shopping = ["Milk", "Bread", "Eggs"]</span></p>
+                <p>Then <span class="kbd">shopping.append("Cheese")</span> adds an item at the end.</p>
+              </div>
+              <div class="card">
+                <h4>Your task</h4>
+                <p>Write a function <span class="kbd">process(commands)</span> that starts with a list <span class="kbd">stock</span> and processes commands:</p>
+                <p><span class="kbd">ADD X</span>, <span class="kbd">POP</span>, <span class="kbd">INSERT i X</span>, <span class="kbd">REMOVE X</span>.</p>
+                <p>Return the final <span class="kbd">stock</span>.</p>
+              </div>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p>Use <span class="kbd">split()</span> to parse each command line.</p>
+          <p><span class="kbd">INSERT i X</span>: convert <span class="kbd">i</span> to int before calling <span class="kbd">insert</span>.</p>
+          <p>If <span class="kbd">POP</span> is called on an empty list, do nothing.</p>
+        `,
+        starter: `# List Methods Practice
+# Implement process(commands) -> list
+# commands is a list of strings.
+# The stock starts with: ["A", "B", "C"]
+
+from typing import List
+
+def process(commands: List[str]) -> List[str]:
+    stock = ["A", "B", "C"]
+    # TODO: implement
+    return stock
+
+# Optional: try your own
+if __name__ == "__main__":
+    cmds = ["ADD D", "POP", "INSERT 1 X", "REMOVE B"]
+    print(process(cmds))
+`,
+        tests: `
+# --- tests for list-methods ---
+from typing import List
+
+def _run():
+    out = []
+
+    # test 1
+    cmds = ["ADD D", "ADD E"]
+    got = process(cmds)
+    assert got == ["A","B","C","D","E"], f"Expected A B C D E, got {got}"
+
+    # test 2
+    cmds = ["POP", "POP", "POP", "POP"]
+    got = process(cmds)
+    assert got == [], f"Expected empty list, got {got}"
+
+    # test 3
+    cmds = ["INSERT 0 Z", "INSERT 2 Y"]
+    got = process(cmds)
+    assert got == ["Z","A","Y","B","C"], f"Insert failed: {got}"
+
+    # test 4
+    cmds = ["REMOVE B", "REMOVE Q"]
+    got = process(cmds)
+    assert got == ["A","C"], f"Remove failed: {got}"
+
+    return "All tests passed ✅"
+
+_run()
+`
+      },
+      {
+        id: "slicing",
+        title: "Slicing (step, reverse, sub-slice)",
+        tag: "Slicing",
+        minutes: 12,
+        summary: "Extract patterns with [start:stop:step] and reverse strings/lists.",
+        concepts: ["list[:] copy", "[::2] step", "[::-1] reverse", "Negative indices"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>Slicing: cut data with superpowers</h3>
+            <p>Slicing uses <span class="kbd">[start:stop:step]</span>. Steps can jump through items or reverse the sequence.</p>
+            <div class="callout">
+              <div><strong>Patterns</strong></div>
+              <small><span class="kbd">data[::2]</span> picks even indices • <span class="kbd">data[::-1]</span> reverses • <span class="kbd">text[1::2]</span> picks odd indices</small>
+            </div>
+            <div class="card">
+              <h4>Your task (Decode)</h4>
+              <p>You receive an <em>encrypted</em> string. The true message is reversed. The <strong>key code</strong> is every character at odd indices of the original (index 1,3,5...).</p>
+              <p>Implement <span class="kbd">decode(encrypted)</span> that returns a tuple:</p>
+              <p><span class="kbd">(original_message, first_char, key_code)</span></p>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p>First, compute <span class="kbd">original = encrypted[::-1]</span>.</p>
+          <p>First character: <span class="kbd">original[0]</span></p>
+          <p>Key code: <span class="kbd">original[1::2]</span> (odd indices).</p>
+        `,
+        starter: `# Slicing Practice
+# Implement decode(encrypted) -> (original, first_char, key_code)
+
+from typing import Tuple
+
+def decode(encrypted: str) -> Tuple[str, str, str]:
+    # TODO
+    return "", "", ""
+
+if __name__ == "__main__":
+    print(decode("!evird a lliK"))
+`,
+        tests: `
+# --- tests for slicing ---
+
+def _run():
+    original, first, key = decode("!evird a lliK")
+    assert original == "Kill a drive!", f"Original wrong: {original}"
+    assert first == "K", f"First wrong: {first}"
+    assert key == "iladr!", f"Key wrong: {key}"
+
+    original, first, key = decode("cba")
+    assert original == "abc"
+    assert first == "a"
+    assert key == "b"
+
+    return "All tests passed ✅"
+
+_run()
+`
+      },
+      {
+        id: "list-comprehension",
+        title: "List Comprehension (filter + if/else)",
+        tag: "LC",
+        minutes: 14,
+        summary: "Create new lists in one line using loops and conditions.",
+        concepts: ["[expr for x in items]", "filter if", "inline if-else"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>List Comprehension (LC)</h3>
+            <p>LC builds a new list with a compact pattern. It’s like a factory: input items → transform/filter → output list.</p>
+            <div class="callout">
+              <div><strong>Two common forms</strong></div>
+              <small>
+                Filter: <span class="kbd">[expr for x in items if cond]</span><br />
+                If-Else: <span class="kbd">[a if cond else b for x in items]</span>
+              </small>
+            </div>
+            <div class="card">
+              <h4>Your task (E-sports selection)</h4>
+              <p>You get a list like <span class="kbd">[name1, score1, name2, score2, ...]</span>.</p>
+              <p>Return a list of names where:</p>
+              <p>• If score ≥ 70 → prefix with <span class="kbd">"[PRO] "</span><br />
+                 • Else → keep name (no score shown)</p>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p>Loop over indices 0,2,4,... using <span class="kbd">range(0, len(data), 2)</span>.</p>
+          <p>The score is at <span class="kbd">data[i+1]</span> (convert to int).</p>
+        `,
+        starter: `# List Comprehension Practice
+# Implement select_team(player_data)
+# player_data = [name1, score1, name2, score2, ...]
+
+from typing import List, Union
+
+def select_team(player_data: List[Union[str, int]]) -> List[str]:
+    # TODO
+    return []
+
+if __name__ == "__main__":
+    print(select_team(["A", 85, "B", 65, "C", 72, "D", 50]))
+`,
+        tests: `
+# --- tests for list-comprehension ---
+
+def _run():
+    got = select_team(["A", 85, "B", 65, "C", 72, "D", 50])
+    assert got == ["[PRO] A", "B", "[PRO] C", "D"], f"Got {got}"
+
+    got = select_team(["X", 70])
+    assert got == ["[PRO] X"], f"Got {got}"
+
+    got = select_team(["M", 0, "N", 99])
+    assert got == ["M", "[PRO] N"], f"Got {got}"
+
+    return "All tests passed ✅"
+
+_run()
+`
+      },
+      {
+        id: "matrix",
+        title: "Matrix (2D List) + indexing",
+        tag: "Matrix",
+        minutes: 14,
+        summary: "Work with rows/cols using matrix[row][col] and build grids.",
+        concepts: ["2D list", "matrix[row][col]", "nested LC", "grid init pitfalls"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>Matrix (2D List)</h3>
+            <p>A matrix is a list of lists. You access it with two indices: <span class="kbd">matrix[row][col]</span>.</p>
+            <div class="callout">
+              <div><strong>Grid building</strong></div>
+              <small>Use <span class="kbd">[[0]*M for _ in range(N)]</span> to avoid linked rows.</small>
+            </div>
+            <div class="card">
+              <h4>Your task (Manhattan distance on a grid)</h4>
+              <p>Given <span class="kbd">(r1, c1)</span> and <span class="kbd">(r2, c2)</span>, compute the Manhattan distance:</p>
+              <p><span class="kbd">abs(r2-r1) + abs(c2-c1)</span></p>
+              <p>Implement <span class="kbd">manhattan(r1, c1, r2, c2)</span> and return an integer.</p>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p>Use Python’s <span class="kbd">abs()</span>.</p>
+          <p>Distance = <span class="kbd">abs(r2 - r1) + abs(c2 - c1)</span>.</p>
+        `,
+        starter: `# Matrix/Grid Practice
+# Implement manhattan(r1, c1, r2, c2) -> int
+
+def manhattan(r1: int, c1: int, r2: int, c2: int) -> int:
+    # TODO
+    return 0
+
+if __name__ == "__main__":
+    print(manhattan(1,1,3,4))
+`,
+        tests: `
+# --- tests for matrix ---
+
+def _run():
+    assert manhattan(1,1,3,4) == 5
+    assert manhattan(5,2,5,8) == 6
+    assert manhattan(0,0,0,0) == 0
+    return "All tests passed ✅"
+
+_run()
+`
+      },
+      {
+        id: "matrix-bonus",
+        title: "Manhattan Distance + Bonus/Penalty", 
+        tag: "Challenge",
+        minutes: 10,
+        summary: "Add a rule: if target row+col are both even, subtract 2.",
+        concepts: ["conditionals", "even check", "max(0, x)"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>Challenge: Manhattan + Penalty rule</h3>
+            <p>Compute Manhattan distance, then apply a bonus:</p>
+            <div class="callout">
+              <div><strong>Rule</strong></div>
+              <small>If <span class="kbd">r2</span> and <span class="kbd">c2</span> are both even numbers, subtract 2 from the total distance.</small>
+            </div>
+            <div class="card">
+              <h4>Your task</h4>
+              <p>Implement <span class="kbd">manhattan_bonus(r1,c1,r2,c2)</span>.</p>
+              <p>Return an integer distance after applying the rule. Keep it non-negative.</p>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p>Even check: <span class="kbd">x % 2 == 0</span>.</p>
+          <p>Non-negative: <span class="kbd">max(0, value)</span>.</p>
+        `,
+        starter: `# Challenge Practice
+# Implement manhattan_bonus(r1, c1, r2, c2) -> int
+
+def manhattan_bonus(r1: int, c1: int, r2: int, c2: int) -> int:
+    # TODO
+    return 0
+
+if __name__ == "__main__":
+    print(manhattan_bonus(0,0,4,2))
+`,
+        tests: `
+# --- tests for matrix-bonus ---
+
+def _run():
+    # base distance = 6, both even target -> -2 => 4
+    assert manhattan_bonus(0,0,4,2) == 4
+    # base distance = 5, target col odd -> no bonus
+    assert manhattan_bonus(1,1,3,4) == 5
+    # base distance = 1, even-even -> subtract 2 but keep non-negative
+    assert manhattan_bonus(0,0,0,2) == 0
+    return "All tests passed ✅"
+
+_run()
+`
+      }
+          },
+      {
+        id: "set-basics",
+        title: "Set (unique items) + operations",
+        tag: "Set",
+        minutes: 12,
+        summary: "เข้าใจ set: เก็บค่าไม่ซ้ำ + union/intersection/difference.",
+        concepts: ["ไม่เก็บค่าซ้ำ", "ไม่มีลำดับ", "add/remove", "| & -"],
+        lessonHtml: `
+          <div class="lessonIntro">
+            <h3>Set: กล่องที่เก็บของ “ไม่ซ้ำ”</h3>
+            <p><span class="kbd">set</span> เหมาะมากสำหรับการเช็คสมาชิกเร็ว ๆ (เช่น <span class="kbd">x in s</span>) และการทำ operations ระหว่างกลุ่มข้อมูล</p>
+            <div class="callout">
+              <div><strong>จำไว้ 2 อย่าง</strong></div>
+              <small>1) ไม่เก็บค่าซ้ำ 2) ไม่มีลำดับ (order) — เลย “index” ไม่ได้</small>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h4>ตัวอย่างสั้น</h4>
+                <p><span class="kbd">s = {1,2,2,3}</span> → จะเหลือ <span class="kbd">{1,2,3}</span></p>
+                <p><span class="kbd">A | B</span> (union) รวมทุกตัวไม่ซ้ำ</p>
+                <p><span class="kbd">A & B</span> (intersection) เอาเฉพาะตัวที่ซ้ำกัน</p>
+              </div>
+              <div class="card">
+                <h4>Interactive (ลองเล่น)</h4>
+                <p>เพิ่ม/ลบสมาชิกใน Set A และ B แล้วลองกดปุ่มเพื่อดูผลลัพธ์แบบทันที</p>
+              </div>
+            </div>
+
+            <div class="widget" data-widget="set">
+              <h4>Set Playground</h4>
+              <div class="widgetGrid" data-set-ui>
+                <div class="twoCol">
+                  <div class="setBox">
+                    <h5>Set A</h5>
+                    <div class="setView" data-set-a-view></div>
+                  </div>
+                  <div class="setBox">
+                    <h5>Set B</h5>
+                    <div class="setView" data-set-b-view></div>
+                  </div>
+                </div>
+
+                <div class="widgetRow">
+                  <label>Value</label>
+                  <input data-set-value placeholder="e.g. 5 or apple" />
+                  <label>Target</label>
+                  <select data-set-target>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </select>
+                  <button class="miniBtn ok" data-set-add>＋ add</button>
+                  <button class="miniBtn bad" data-set-remove>－ remove</button>
+                  <button class="miniBtn" data-set-reset>↺ reset</button>
+                </div>
+
+                <div class="widgetRow">
+                  <button class="miniBtn" data-set-op="union">A | B (union)</button>
+                  <button class="miniBtn" data-set-op="intersect">A & B (intersection)</button>
+                  <button class="miniBtn" data-set-op="diffAB">A - B</button>
+                  <button class="miniBtn" data-set-op="diffBA">B - A</button>
+                </div>
+
+                <div class="resultBox">
+                  <h5>Result</h5>
+                  <div class="setView" data-set-result></div>
+                </div>
+
+                <div class="widgetNote">
+                  <strong>Tip:</strong> ถ้าอยากได้ list ที่เรียงแล้วจาก set ใช้ <span class="kbd">sorted(s)</span>.
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        hintHtml: `
+          <p><span class="kbd">set</span> ใช้ <span class="kbd">add(x)</span> เพื่อเพิ่ม และ <span class="kbd">discard(x)</span> เพื่อลบแบบไม่ error ถ้าไม่มีค่า</p>
+          <p>Operations: union = <span class="kbd">|</span>, intersection = <span class="kbd">&</span>, difference = <span class="kbd">-</span>.</p>
+        `,
+        starter: `# Set Practice
+# Implement unique_words(text) -> set of unique lowercase words
+
+import re
+
+def unique_words(text: str):
+    # TODO: split into words, lowercase, return a set
+    return set()
+
+if __name__ == "__main__":
+    print(unique_words("Apple apple banana BANANA orange"))
+`,
+        tests: `
+# --- tests for set-basics ---
+
+def _run():
+    got = unique_words("Apple apple banana BANANA orange")
+    assert got == {"apple","banana","orange"}, f"Expected three unique words, got {got}"
+
+    got = unique_words("Hi, hi!! HI...")
+    assert got == {"hi"}, f"Expected {{'hi'}}, got {got}"
+
+    return "All tests passed ✅"
+
+_run()
+`
+      }
+    ];
+
+    // -----------------------
+    // State + persistence
+    // -----------------------
+    const LS_PREFIX = "py_learn_v1";
+
+    function loadJSON(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch{ return fallback; }
+    }
+
+    function saveJSON(key, value){
+      try{ localStorage.setItem(key, JSON.stringify(value)); }catch{}
+    }
+
+    const state = {
+      activeLessonId: loadJSON(`${LS_PREFIX}:activeLessonId`, lessons[0]?.id || null),
+      lessonDone: loadJSON(`${LS_PREFIX}:lessonDone`, {}),
+      codeByLesson: loadJSON(`${LS_PREFIX}:codeByLesson`, {}),
+    };
+
+    // -----------------------
+    // DOM helpers
+    // -----------------------
+    const $ = (sel) => document.querySelector(sel);
+    const el = {
+      lessonList: $("#lessonList"),
+      search: $("#search"),
+      lessonHeader: $("#lessonHeader"),
+      lessonSub: $("#lessonSub"),
+      lessonBody: $("#lessonBody"),
+      editor: $("#editor"),
+      output: $("#output"),
+      hints: $("#hints"),
+      hintBody: $("#hintBody"),
+      lessonBadge: $("#lessonBadge"),
+      runBadge: $("#runBadge"),
+      testBadge: $("#testBadge"),
+      hintBadge: $("#hintBadge"),
+      progressFill: $("#progressFill"),
+      progressText: $("#progressText"),
+      btnReset: $("#btnReset"),
+      btnSave: $("#btnSave"),
+      btnRun: $("#btnRun"),
+      btnCheck: $("#btnCheck"),
+      pyStatusText: $("#pyStatusText"),
+      toast: $("#toast"),
+    };
+
+    function toast(msg){
+      el.toast.textContent = msg;
+      el.toast.classList.add("show");
+      window.clearTimeout(toast._t);
+      toast._t = window.setTimeout(()=> el.toast.classList.remove("show"), 1800);
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // -----------------------
+    // Render
+    // -----------------------
+    function computeProgress(){
+      const total = lessons.length;
+      const done = lessons.reduce((acc,l)=> acc + (state.lessonDone[l.id] ? 1 : 0), 0);
+      const pct = total ? Math.round((done/total)*100) : 0;
+      return {total, done, pct};
+    }
+
+    function renderProgress(){
+      const {total, done, pct} = computeProgress();
+      el.progressFill.style.width = `${pct}%`;
+      el.progressText.textContent = `Progress: ${done}/${total} (${pct}%)`;
+    }
+
+    function renderLessonList(filter=""){
+      el.lessonList.innerHTML = "";
+      const q = filter.trim().toLowerCase();
+
+      for(const lesson of lessons){
+        const hay = (lesson.title + " " + lesson.tag + " " + lesson.summary + " " + lesson.concepts.join(" ")).toLowerCase();
+        if(q && !hay.includes(q)) continue;
+
+        const card = document.createElement("div");
+        card.className = "lessonCard" + (lesson.id===state.activeLessonId ? " active" : "");
+        card.tabIndex = 0;
+        card.setAttribute("role","button");
+        card.setAttribute("aria-label", `Open lesson ${lesson.title}`);
+
+        const done = !!state.lessonDone[lesson.id];
+        card.innerHTML = `
+          <div class="lessonTop">
+            <h3 class="lessonTitle">${escapeHtml(lesson.title)}</h3>
+            <span class="tag">${escapeHtml(lesson.tag)}</span>
+          </div>
+          <div class="lessonMeta">
+            <span class="dot ${done ? "done" : ""}"></span>
+            <span>${escapeHtml(lesson.summary)}</span>
+          </div>
+          <div class="lessonMeta" style="margin-top:8px;">
+            <span class="kbd">~${lesson.minutes} min</span>
+            ${done ? `<span class="kbd" style="border-color: rgba(52,211,153,.45);">Completed</span>` : `<span class="kbd">Practice + Check</span>`}
+          </div>
+        `;
+
+        function open(){ setActiveLesson(lesson.id); }
+        card.addEventListener("click", open);
+        card.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault(); open();}});
+        el.lessonList.appendChild(card);
+      }
+    }
+
+    function getLesson(id){
+      return lessons.find(l=>l.id===id) || lessons[0];
+    }
+
+    function loadEditorForLesson(lesson){
+      const saved = state.codeByLesson[lesson.id];
+      el.editor.value = typeof saved === "string" ? saved : lesson.starter;
+    }
+
+    function renderActiveLesson(){
+      const lesson = getLesson(state.activeLessonId);
+
+      el.lessonHeader.textContent = lesson.title;
+      el.lessonSub.textContent = `${lesson.tag} • ${lesson.minutes} min • ${lesson.concepts.join(" • ")}`;
+      el.lessonBody.innerHTML = lesson.lessonHtml;
+      el.hintBody.innerHTML = lesson.hintHtml;
+
+      // Mount interactive widgets for this lesson
+      mountWidgets(el.lessonBody, lesson.id);
+
+      loadEditorForLesson(lesson);
+
+      const done = !!state.lessonDone[lesson.id];
+      el.lessonBadge.textContent = done ? "Completed" : "In progress";
+      el.lessonBadge.className = "statusBadge" + (done ? " ok" : " warn");
+
+      el.runBadge.textContent = "Ready";
+      el.runBadge.className = "statusBadge";
+
+      el.testBadge.textContent = done ? "All tests passed" : "Not checked";
+      el.testBadge.className = "statusBadge" + (done ? " ok" : " warn");
+
+      el.output.textContent = "";
+    }
+
+    // -----------------------
+    // Interactive widgets
+    // -----------------------
+    function mountWidgets(container, lessonId){
+      // List widget: only attach if lesson includes it.
+      // We'll add the widget DOM from JS for list-methods to keep lesson HTML cleaner.
+      if(lessonId === "list-methods"){
+        // Insert widget if not already
+        if(!container.querySelector('[data-widget="list"]')){
+          const widget = document.createElement('div');
+          widget.className = 'widget';
+          widget.setAttribute('data-widget','list');
+          widget.innerHTML = `
+            <h4>List Playground (เห็นการเปลี่ยนแปลงทีละขั้น)</h4>
+            <div class="widgetGrid">
+              <div class="widgetNote">เริ่มต้นด้วย <span class="kbd">["A","B","C"]</span> แล้วลองกดปุ่มต่าง ๆ เพื่อดูผลลัพธ์ + ความหมายของ index</div>
+
+              <div class="chipBar" data-list-chips></div>
+
+              <div class="widgetRow">
+                <label>Value</label>
+                <input data-list-value placeholder="e.g. X" />
+                <label>Index</label>
+                <input data-list-index placeholder="e.g. 1" style="width:120px" />
+              </div>
+
+              <div class="widgetRow">
+                <button class="miniBtn ok" data-list-action="append">append(x)</button>
+                <button class="miniBtn warn" data-list-action="insert">insert(i,x)</button>
+                <button class="miniBtn bad" data-list-action="remove">remove(x)</button>
+                <button class="miniBtn" data-list-action="pop">pop()</button>
+                <button class="miniBtn" data-list-action="reset">↺ reset</button>
+              </div>
+
+              <div class="resultBox">
+                <h5>What happened?</h5>
+                <div class="setView" data-list-log></div>
+              </div>
+
+              <div class="widgetNote">
+                <strong>Complexity (คร่าว ๆ):</strong>
+                append/pop ท้ายมักเป็น O(1), แต่ insert/remove ตรงกลางต้องเลื่อนสมาชิก → O(n)
+              </div>
+            </div>
+          `;
+          container.appendChild(widget);
+        }
+        buildListWidget(container.querySelector('[data-widget="list"]'));
+      }
+
+      if(lessonId === "set-basics"){
+        const widget = container.querySelector('[data-widget="set"]');
+        if(widget) buildSetWidget(widget);
+      }
+    }
+
+    function buildListWidget(root){
+      const chips = root.querySelector('[data-list-chips]');
+      const log = root.querySelector('[data-list-log]');
+      const inVal = root.querySelector('[data-list-value]');
+      const inIdx = root.querySelector('[data-list-index]');
+      let arr = ["A","B","C"];
+      let highlight = null;
+
+      const render = ()=>{
+        chips.innerHTML = '';
+        arr.forEach((v,i)=>{
+          const c = document.createElement('div');
+          c.className = 'chip' + (highlight===i ? ' highlight' : '');
+          c.innerHTML = `<span class="idx">[${i}]</span> ${escapeHtml(v)}`;
+          chips.appendChild(c);
+        });
+        if(arr.length===0){
+          const c = document.createElement('div');
+          c.className='chip';
+          c.textContent='(empty)';
+          chips.appendChild(c);
+        }
+      };
+
+      const say = (t)=>{ log.textContent = t; };
+
+      function reset(){
+        arr = ["A","B","C"]; highlight=null;
+        say('Reset → ["A","B","C"]');
+        render();
+      }
+
+      function append(){
+        const v = (inVal.value || '').trim();
+        if(!v){ say('append(x): ใส่ Value ก่อน'); return; }
+        arr.push(v);
+        highlight = arr.length-1;
+        say(`append("${v}") → เพิ่มท้าย list`);
+        render();
+      }
+
+      function pop(){
+        if(arr.length===0){ say('pop(): list ว่าง — ทำอะไรไม่ได้'); return; }
+        const v = arr.pop();
+        highlight = arr.length-1;
+        say(`pop() → เอาท้ายออก: "${v}"`);
+        render();
+      }
+
+      function insert(){
+        const v = (inVal.value || '').trim();
+        const iRaw = (inIdx.value || '').trim();
+        const i = Number.parseInt(iRaw, 10);
+        if(!v){ say('insert(i,x): ใส่ Value ก่อน'); return; }
+        if(Number.isNaN(i)){ say('insert(i,x): ใส่ Index เป็นตัวเลขก่อน'); return; }
+        const ii = Math.max(0, Math.min(arr.length, i));
+        arr.splice(ii, 0, v);
+        highlight = ii;
+        say(`insert(${i}, "${v}") → แทรกที่ index ${ii} (ถ้าเกินช่วงจะถูกหนีบให้อยู่ในช่วง)`);
+        render();
+      }
+
+      function remove(){
+        const v = (inVal.value || '').trim();
+        if(!v){ say('remove(x): ใส่ Value ก่อน'); return; }
+        const idx = arr.indexOf(v);
+        if(idx === -1){ highlight=null; say(`remove("${v}"): ไม่เจอค่านี้ใน list`); render(); return; }
+        arr.splice(idx,1);
+        highlight = Math.min(idx, arr.length-1);
+        say(`remove("${v}") → ลบตัวแรกที่เจอที่ index ${idx}`);
+        render();
+      }
+
+      // wire buttons
+      root.querySelectorAll('[data-list-action]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const a = btn.getAttribute('data-list-action');
+          if(a==='reset') reset();
+          if(a==='append') append();
+          if(a==='pop') pop();
+          if(a==='insert') insert();
+          if(a==='remove') remove();
+        };
+      });
+
+      // init
+      reset();
+    }
+
+    function buildSetWidget(root){
+      const viewA = root.querySelector('[data-set-a-view]');
+      const viewB = root.querySelector('[data-set-b-view]');
+      const res = root.querySelector('[data-set-result]');
+      const inVal = root.querySelector('[data-set-value]');
+      const selTarget = root.querySelector('[data-set-target]');
+
+      let A = new Set([1,2,3]);
+      let B = new Set([3,4,5]);
+
+      const norm = (raw)=>{
+        const t = (raw||'').trim();
+        if(t==='') return null;
+        // If it's an integer-ish string, store as number; else as string.
+        const n = Number(t);
+        if(!Number.isNaN(n) && String(n)===t) return n;
+        return t;
+      };
+
+      const fmt = (S)=>{
+        // stable display
+        const arr = Array.from(S);
+        const arrSorted = arr.slice().sort((x,y)=>{
+          const tx = typeof x, ty = typeof y;
+          if(tx===ty && tx==='number') return x-y;
+          return String(x).localeCompare(String(y));
+        });
+        return `{ ${arrSorted.map(v=>JSON.stringify(v)).join(', ')} }`;
+      };
+
+      const render = ()=>{
+        viewA.textContent = fmt(A);
+        viewB.textContent = fmt(B);
+      };
+
+      const opUnion = ()=> new Set([...A, ...B]);
+      const opInter = ()=> new Set([...A].filter(x=>B.has(x)));
+      const opDiff = (X,Y)=> new Set([...X].filter(x=>!Y.has(x)));
+
+      const setResult = (S, label)=>{
+        res.textContent = `${label}
+${fmt(S)}`;
+      };
+
+      root.querySelector('[data-set-add]').onclick = ()=>{
+        const v = norm(inVal.value);
+        if(v===null){ setResult(new Set(), 'ใส่ Value ก่อน'); return; }
+        const t = selTarget.value;
+        (t==='A' ? A : B).add(v);
+        render();
+        setResult(new Set(), `เพิ่ม ${JSON.stringify(v)} เข้า Set ${t} (ถ้าซ้ำจะไม่เพิ่มซ้ำ)`);
+      };
+
+      root.querySelector('[data-set-remove]').onclick = ()=>{
+        const v = norm(inVal.value);
+        if(v===null){ setResult(new Set(), 'ใส่ Value ก่อน'); return; }
+        const t = selTarget.value;
+        const S = (t==='A' ? A : B);
+        const had = S.has(v);
+        S.delete(v);
+        render();
+        setResult(new Set(), had ? `ลบ ${JSON.stringify(v)} ออกจาก Set ${t}` : `Set ${t} ไม่มี ${JSON.stringify(v)} (ไม่เกิด error)`);
+      };
+
+      root.querySelector('[data-set-reset]').onclick = ()=>{
+        A = new Set([1,2,3]);
+        B = new Set([3,4,5]);
+        render();
+        setResult(new Set(), 'Reset → A={1,2,3}, B={3,4,5}');
+      };
+
+      root.querySelectorAll('[data-set-op]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const op = btn.getAttribute('data-set-op');
+          if(op==='union') setResult(opUnion(), 'A | B (union)');
+          if(op==='intersect') setResult(opInter(), 'A & B (intersection)');
+          if(op==='diffAB') setResult(opDiff(A,B), 'A - B');
+          if(op==='diffBA') setResult(opDiff(B,A), 'B - A');
+        };
+      });
+
+      // init
+      render();
+      setResult(opUnion(), 'เริ่มต้น: ลองกดปุ่ม operation ได้เลย');
+    }
+
+    // -----------------------
+    // Render
+    // -----------------------
+    
+      const lesson = getLesson(state.activeLessonId);
+
+      el.lessonHeader.textContent = lesson.title;
+      el.lessonSub.textContent = `${lesson.tag} • ${lesson.minutes} min • ${lesson.concepts.join(" • ")}`;
+      el.lessonBody.innerHTML = lesson.lessonHtml;
+      el.hintBody.innerHTML = lesson.hintHtml;
+
+      loadEditorForLesson(lesson);
+
+      const done = !!state.lessonDone[lesson.id];
+      el.lessonBadge.textContent = done ? "Completed" : "In progress";
+      el.lessonBadge.className = "statusBadge" + (done ? " ok" : " warn");
+
+      el.runBadge.textContent = "Ready";
+      el.runBadge.className = "statusBadge";
+
+      el.testBadge.textContent = done ? "All tests passed" : "Not checked";
+      el.testBadge.className = "statusBadge" + (done ? " ok" : " warn");
+
+      el.output.textContent = "";
+    }
+
+    function setActiveLesson(lessonId){
+      state.activeLessonId = lessonId;
+      saveJSON(`${LS_PREFIX}:activeLessonId`, state.activeLessonId);
+      renderLessonList(el.search.value);
+      renderActiveLesson();
+      renderProgress();
+      toast("Lesson loaded");
+    }
+
+    function saveCode(){
+      const lesson = getLesson(state.activeLessonId);
+      state.codeByLesson[lesson.id] = el.editor.value;
+      saveJSON(`${LS_PREFIX}:codeByLesson`, state.codeByLesson);
+      toast("Saved");
+    }
+
+    function resetCode(){
+      const lesson = getLesson(state.activeLessonId);
+      el.editor.value = lesson.starter;
+      toast("Reset to starter");
+    }
+
+    // -----------------------
+    // Python runtime (Pyodide)
+    // -----------------------
+    let pyodide = null;
+    let pyodideReady = false;
+
+    async function loadPyodideIfPossible(){
+      try{
+        el.pyStatusText.textContent = "Loading…";
+        const script = document.createElement("script");
+        script.src = PYODIDE_URL;
+        script.async = true;
+        document.head.appendChild(script);
+
+        await new Promise((resolve, reject)=>{
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+
+        pyodide = await globalThis.loadPyodide({
+          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/",
+        });
+
+        // Preload common stdlib pieces quickly.
+        // (No extra pip packages needed here.)
+        pyodideReady = true;
+        el.pyStatusText.textContent = "Ready";
+        toast("Python ready");
+      }catch(err){
+        pyodideReady = false;
+        el.pyStatusText.textContent = "Unavailable";
+        // Keep the UI usable without Python.
+        console.warn("Pyodide failed to load:", err);
+      }
+    }
+
+    function setOutput(text){
+      el.output.textContent = text;
+    }
+
+    function setRunBadge(kind, text){
+      el.runBadge.textContent = text;
+      el.runBadge.className = "statusBadge" + (kind ? ` ${kind}` : "");
+    }
+
+    function setTestBadge(kind, text){
+      el.testBadge.textContent = text;
+      el.testBadge.className = "statusBadge" + (kind ? ` ${kind}` : "");
+    }
+
+    function ensurePython(){
+      if(!pyodideReady){
+        setOutput(
+          "Python runtime (Pyodide) is not available.\n" +
+          "\n" +
+          "What you can do:\n" +
+          "• If you opened this file offline, run it with internet once so Pyodide can load.\n" +
+          "• Or keep using it as a reading + planning tool.\n"
+        );
+        setRunBadge("warn", "Python unavailable");
+        return false;
+      }
+      return true;
+    }
+
+    function buildRunner(code){
+      // Capture print() to a string
+      return `
+import sys
+import io
+
+__out = io.StringIO()
+__old = sys.stdout
+sys.stdout = __out
+
+try:
+${indent(code, 4)}
+finally:
+    sys.stdout = __old
+
+__out.getvalue()
+`;
+    }
+
+    function indent(src, spaces){
+      const pad = " ".repeat(spaces);
+      return src.split("\n").map(line => pad + line).join("\n");
+    }
+
+    async function runUserCode(){
+      saveCode();
+      if(!ensurePython()) return;
+
+      const code = el.editor.value;
+      setRunBadge(null, "Running…");
+
+      try{
+        // Reset globals by creating a new namespace.
+        pyodide.globals.set("__USER_NS__", pyodide.toPy({}));
+        const ns = pyodide.globals.get("__USER_NS__");
+        const wrapped = buildRunner(code);
+        const out = await pyodide.runPythonAsync(wrapped, { globals: ns });
+        setOutput(out || "(no output)\n");
+        setRunBadge("ok", "Run OK");
+      }catch(err){
+        setOutput(String(err));
+        setRunBadge("bad", "Run error");
+      }
+    }
+
+    async function checkUserCode(){
+      saveCode();
+      if(!ensurePython()) return;
+
+      const lesson = getLesson(state.activeLessonId);
+      const code = el.editor.value;
+      setTestBadge(null, "Checking…");
+      setRunBadge(null, "Running tests…");
+
+      try{
+        // Run in clean namespace
+        pyodide.globals.set("__USER_NS__", pyodide.toPy({}));
+        const ns = pyodide.globals.get("__USER_NS__");
+
+        // First, execute user code (so functions exist)
+        await pyodide.runPythonAsync(code, { globals: ns });
+
+        // Then execute tests; tests should raise AssertionError if failing.
+        const wrapped = buildRunner(lesson.tests);
+        const out = await pyodide.runPythonAsync(wrapped, { globals: ns });
+
+        setOutput(out || "All tests passed ✅\n");
+        setTestBadge("ok", "All tests passed");
+        setRunBadge("ok", "Checked OK");
+
+        // Mark lesson done
+        state.lessonDone[lesson.id] = true;
+        saveJSON(`${LS_PREFIX}:lessonDone`, state.lessonDone);
+        renderLessonList(el.search.value);
+        renderActiveLesson();
+        renderProgress();
+        toast("Lesson completed!");
+      }catch(err){
+        // Try to show friendly assertion
+        const msg = String(err);
+        setOutput(msg);
+        setTestBadge("bad", "Tests failed");
+        setRunBadge("bad", "Check failed");
+      }
+    }
+
+    // -----------------------
+    // Events
+    // -----------------------
+    el.search.addEventListener("input", ()=> renderLessonList(el.search.value));
+    el.btnSave.addEventListener("click", saveCode);
+    el.btnReset.addEventListener("click", resetCode);
+    el.btnRun.addEventListener("click", runUserCode);
+    el.btnCheck.addEventListener("click", checkUserCode);
+
+    // Editor QoL: Tab inserts spaces
+    el.editor.addEventListener("keydown", (e)=>{
+      if(e.key === "Tab"){
+        e.preventDefault();
+        const start = el.editor.selectionStart;
+        const end = el.editor.selectionEnd;
+        const val = el.editor.value;
+        el.editor.value = val.slice(0,start) + "  " + val.slice(end);
+        el.editor.selectionStart = el.editor.selectionEnd = start + 2;
+      }
+      // Ctrl/Cmd+Enter runs
+      if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+        e.preventDefault();
+        runUserCode();
+      }
+      // Ctrl/Cmd+Shift+Enter checks
+      if((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Enter"){
+        e.preventDefault();
+        checkUserCode();
+      }
+    });
+
+    // Autosave (lightweight)
+    let autosaveT = null;
+    el.editor.addEventListener("input", ()=>{
+      window.clearTimeout(autosaveT);
+      autosaveT = window.setTimeout(()=>{
+        saveCode();
+        $("#saveStatusText").textContent = "Saved";
+        window.setTimeout(()=> $("#saveStatusText").textContent = "Local", 700);
+      }, 400);
+    });
+
+    // -----------------------
+    // Init
+    // -----------------------
+    (function init(){
+      renderLessonList("");
+      setActiveLesson(state.activeLessonId || lessons[0].id);
+      renderProgress();
+      loadPyodideIfPossible();
+
+      // Small starter message
+      setOutput(
+        "Welcome!\n" +
+        "\n" +
+        "Tips:\n" +
+        "• Use ▶ Run to see prints\n" +
+        "• Use ✅ Check to run tests and mark the lesson completed\n" +
+        "• Shortcuts: Ctrl/Cmd+Enter = Run, Ctrl/Cmd+Shift+Enter = Check\n"
+      );
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python OOP — Interactive Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.24.1/pyodide.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <span class="logo-icon">◇</span>
+            <span class="logo-text">PyOOP</span>
+        </div>
+        <button class="sidebar-close" id="sidebarClose">✕</button>
+    </div>
+    <nav class="nav-list" id="navList">
+        <div class="nav-section-label">Fundamentals</div>
+        <a class="nav-item active" data-section="intro">
+            <span class="nav-num">01</span> Introduction to OOP
+        </a>
+        <a class="nav-item" data-section="classes">
+            <span class="nav-num">02</span> Classes & Objects
+        </a>
+        <a class="nav-item" data-section="init">
+            <span class="nav-num">03</span> Constructor (__init__)
+        </a>
+        <a class="nav-item" data-section="methods">
+            <span class="nav-num">04</span> Methods & Self
+        </a>
+        <a class="nav-item" data-section="attributes">
+            <span class="nav-num">05</span> Class vs Instance Attr
+        </a>
+
+        <div class="nav-section-label">Core Pillars</div>
+        <a class="nav-item" data-section="encapsulation">
+            <span class="nav-num">06</span> Encapsulation
+        </a>
+        <a class="nav-item" data-section="inheritance">
+            <span class="nav-num">07</span> Inheritance
+        </a>
+        <a class="nav-item" data-section="polymorphism">
+            <span class="nav-num">08</span> Polymorphism
+        </a>
+        <a class="nav-item" data-section="abstraction">
+            <span class="nav-num">09</span> Abstraction
+        </a>
+
+        <div class="nav-section-label">Advanced</div>
+        <a class="nav-item" data-section="magic">
+            <span class="nav-num">10</span> Magic Methods
+        </a>
+        <a class="nav-item" data-section="property">
+            <span class="nav-num">11</span> Property & Decorator
+        </a>
+        <a class="nav-item" data-section="static">
+            <span class="nav-num">12</span> Static & Class Methods
+        </a>
+        <a class="nav-item" data-section="multiple">
+            <span class="nav-num">13</span> Multiple Inheritance
+        </a>
+        <a class="nav-item" data-section="composition">
+            <span class="nav-num">14</span> Composition vs Inheritance
+        </a>
+        <a class="nav-item" data-section="dataclass">
+            <span class="nav-num">15</span> Dataclasses
+        </a>
+
+        <div class="nav-section-label">Practice</div>
+        <a class="nav-item" data-section="challenge1">
+            <span class="nav-num">⚡</span> Challenge: Bank System
+        </a>
+        <a class="nav-item" data-section="challenge2">
+            <span class="nav-num">⚡</span> Challenge: RPG Game
+        </a>
+        <a class="nav-item" data-section="challenge3">
+            <span class="nav-num">⚡</span> Challenge: Shape Calc
+        </a>
+    </nav>
+</aside>
+
+<!-- OVERLAY FOR MOBILE -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <button class="menu-btn" id="menuBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <div class="topbar-title">Python OOP — Interactive Tutorial</div>
+        <div class="pyodide-status" id="pyodideStatus">
+            <span class="status-dot loading"></span>
+            <span class="status-text">Loading Pyodide...</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+    </header>
+
+    <!-- SCROLL CONTAINER -->
+    <div class="content-scroll" id="contentScroll">
+
+        <!-- ==================== SECTION: INTRO ==================== -->
+        <section class="content-section active" id="section-intro">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 01</span>
+                <h1>Introduction to<br><em>Object-Oriented Programming</em></h1>
+                <p class="section-subtitle">เรียนรู้แนวคิดพื้นฐานของ OOP ที่เป็นหัวใจสำคัญของการเขียนโปรแกรมสมัยใหม่</p>
+            </div>
+
+            <div class="content-body">
+                <h2>OOP คืออะไร?</h2>
+                <p>Object-Oriented Programming (OOP) คือ <strong>กระบวนทัศน์การเขียนโปรแกรม</strong> (Programming Paradigm) ที่จัดระเบียบโค้ดรอบ ๆ "วัตถุ" (Objects) แทนที่จะเป็นแค่ฟังก์ชันและลอจิก วัตถุเหล่านี้เป็นตัวแทนของสิ่งต่าง ๆ ในโลกจริง โดยมีทั้ง <strong>คุณสมบัติ</strong> (Attributes) และ <strong>พฤติกรรม</strong> (Methods)</p>
+
+                <div class="visual-box">
+                    <div class="visual-title">🧩 เปรียบเทียบ Paradigm</div>
+                    <div class="paradigm-compare">
+                        <div class="paradigm-card">
+                            <div class="paradigm-label">Procedural</div>
+                            <pre><code>name = "สมชาย"
+balance = 1000
+
+def deposit(amount):
+    global balance
+    balance += amount
+
+def withdraw(amount):
+    global balance
+    balance -= amount</code></pre>
+                            <p class="paradigm-note">⚠️ ข้อมูลกระจัดกระจาย จัดการยาก</p>
+                        </div>
+                        <div class="paradigm-arrow">→</div>
+                        <div class="paradigm-card highlight">
+                            <div class="paradigm-label">OOP</div>
+                            <pre><code>class BankAccount:
+    def __init__(self, name, balance):
+        self.name = name
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        self.balance -= amount</code></pre>
+                            <p class="paradigm-note">✅ ข้อมูล + พฤติกรรมอยู่ด้วยกัน</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>4 เสาหลักของ OOP</h2>
+                <div class="pillars-grid">
+                    <div class="pillar-card" style="--accent: #3b82f6">
+                        <div class="pillar-icon">🔒</div>
+                        <h3>Encapsulation</h3>
+                        <p>ห่อหุ้มข้อมูลและเมธอดไว้ด้วยกัน ซ่อนรายละเอียดภายใน ป้องกันการเข้าถึงจากภายนอก</p>
+                    </div>
+                    <div class="pillar-card" style="--accent: #10b981">
+                        <div class="pillar-icon">🧬</div>
+                        <h3>Inheritance</h3>
+                        <p>สืบทอดคุณสมบัติจากคลาสแม่ ลดความซ้ำซ้อน นำโค้ดกลับมาใช้ใหม่</p>
+                    </div>
+                    <div class="pillar-card" style="--accent: #f59e0b">
+                        <div class="pillar-icon">🎭</div>
+                        <h3>Polymorphism</h3>
+                        <p>วัตถุต่างชนิดตอบสนองต่อเมธอดเดียวกันได้ต่างวิธี ยืดหยุ่นและขยายได้ง่าย</p>
+                    </div>
+                    <div class="pillar-card" style="--accent: #8b5cf6">
+                        <div class="pillar-icon">🎨</div>
+                        <h3>Abstraction</h3>
+                        <p>ซ่อนความซับซ้อน แสดงเฉพาะส่วนที่จำเป็น ทำให้ใช้งานง่ายขึ้น</p>
+                    </div>
+                </div>
+
+                <h2>ลองเขียน OOP ง่าย ๆ</h2>
+                <p>ลองรันโค้ดด้านล่างเพื่อดูการทำงานพื้นฐานของ Class และ Object:</p>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">intro_demo.py</span>
+                        <button class="run-btn" onclick="runCode('editor-intro')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-intro" data-default="# 🐾 สร้าง Class แรกของเรา
+class Dog:
+    def __init__(self, name, breed):
+        self.name = name
+        self.breed = breed
+    
+    def bark(self):
+        return f'{self.name} says: Woof! 🐕'
+    
+    def info(self):
+        return f'{self.name} is a {self.breed}'
+
+# สร้าง Objects จาก Class
+dog1 = Dog('Buddy', 'Golden Retriever')
+dog2 = Dog('Max', 'German Shepherd')
+
+print(dog1.bark())
+print(dog2.bark())
+print()
+print(dog1.info())
+print(dog2.info())
+print()
+print(f'dog1 เป็น instance ของ Dog? {isinstance(dog1, Dog)}')
+print(f'type ของ dog1: {type(dog1).__name__}')
+"></div>
+                    <div class="output-container" id="output-editor-intro">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: CLASSES ==================== -->
+        <section class="content-section" id="section-classes">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 02</span>
+                <h1>Classes &<br><em>Objects</em></h1>
+                <p class="section-subtitle">Class คือพิมพ์เขียว (Blueprint) และ Object คือสิ่งที่สร้างจากพิมพ์เขียวนั้น</p>
+            </div>
+            <div class="content-body">
+                <h2>Class = Blueprint, Object = Instance</h2>
+                <p>ลองนึกภาพ Class เหมือน <strong>แม่พิมพ์ขนม</strong> — แม่พิมพ์หนึ่งอันสามารถทำขนมได้หลายชิ้น แต่ละชิ้นอาจมีรสชาติต่างกัน แต่มีรูปทรงเดียวกัน</p>
+
+                <div class="visual-box">
+                    <div class="visual-title">📐 โครงสร้าง Class</div>
+<pre><code>class ClassName:
+    """Docstring อธิบายคลาส"""
+    
+    # Class Attribute (แชร์ร่วมกันทุก instance)
+    class_variable = value
+    
+    # Constructor (เรียกตอนสร้าง object)
+    def __init__(self, param1, param2):
+        self.param1 = param1      # Instance Attribute
+        self.param2 = param2
+    
+    # Instance Method
+    def method_name(self):
+        return self.param1
+    
+    # String Representation
+    def __str__(self):
+        return f"ClassName({self.param1})"</code></pre>
+                </div>
+
+                <h2>Naming Conventions</h2>
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label">Class Name</span>
+                        <span class="info-value"><code>PascalCase</code> — เช่น <code>BankAccount</code>, <code>StudentRecord</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Method/Attribute</span>
+                        <span class="info-value"><code>snake_case</code> — เช่น <code>get_balance()</code>, <code>first_name</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Private</span>
+                        <span class="info-value"><code>_underscore_prefix</code> — เช่น <code>_secret</code>, <code>__very_private</code></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Constant</span>
+                        <span class="info-value"><code>UPPER_SNAKE_CASE</code> — เช่น <code>MAX_SIZE</code>, <code>PI</code></span>
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">classes_objects.py</span>
+                        <button class="run-btn" onclick="runCode('editor-classes')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-classes" data-default="class Car:
+    # Class Attribute — แชร์ร่วมกันทุก instance
+    total_cars = 0
+    
+    def __init__(self, brand, model, year):
+        # Instance Attributes — แต่ละ object มีค่าเป็นของตัวเอง
+        self.brand = brand
+        self.model = model
+        self.year = year
+        self.speed = 0
+        Car.total_cars += 1   # อัปเดต class attribute
+    
+    def accelerate(self, amount):
+        self.speed += amount
+        return f'{self.brand} {self.model} accelerated to {self.speed} km/h'
+    
+    def brake(self, amount):
+        self.speed = max(0, self.speed - amount)
+        return f'{self.brand} {self.model} slowed to {self.speed} km/h'
+    
+    def __str__(self):
+        return f'{self.year} {self.brand} {self.model}'
+
+# สร้าง Objects
+car1 = Car('Toyota', 'Camry', 2024)
+car2 = Car('Honda', 'Civic', 2023)
+car3 = Car('Tesla', 'Model 3', 2024)
+
+print(f'Total cars created: {Car.total_cars}')
+print()
+
+# ใช้งาน Methods
+print(car1.accelerate(60))
+print(car1.accelerate(40))
+print(car1.brake(30))
+print()
+
+# ตรวจสอบ Object
+print(f'car1: {car1}')
+print(f'car1 is Car? {isinstance(car1, Car)}')
+print(f'car1 is car2? {car1 is car2}')
+print()
+
+# Object มี attribute เป็นของตัวเอง
+print(f'car1 speed: {car1.speed}')
+print(f'car2 speed: {car2.speed}')  # ไม่กระทบกัน
+"></div>
+                    <div class="output-container" id="output-editor-classes">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: INIT ==================== -->
+        <section class="content-section" id="section-init">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 03</span>
+                <h1>Constructor<br><em>__init__ Method</em></h1>
+                <p class="section-subtitle">เมธอดพิเศษที่ถูกเรียกโดยอัตโนมัติเมื่อสร้าง Object ใหม่</p>
+            </div>
+            <div class="content-body">
+                <h2>__init__ คืออะไร?</h2>
+                <p><code>__init__</code> คือ <strong>Constructor</strong> ของ Python — มันถูกเรียกอัตโนมัติทุกครั้งที่สร้าง object ใหม่จาก class ใช้สำหรับตั้งค่าเริ่มต้น (Initialize) ให้กับ attributes ต่าง ๆ ของ object</p>
+
+                <div class="tip-box">
+                    <div class="tip-icon">💡</div>
+                    <div class="tip-content">
+                        <strong>จริง ๆ แล้ว</strong> <code>__new__</code> คือ method ที่สร้าง object จริง ๆ ส่วน <code>__init__</code> แค่ตั้งค่าเริ่มต้นให้มัน แต่ในทางปฏิบัติ เราเรียก <code>__init__</code> ว่า constructor เพราะมันคือที่ที่เรากำหนดค่าเริ่มต้น
+                    </div>
+                </div>
+
+                <h2>รูปแบบต่าง ๆ ของ __init__</h2>
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">constructor.py</span>
+                        <button class="run-btn" onclick="runCode('editor-init')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-init" data-default="# === 1. Default Parameters ===
+class Student:
+    def __init__(self, name, age, grade='A'):
+        self.name = name
+        self.age = age
+        self.grade = grade
+    
+    def __repr__(self):
+        return f'Student({self.name!r}, {self.age}, {self.grade!r})'
+
+s1 = Student('Alice', 20)         # ใช้ค่า default
+s2 = Student('Bob', 21, 'B+')     # กำหนดเอง
+print(s1)
+print(s2)
+print()
+
+# === 2. Validation ใน __init__ ===
+class Temperature:
+    def __init__(self, celsius):
+        if celsius < -273.15:
+            raise ValueError('Temperature below absolute zero!')
+        self._celsius = celsius
+    
+    def to_fahrenheit(self):
+        return self._celsius * 9/5 + 32
+    
+    def __str__(self):
+        return f'{self._celsius}°C ({self.to_fahrenheit():.1f}°F)'
+
+t = Temperature(100)
+print(f'Boiling water: {t}')
+t2 = Temperature(0)
+print(f'Freezing water: {t2}')
+print()
+
+# ลอง invalid value
+try:
+    t3 = Temperature(-300)
+except ValueError as e:
+    print(f'Error: {e}')
+print()
+
+# === 3. *args และ **kwargs ===
+class FlexibleClass:
+    def __init__(self, name, *args, **kwargs):
+        self.name = name
+        self.args = args
+        self.kwargs = kwargs
+    
+    def show(self):
+        print(f'Name: {self.name}')
+        print(f'Extra args: {self.args}')
+        print(f'Keyword args: {self.kwargs}')
+
+obj = FlexibleClass('test', 1, 2, 3, color='red', size='large')
+obj.show()
+print()
+
+# === 4. Mutable Default Argument ⚠️ (Common Pitfall) ===
+# ❌ อันตราย! List เดียวกันจะแชร์ทุก instance
+class BadList:
+    def __init__(self, items=[]):
+        self.items = items
+
+# ✅ ถูกต้อง! ใช้ None แทน
+class GoodList:
+    def __init__(self, items=None):
+        self.items = items if items is not None else []
+
+a = GoodList()
+b = GoodList()
+a.items.append('hello')
+print(f'a.items: {a.items}')
+print(f'b.items: {b.items}')  # ไม่กระทบกัน ✅
+"></div>
+                    <div class="output-container" id="output-editor-init">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: METHODS ==================== -->
+        <section class="content-section" id="section-methods">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 04</span>
+                <h1>Methods &<br><em>Self Parameter</em></h1>
+                <p class="section-subtitle">เข้าใจ self และประเภทต่าง ๆ ของ Methods ใน Python Class</p>
+            </div>
+            <div class="content-body">
+                <h2>self คืออะไร?</h2>
+                <p><code>self</code> คือ <strong>ตัวแทนของ object ปัจจุบัน</strong> ที่กำลังเรียกใช้ method เมื่อเราเขียน <code>dog1.bark()</code> Python จะแปลงเป็น <code>Dog.bark(dog1)</code> โดยอัตโนมัติ โดย <code>dog1</code> จะถูกส่งเข้าไปเป็น <code>self</code></p>
+
+                <div class="visual-box">
+                    <div class="visual-title">🔄 self ทำงานอย่างไร</div>
+<pre><code># เมื่อเราเขียน:
+dog1.bark()
+
+# Python ทำงานเบื้องหลังเหมือน:
+Dog.bark(dog1)     # dog1 ถูกส่งเป็น self
+
+# ดังนั้นภายใน method:
+def bark(self):     # self = dog1
+    return self.name  # = dog1.name</code></pre>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">methods_self.py</span>
+                        <button class="run-btn" onclick="runCode('editor-methods')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-methods" data-default="class Calculator:
+    def __init__(self):
+        self.history = []
+        self.result = 0
+    
+    # Instance Method — ใช้ self เข้าถึง instance data
+    def add(self, x):
+        self.result += x
+        self.history.append(f'+ {x}')
+        return self   # Return self เพื่อทำ Method Chaining!
+    
+    def subtract(self, x):
+        self.result -= x
+        self.history.append(f'- {x}')
+        return self
+    
+    def multiply(self, x):
+        self.result *= x
+        self.history.append(f'× {x}')
+        return self
+    
+    def reset(self):
+        self.result = 0
+        self.history.clear()
+        return self
+    
+    def show_history(self):
+        print(f'History: {\" → \".join(self.history)}')
+        print(f'Result: {self.result}')
+
+# === Method Chaining (เรียกต่อเนื่อง) ===
+calc = Calculator()
+calc.add(10).multiply(3).subtract(5).add(2)
+calc.show_history()
+print()
+
+# === พิสูจน์ว่า self คือ object ===
+print(f'id(calc) = {id(calc)}')
+
+class Proof:
+    def show_self(self):
+        print(f'id(self) = {id(self)}')
+
+p = Proof()
+p.show_self()
+# id จะเหมือนกับ id(p)
+print(f'id(p)    = {id(p)}')
+print(f'Same? {id(p) == id(p)}')
+print()
+
+# === Method ที่คืนค่า Object ใหม่ ===
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def add(self, other):
+        '''Return NEW Vector (ไม่แก้ไขตัวเดิม)'''
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def scale(self, factor):
+        return Vector(self.x * factor, self.y * factor)
+    
+    def magnitude(self):
+        return (self.x**2 + self.y**2) ** 0.5
+    
+    def __repr__(self):
+        return f'Vector({self.x}, {self.y})'
+
+v1 = Vector(3, 4)
+v2 = Vector(1, 2)
+v3 = v1.add(v2)
+v4 = v1.scale(2)
+
+print(f'v1 = {v1}')
+print(f'v2 = {v2}')
+print(f'v1 + v2 = {v3}')
+print(f'v1 × 2 = {v4}')
+print(f'|v1| = {v1.magnitude()}')
+"></div>
+                    <div class="output-container" id="output-editor-methods">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: ATTRIBUTES ==================== -->
+        <section class="content-section" id="section-attributes">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 05</span>
+                <h1>Class vs Instance<br><em>Attributes</em></h1>
+                <p class="section-subtitle">ความแตกต่างสำคัญระหว่าง Class Attribute และ Instance Attribute</p>
+            </div>
+            <div class="content-body">
+                <div class="visual-box">
+                    <div class="visual-title">⚖️ เปรียบเทียบ</div>
+                    <div class="paradigm-compare">
+                        <div class="paradigm-card">
+                            <div class="paradigm-label">Class Attribute</div>
+                            <p class="paradigm-note">แชร์ร่วมกันทุก instance, ประกาศนอก __init__, เข้าถึงผ่าน ClassName.attr</p>
+                        </div>
+                        <div class="paradigm-arrow">vs</div>
+                        <div class="paradigm-card highlight">
+                            <div class="paradigm-label">Instance Attribute</div>
+                            <p class="paradigm-note">เป็นของแต่ละ object, ประกาศใน __init__ ด้วย self, เข้าถึงผ่าน self.attr</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">attributes.py</span>
+                        <button class="run-btn" onclick="runCode('editor-attributes')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-attributes" data-default="class Employee:
+    # Class Attributes
+    company = 'TechCorp'
+    employee_count = 0
+    raise_rate = 1.05   # 5% raise
+    
+    def __init__(self, name, salary):
+        # Instance Attributes
+        self.name = name
+        self.salary = salary
+        Employee.employee_count += 1
+    
+    def apply_raise(self):
+        # ใช้ self.raise_rate (ดู instance ก่อน แล้วค่อยดู class)
+        self.salary = int(self.salary * self.raise_rate)
+    
+    def __repr__(self):
+        return f'Employee({self.name!r}, {self.salary})'
+
+# สร้าง employees
+e1 = Employee('Alice', 50000)
+e2 = Employee('Bob', 60000)
+
+print(f'Company: {Employee.company}')
+print(f'Total: {Employee.employee_count}')
+print(f'Default raise rate: {Employee.raise_rate}')
+print()
+
+# Apply raise ด้วย class rate
+e1.apply_raise()
+print(f'Alice after raise: {e1}')
+
+# Override raise_rate สำหรับ Bob เท่านั้น
+e2.raise_rate = 1.10   # 10% raise (สร้าง instance attribute)
+e2.apply_raise()
+print(f'Bob after raise: {e2}')
+print()
+
+# ดู namespace ของแต่ละ object
+print(f'e1.__dict__: {e1.__dict__}')
+print(f'e2.__dict__: {e2.__dict__}')  # มี raise_rate เพิ่ม!
+print()
+
+# Class attribute ยังคงเดิม
+print(f'Employee.raise_rate: {Employee.raise_rate}')
+print(f'e1.raise_rate: {e1.raise_rate}')  # ดูจาก class
+print(f'e2.raise_rate: {e2.raise_rate}')  # ดูจาก instance
+"></div>
+                    <div class="output-container" id="output-editor-attributes">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: ENCAPSULATION ==================== -->
+        <section class="content-section" id="section-encapsulation">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 06</span>
+                <h1>Encapsulation<br><em>การห่อหุ้มข้อมูล</em></h1>
+                <p class="section-subtitle">ปกป้องข้อมูลภายใน Object ด้วย Access Modifiers และ Properties</p>
+            </div>
+            <div class="content-body">
+                <h2>Access Levels ใน Python</h2>
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label"><code>public</code></span>
+                        <span class="info-value"><code>self.name</code> — เข้าถึงได้จากทุกที่</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><code>_protected</code></span>
+                        <span class="info-value"><code>self._name</code> — Convention บอกว่า "ไม่ควรเข้าถึงจากภายนอก" (แต่ยังทำได้)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><code>__private</code></span>
+                        <span class="info-value"><code>self.__name</code> — Name Mangling → กลายเป็น <code>_ClassName__name</code></span>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-icon">⚠️</div>
+                    <div class="tip-content">
+                        Python ไม่มี true private เหมือน Java/C++ การใช้ <code>__</code> แค่ทำ name mangling ไม่ได้ป้องกันจริง ๆ แต่เป็น <strong>convention</strong> ที่บอกว่า "อย่าเข้าถึงโดยตรง"
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">encapsulation.py</span>
+                        <button class="run-btn" onclick="runCode('editor-encapsulation')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-encapsulation" data-default="class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner           # public
+        self._account_type = 'savings'  # protected
+        self.__balance = balance     # private (name mangled)
+    
+    # Getter — ทางที่ปลอดภัยในการอ่านค่า
+    @property
+    def balance(self):
+        return self.__balance
+    
+    # Setter — ควบคุมการแก้ไขค่า
+    @balance.setter
+    def balance(self, value):
+        if value < 0:
+            raise ValueError('Balance cannot be negative!')
+        self.__balance = value
+    
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError('Deposit must be positive!')
+        self.__balance += amount
+        return f'Deposited {amount}. New balance: {self.__balance}'
+    
+    def withdraw(self, amount):
+        if amount > self.__balance:
+            raise ValueError('Insufficient funds!')
+        self.__balance -= amount
+        return f'Withdrawn {amount}. New balance: {self.__balance}'
+    
+    def __str__(self):
+        return f'Account({self.owner}: ${self.__balance:,})'
+
+# ใช้งาน
+acc = BankAccount('Alice', 1000)
+print(acc)
+print(acc.deposit(500))
+print(acc.withdraw(200))
+print()
+
+# เข้าถึงผ่าน property (ปลอดภัย)
+print(f'Balance via property: {acc.balance}')
+print()
+
+# ลอง set ค่าผิด
+try:
+    acc.balance = -100
+except ValueError as e:
+    print(f'Error: {e}')
+
+# Name Mangling — private ถูกเปลี่ยนชื่อ
+print(f'\\nacc.__dict__: {acc.__dict__}')
+# สังเกต __balance → _BankAccount__balance
+
+# ยังเข้าถึงได้ (แต่ไม่ควรทำ!)
+print(f'Mangled access: {acc._BankAccount__balance}')
+
+# ลอง access ตรง ๆ จะ error
+try:
+    print(acc.__balance)
+except AttributeError as e:
+    print(f'Direct access error: {e}')
+"></div>
+                    <div class="output-container" id="output-editor-encapsulation">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: INHERITANCE ==================== -->
+        <section class="content-section" id="section-inheritance">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 07</span>
+                <h1>Inheritance<br><em>การสืบทอด</em></h1>
+                <p class="section-subtitle">สร้างคลาสใหม่จากคลาสที่มีอยู่ สืบทอดคุณสมบัติและพฤติกรรม</p>
+            </div>
+            <div class="content-body">
+                <h2>Inheritance คืออะไร?</h2>
+                <p>การสืบทอด (Inheritance) ช่วยให้เราสร้าง <strong>Child Class</strong> ที่รับคุณสมบัติและเมธอดมาจาก <strong>Parent Class</strong> โดยสามารถเพิ่มหรือแก้ไขพฤติกรรมได้</p>
+
+                <div class="visual-box">
+                    <div class="visual-title">🌳 Inheritance Hierarchy</div>
+<pre><code>         Animal          ← Parent (Base / Super) Class
+        /      \
+      Dog      Cat        ← Child (Derived / Sub) Class
+     /   \
+  Puppy  GuideDog        ← Grandchild Class</code></pre>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">inheritance.py</span>
+                        <button class="run-btn" onclick="runCode('editor-inheritance')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-inheritance" data-default="class Animal:
+    def __init__(self, name, sound):
+        self.name = name
+        self.sound = sound
+        self.energy = 100
+    
+    def speak(self):
+        return f'{self.name}: {self.sound}!'
+    
+    def eat(self, food):
+        self.energy += 10
+        return f'{self.name} eats {food}. Energy: {self.energy}'
+    
+    def sleep(self):
+        self.energy += 30
+        return f'{self.name} is sleeping... 💤 Energy: {self.energy}'
+
+# === Single Inheritance ===
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name, 'Woof')  # เรียก parent __init__
+        self.breed = breed
+        self.tricks = []
+    
+    def learn_trick(self, trick):
+        self.tricks.append(trick)
+        self.energy -= 20
+        return f'{self.name} learned: {trick}! 🎓'
+    
+    def show_tricks(self):
+        if self.tricks:
+            return f'{self.name} knows: {\", \".join(self.tricks)}'
+        return f'{self.name} has no tricks yet'
+
+class Cat(Animal):
+    def __init__(self, name, indoor=True):
+        super().__init__(name, 'Meow')
+        self.indoor = indoor
+    
+    # Override parent method
+    def speak(self):
+        base = super().speak()  # เรียก parent version
+        return f'{base} *purrs*'
+    
+    def scratch(self):
+        return f'{self.name} scratches the furniture! 🪑'
+
+# === ใช้งาน ===
+dog = Dog('Buddy', 'Golden Retriever')
+cat = Cat('Whiskers')
+
+print(dog.speak())   # สืบทอดจาก Animal
+print(cat.speak())   # Override แล้ว
+print()
+
+print(dog.eat('bone'))   # สืบทอดจาก Animal
+print(dog.learn_trick('sit'))
+print(dog.learn_trick('shake'))
+print(dog.show_tricks())
+print()
+
+print(cat.scratch())     # method เฉพาะของ Cat
+print(cat.sleep())       # สืบทอดจาก Animal
+print()
+
+# === ตรวจสอบ Inheritance ===
+print(f'Dog is subclass of Animal? {issubclass(Dog, Animal)}')
+print(f'dog is Animal? {isinstance(dog, Animal)}')
+print(f'cat is Dog? {isinstance(cat, Dog)}')
+print()
+
+# === Method Resolution Order (MRO) ===
+print(f'Dog MRO: {[c.__name__ for c in Dog.__mro__]}')
+print(f'Cat MRO: {[c.__name__ for c in Cat.__mro__]}')
+"></div>
+                    <div class="output-container" id="output-editor-inheritance">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: POLYMORPHISM ==================== -->
+        <section class="content-section" id="section-polymorphism">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 08</span>
+                <h1>Polymorphism<br><em>พหุสัณฐาน</em></h1>
+                <p class="section-subtitle">"หลายรูปแบบ" — วัตถุต่างชนิดตอบสนองต่อเมธอดเดียวกันได้ต่างกัน</p>
+            </div>
+            <div class="content-body">
+                <h2>Polymorphism 3 แบบ</h2>
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label">Method Override</span>
+                        <span class="info-value">Child class เขียน method ชื่อเดียวกับ parent ทับไป</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Duck Typing</span>
+                        <span class="info-value">"ถ้ามันเดินเหมือนเป็ด ร้องเหมือนเป็ด มันก็คือเป็ด" — ดูที่พฤติกรรม ไม่ใช่ชนิด</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Operator Overload</span>
+                        <span class="info-value">กำหนดพฤติกรรมของ operator (+, -, *, ==) สำหรับ class ของเรา</span>
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">polymorphism.py</span>
+                        <button class="run-btn" onclick="runCode('editor-poly')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-poly" data-default="import math
+
+# === 1. Method Overriding ===
+class Shape:
+    def area(self):
+        raise NotImplementedError('Subclass must implement')
+    
+    def describe(self):
+        return f'{type(self).__name__}: area = {self.area():.2f}'
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    def area(self):
+        return math.pi * self.radius ** 2
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    def area(self):
+        return self.width * self.height
+
+class Triangle(Shape):
+    def __init__(self, base, height):
+        self.base = base
+        self.height = height
+    def area(self):
+        return 0.5 * self.base * self.height
+
+# Polymorphism in action! — หนึ่ง loop จัดการทุก shape
+shapes = [Circle(5), Rectangle(4, 6), Triangle(3, 8)]
+print('=== Method Overriding ===')
+for shape in shapes:
+    print(shape.describe())
+
+print()
+
+# === 2. Duck Typing ===
+class Duck:
+    def fly(self):
+        return 'Duck flies over the lake 🦆'
+
+class Airplane:
+    def fly(self):
+        return 'Airplane flies in the sky ✈️'
+
+class Superman:
+    def fly(self):
+        return 'Superman flies to save the world 🦸'
+
+# ไม่สนว่าเป็น type อะไร แค่มี .fly() ก็พอ
+print('=== Duck Typing ===')
+flyers = [Duck(), Airplane(), Superman()]
+for flyer in flyers:
+    print(flyer.fly())
+
+print()
+
+# === 3. Operator Overloading ===
+class Money:
+    def __init__(self, amount, currency='THB'):
+        self.amount = amount
+        self.currency = currency
+    
+    def __add__(self, other):
+        if self.currency != other.currency:
+            raise ValueError('Cannot add different currencies!')
+        return Money(self.amount + other.amount, self.currency)
+    
+    def __sub__(self, other):
+        return Money(self.amount - other.amount, self.currency)
+    
+    def __mul__(self, factor):
+        return Money(self.amount * factor, self.currency)
+    
+    def __eq__(self, other):
+        return self.amount == other.amount and self.currency == other.currency
+    
+    def __lt__(self, other):
+        return self.amount < other.amount
+    
+    def __repr__(self):
+        return f'{self.amount:,.2f} {self.currency}'
+
+print('=== Operator Overloading ===')
+wallet = Money(1000)
+salary = Money(50000)
+bonus = Money(5000)
+
+print(f'Wallet: {wallet}')
+print(f'Salary + Bonus = {salary + bonus}')
+print(f'Salary × 2 = {salary * 2}')
+print(f'Salary - Tax = {salary - Money(5000)}')
+print(f'wallet == Money(1000)? {wallet == Money(1000)}')
+print(f'wallet < salary? {wallet < salary}')
+"></div>
+                    <div class="output-container" id="output-editor-poly">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: ABSTRACTION ==================== -->
+        <section class="content-section" id="section-abstraction">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 09</span>
+                <h1>Abstraction<br><em>นามธรรม</em></h1>
+                <p class="section-subtitle">ซ่อนความซับซ้อน แสดงเฉพาะสิ่งที่จำเป็นด้วย Abstract Base Classes</p>
+            </div>
+            <div class="content-body">
+                <h2>Abstract Class คืออะไร?</h2>
+                <p>Abstract Class คือ class ที่ <strong>ไม่สามารถสร้าง instance ได้โดยตรง</strong> มีไว้เป็น "สัญญา" (Contract) บังคับให้ child class ต้อง implement method ที่กำหนด ใช้ module <code>abc</code> ของ Python</p>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">abstraction.py</span>
+                        <button class="run-btn" onclick="runCode('editor-abstract')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-abstract" data-default="from abc import ABC, abstractmethod
+
+# Abstract Base Class — ไม่สามารถสร้าง instance ได้
+class PaymentProcessor(ABC):
+    def __init__(self, name):
+        self.name = name
+        self.transactions = []
+    
+    @abstractmethod
+    def pay(self, amount):
+        '''ต้อง implement ใน subclass'''
+        pass
+    
+    @abstractmethod
+    def refund(self, amount):
+        '''ต้อง implement ใน subclass'''
+        pass
+    
+    # Concrete method — ใช้ได้เลย ไม่ต้อง override
+    def get_history(self):
+        return f'{self.name} transactions: {self.transactions}'
+
+# === Concrete Classes ===
+class CreditCard(PaymentProcessor):
+    def __init__(self, card_number):
+        super().__init__('CreditCard')
+        self.card_number = card_number
+    
+    def pay(self, amount):
+        self.transactions.append(f'PAID: {amount}')
+        return f'💳 Charged {amount} to card ***{self.card_number[-4:]}'
+    
+    def refund(self, amount):
+        self.transactions.append(f'REFUND: {amount}')
+        return f'💳 Refunded {amount} to card ***{self.card_number[-4:]}'
+
+class PayPal(PaymentProcessor):
+    def __init__(self, email):
+        super().__init__('PayPal')
+        self.email = email
+    
+    def pay(self, amount):
+        self.transactions.append(f'PAID: {amount}')
+        return f'📧 Sent {amount} from PayPal ({self.email})'
+    
+    def refund(self, amount):
+        self.transactions.append(f'REFUND: {amount}')
+        return f'📧 Refunded {amount} to PayPal ({self.email})'
+
+class CryptoPay(PaymentProcessor):
+    def __init__(self, wallet_address):
+        super().__init__('Crypto')
+        self.wallet = wallet_address[:8] + '...'
+    
+    def pay(self, amount):
+        self.transactions.append(f'PAID: {amount}')
+        return f'₿ Transferred {amount} from wallet {self.wallet}'
+    
+    def refund(self, amount):
+        self.transactions.append(f'REFUND: {amount}')
+        return f'₿ Returned {amount} to wallet {self.wallet}'
+
+# === ลองสร้าง Abstract class โดยตรง ===
+try:
+    p = PaymentProcessor('test')
+except TypeError as e:
+    print(f'Cannot instantiate ABC: {e}')
+print()
+
+# === Polymorphism with Abstraction ===
+processors = [
+    CreditCard('4532015112830366'),
+    PayPal('user@email.com'),
+    CryptoPay('0x742d35Cc6634C0532925a3b844Bc9e7595f3bA')
+]
+
+for proc in processors:
+    print(proc.pay(100))
+
+print()
+for proc in processors:
+    print(proc.refund(25))
+
+print()
+print(processors[0].get_history())
+"></div>
+                    <div class="output-container" id="output-editor-abstract">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: MAGIC METHODS ==================== -->
+        <section class="content-section" id="section-magic">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 10</span>
+                <h1>Magic Methods<br><em>Dunder Methods</em></h1>
+                <p class="section-subtitle">เมธอดพิเศษที่ขึ้นต้นและลงท้ายด้วย __ เพื่อกำหนดพฤติกรรมให้ Object</p>
+            </div>
+            <div class="content-body">
+                <h2>Magic Methods ที่ใช้บ่อย</h2>
+                <div class="info-table">
+                    <div class="info-row"><span class="info-label"><code>__init__</code></span><span class="info-value">Constructor</span></div>
+                    <div class="info-row"><span class="info-label"><code>__str__</code></span><span class="info-value">print() / str() — user-friendly</span></div>
+                    <div class="info-row"><span class="info-label"><code>__repr__</code></span><span class="info-value">repr() — developer-friendly, unambiguous</span></div>
+                    <div class="info-row"><span class="info-label"><code>__len__</code></span><span class="info-value">len(obj)</span></div>
+                    <div class="info-row"><span class="info-label"><code>__getitem__</code></span><span class="info-value">obj[key] — indexing</span></div>
+                    <div class="info-row"><span class="info-label"><code>__iter__</code></span><span class="info-value">for x in obj — iteration</span></div>
+                    <div class="info-row"><span class="info-label"><code>__contains__</code></span><span class="info-value">x in obj — membership test</span></div>
+                    <div class="info-row"><span class="info-label"><code>__eq__, __lt__</code></span><span class="info-value">==, &lt; — comparison</span></div>
+                    <div class="info-row"><span class="info-label"><code>__add__, __mul__</code></span><span class="info-value">+, * — arithmetic</span></div>
+                    <div class="info-row"><span class="info-label"><code>__call__</code></span><span class="info-value">obj() — make object callable</span></div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">magic_methods.py</span>
+                        <button class="run-btn" onclick="runCode('editor-magic')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-magic" data-default="class Playlist:
+    '''Custom collection class with magic methods'''
+    
+    def __init__(self, name):
+        self.name = name
+        self._songs = []
+    
+    # เพิ่มเพลง
+    def add(self, song):
+        self._songs.append(song)
+        return self
+    
+    # __str__ — สำหรับ print()
+    def __str__(self):
+        return f'🎵 {self.name} ({len(self)} songs)'
+    
+    # __repr__ — สำหรับ developer
+    def __repr__(self):
+        return f'Playlist({self.name!r}, songs={self._songs})'
+    
+    # __len__ — len(playlist)
+    def __len__(self):
+        return len(self._songs)
+    
+    # __getitem__ — playlist[0], playlist[-1]
+    def __getitem__(self, index):
+        return self._songs[index]
+    
+    # __contains__ — 'song' in playlist
+    def __contains__(self, song):
+        return song in self._songs
+    
+    # __iter__ — for song in playlist
+    def __iter__(self):
+        return iter(self._songs)
+    
+    # __add__ — playlist1 + playlist2
+    def __add__(self, other):
+        new_pl = Playlist(f'{self.name} + {other.name}')
+        new_pl._songs = self._songs + other._songs
+        return new_pl
+    
+    # __call__ — playlist() shuffles and returns
+    def __call__(self):
+        import random
+        shuffled = self._songs.copy()
+        random.shuffle(shuffled)
+        return shuffled
+    
+    # __bool__ — if playlist: ...
+    def __bool__(self):
+        return len(self._songs) > 0
+
+# === ใช้งาน ===
+rock = Playlist('Rock Classics')
+rock.add('Bohemian Rhapsody').add('Stairway to Heaven').add('Hotel California')
+
+pop = Playlist('Pop Hits')
+pop.add('Shape of You').add('Blinding Lights')
+
+# __str__
+print(rock)
+print(pop)
+print()
+
+# __len__
+print(f'Rock has {len(rock)} songs')
+
+# __getitem__
+print(f'First song: {rock[0]}')
+print(f'Last song: {rock[-1]}')
+print()
+
+# __contains__
+print(f'\"Hotel California\" in rock? {\"Hotel California\" in rock}')
+print(f'\"Yesterday\" in rock? {\"Yesterday\" in rock}')
+print()
+
+# __iter__
+print('All rock songs:')
+for i, song in enumerate(rock, 1):
+    print(f'  {i}. {song}')
+print()
+
+# __add__
+combined = rock + pop
+print(f'Combined: {combined}')
+for song in combined:
+    print(f'  ♪ {song}')
+print()
+
+# __call__ (shuffle)
+print(f'Shuffled: {rock()}')
+
+# __bool__
+empty = Playlist('Empty')
+print(f'\\nrock is truthy? {bool(rock)}')
+print(f'empty is truthy? {bool(empty)}')
+"></div>
+                    <div class="output-container" id="output-editor-magic">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: PROPERTY ==================== -->
+        <section class="content-section" id="section-property">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 11</span>
+                <h1>Property &<br><em>Decorators</em></h1>
+                <p class="section-subtitle">ใช้ @property เพื่อสร้าง getter/setter ที่ดูเหมือน attribute ธรรมดา</p>
+            </div>
+            <div class="content-body">
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">property_decorator.py</span>
+                        <button class="run-btn" onclick="runCode('editor-property')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-property" data-default="class Circle:
+    def __init__(self, radius):
+        self.radius = radius  # ใช้ setter อัตโนมัติ!
+    
+    # Getter
+    @property
+    def radius(self):
+        return self._radius
+    
+    # Setter พร้อม validation
+    @radius.setter
+    def radius(self, value):
+        if value <= 0:
+            raise ValueError('Radius must be positive!')
+        self._radius = value
+    
+    # Read-only computed property
+    @property
+    def area(self):
+        import math
+        return math.pi * self._radius ** 2
+    
+    @property
+    def circumference(self):
+        import math
+        return 2 * math.pi * self._radius
+    
+    # Deleter (optional)
+    @radius.deleter
+    def radius(self):
+        print('Deleting radius...')
+        self._radius = 0
+
+c = Circle(5)
+print(f'Radius: {c.radius}')           # ใช้ getter
+print(f'Area: {c.area:.2f}')           # computed property
+print(f'Circumference: {c.circumference:.2f}')
+print()
+
+c.radius = 10                           # ใช้ setter
+print(f'New radius: {c.radius}')
+print(f'New area: {c.area:.2f}')
+print()
+
+# Validation ทำงาน
+try:
+    c.radius = -5
+except ValueError as e:
+    print(f'Error: {e}')
+
+# area เป็น read-only
+try:
+    c.area = 100
+except AttributeError as e:
+    print(f'Error: {e}')
+print()
+
+# === Custom Decorator ===
+def log_calls(func):
+    '''Decorator ที่ log ทุกครั้งที่เรียก method'''
+    def wrapper(*args, **kwargs):
+        print(f'  📝 Calling {func.__name__}...')
+        result = func(*args, **kwargs)
+        print(f'  ✅ {func.__name__} returned: {result}')
+        return result
+    return wrapper
+
+class MathService:
+    @log_calls
+    def add(self, a, b):
+        return a + b
+    
+    @log_calls
+    def multiply(self, a, b):
+        return a * b
+
+svc = MathService()
+print('Using decorated methods:')
+svc.add(3, 4)
+svc.multiply(5, 6)
+"></div>
+                    <div class="output-container" id="output-editor-property">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: STATIC & CLASS METHODS ==================== -->
+        <section class="content-section" id="section-static">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 12</span>
+                <h1>Static &<br><em>Class Methods</em></h1>
+                <p class="section-subtitle">@staticmethod ไม่ต้องการ self/cls, @classmethod รับ cls แทน self</p>
+            </div>
+            <div class="content-body">
+                <div class="info-table">
+                    <div class="info-row"><span class="info-label">Instance Method</span><span class="info-value"><code>def method(self)</code> — เข้าถึง instance data</span></div>
+                    <div class="info-row"><span class="info-label">Class Method</span><span class="info-value"><code>@classmethod def method(cls)</code> — เข้าถึง class data, ใช้เป็น alternative constructor</span></div>
+                    <div class="info-row"><span class="info-label">Static Method</span><span class="info-value"><code>@staticmethod def method()</code> — utility function ที่เกี่ยวข้องกับ class แต่ไม่ต้องการ data</span></div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">static_class_methods.py</span>
+                        <button class="run-btn" onclick="runCode('editor-static')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-static" data-default="class Date:
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
+    
+    # Instance Method
+    def __str__(self):
+        return f'{self.day:02d}/{self.month:02d}/{self.year}'
+    
+    # Class Method — Alternative Constructor
+    @classmethod
+    def from_string(cls, date_string):
+        '''สร้าง Date จาก string เช่น \"2024-01-15\"'''
+        year, month, day = map(int, date_string.split('-'))
+        return cls(year, month, day)  # cls = Date
+    
+    @classmethod
+    def today(cls):
+        '''สร้าง Date ของวันนี้'''
+        import datetime
+        t = datetime.date.today()
+        return cls(t.year, t.month, t.day)
+    
+    # Static Method — Utility
+    @staticmethod
+    def is_leap_year(year):
+        '''ตรวจสอบปีอธิกสุรทิน'''
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+    
+    @staticmethod
+    def days_in_month(year, month):
+        days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        if month == 2 and Date.is_leap_year(year):
+            return 29
+        return days[month - 1]
+
+# === Instance Method ===
+d1 = Date(2024, 6, 15)
+print(f'Date: {d1}')
+
+# === Class Method (Alternative Constructors) ===
+d2 = Date.from_string('2024-12-25')
+print(f'From string: {d2}')
+
+d3 = Date.today()
+print(f'Today: {d3}')
+print()
+
+# === Static Method ===
+print(f'2024 is leap year? {Date.is_leap_year(2024)}')
+print(f'2023 is leap year? {Date.is_leap_year(2023)}')
+print(f'Days in Feb 2024: {Date.days_in_month(2024, 2)}')
+print(f'Days in Feb 2023: {Date.days_in_month(2023, 2)}')
+print()
+
+# === ทำไมใช้ cls แทน Date? ===
+# เพราะ cls ทำให้ inheritance ทำงานถูกต้อง!
+class ThaiDate(Date):
+    def __str__(self):
+        return f'{self.day:02d}/{self.month:02d}/{self.year + 543}'
+
+td = ThaiDate.from_string('2024-01-01')  # cls = ThaiDate!
+print(f'Thai Date: {td}')
+print(f'Type: {type(td).__name__}')  # ThaiDate ไม่ใช่ Date!
+"></div>
+                    <div class="output-container" id="output-editor-static">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: MULTIPLE INHERITANCE ==================== -->
+        <section class="content-section" id="section-multiple">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 13</span>
+                <h1>Multiple<br><em>Inheritance</em></h1>
+                <p class="section-subtitle">สืบทอดจากหลาย class พร้อมกัน เข้าใจ MRO และ Diamond Problem</p>
+            </div>
+            <div class="content-body">
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">multiple_inheritance.py</span>
+                        <button class="run-btn" onclick="runCode('editor-multiple')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-multiple" data-default="# === Mixins Pattern (Best Practice) ===
+class JsonMixin:
+    '''Mixin: เพิ่มความสามารถแปลงเป็น JSON'''
+    def to_json(self):
+        import json
+        return json.dumps(self.__dict__, indent=2, default=str)
+
+class PrintMixin:
+    '''Mixin: เพิ่มความสามารถ pretty print'''
+    def pretty_print(self):
+        name = type(self).__name__
+        attrs = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        print(f'┌ {name}')
+        for k, v in self.__dict__.items():
+            print(f'│  {k}: {v}')
+        print(f'└────')
+
+class ValidateMixin:
+    '''Mixin: เพิ่มความสามารถ validate'''
+    def validate(self):
+        for key, value in self.__dict__.items():
+            if value is None:
+                raise ValueError(f'{key} cannot be None!')
+        return True
+
+# === ใช้ Mixins ===
+class User(JsonMixin, PrintMixin, ValidateMixin):
+    def __init__(self, name, email, age):
+        self.name = name
+        self.email = email
+        self.age = age
+
+user = User('Alice', 'alice@email.com', 25)
+user.pretty_print()
+print()
+print('JSON:')
+print(user.to_json())
+print()
+print(f'Valid? {user.validate()}')
+print()
+
+# === Diamond Problem & MRO ===
+class A:
+    def greet(self):
+        return 'Hello from A'
+
+class B(A):
+    def greet(self):
+        return 'Hello from B'
+
+class C(A):
+    def greet(self):
+        return 'Hello from C'
+
+class D(B, C):  # Diamond: D → B → C → A
+    pass
+
+d = D()
+print(f'd.greet() = {d.greet()}')  # ใช้ B เพราะมาก่อน
+
+# MRO แก้ Diamond Problem
+print(f'\\nMRO of D:')
+for cls in D.__mro__:
+    print(f'  → {cls.__name__}')
+
+print()
+
+# === super() กับ Multiple Inheritance ===
+class Logger:
+    def __init__(self, **kwargs):
+        print(f'  Logger.__init__')
+        super().__init__(**kwargs)
+
+class Database:
+    def __init__(self, **kwargs):
+        print(f'  Database.__init__')
+        super().__init__(**kwargs)
+
+class Cache:
+    def __init__(self, **kwargs):
+        print(f'  Cache.__init__')
+        super().__init__(**kwargs)
+
+class App(Logger, Database, Cache):
+    def __init__(self):
+        print('App.__init__ starting...')
+        super().__init__()
+        print('App.__init__ done!')
+
+print('Creating App (watch __init__ order):')
+app = App()
+print(f'\\nApp MRO: {[c.__name__ for c in App.__mro__]}')
+"></div>
+                    <div class="output-container" id="output-editor-multiple">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: COMPOSITION ==================== -->
+        <section class="content-section" id="section-composition">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 14</span>
+                <h1>Composition<br><em>vs Inheritance</em></h1>
+                <p class="section-subtitle">"Prefer composition over inheritance" — หลักการออกแบบที่สำคัญ</p>
+            </div>
+            <div class="content-body">
+                <h2>เมื่อไหร่ใช้อะไร?</h2>
+                <div class="info-table">
+                    <div class="info-row"><span class="info-label">Inheritance</span><span class="info-value">"IS-A" → Dog <strong>is a</strong> Animal</span></div>
+                    <div class="info-row"><span class="info-label">Composition</span><span class="info-value">"HAS-A" → Car <strong>has a</strong> Engine</span></div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">composition.py</span>
+                        <button class="run-btn" onclick="runCode('editor-composition')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-composition" data-default="# === Composition: สร้าง components แยก แล้วประกอบเข้าด้วยกัน ===
+
+class Engine:
+    def __init__(self, horsepower, fuel_type):
+        self.horsepower = horsepower
+        self.fuel_type = fuel_type
+        self.running = False
+    
+    def start(self):
+        self.running = True
+        return f'Engine started ({self.horsepower}HP, {self.fuel_type})'
+    
+    def stop(self):
+        self.running = False
+        return 'Engine stopped'
+
+class GPS:
+    def __init__(self):
+        self.destination = None
+    
+    def navigate(self, destination):
+        self.destination = destination
+        return f'Navigating to {destination} 📍'
+    
+    def current_route(self):
+        return f'Route to: {self.destination}' if self.destination else 'No destination'
+
+class Speaker:
+    def __init__(self, brand):
+        self.brand = brand
+        self.volume = 50
+    
+    def play(self, song):
+        return f'🔊 {self.brand}: Playing \"{song}\" (vol: {self.volume}%)'
+    
+    def set_volume(self, level):
+        self.volume = min(100, max(0, level))
+
+# === Car ประกอบจาก components ===
+class Car:
+    def __init__(self, model, engine, gps=None, speaker=None):
+        self.model = model
+        self.engine = engine       # HAS-A Engine
+        self.gps = gps             # HAS-A GPS (optional)
+        self.speaker = speaker     # HAS-A Speaker (optional)
+    
+    def start(self):
+        result = [f'Starting {self.model}...']
+        result.append(self.engine.start())
+        if self.speaker:
+            result.append(self.speaker.play('Startup Sound'))
+        return '\\n  '.join(result)
+    
+    def drive_to(self, place):
+        if not self.engine.running:
+            return 'Start the engine first!'
+        if self.gps:
+            return self.gps.navigate(place)
+        return f'Driving to {place} (no GPS)'
+
+# === สร้างรถด้วย composition ===
+# รถหรู — มีทุกอย่าง
+luxury = Car(
+    model='Mercedes S-Class',
+    engine=Engine(450, 'Hybrid'),
+    gps=GPS(),
+    speaker=Speaker('Burmester')
+)
+
+# รถประหยัด — แค่เครื่องยนต์
+economy = Car(
+    model='Toyota Vios',
+    engine=Engine(107, 'Gasoline')
+)
+
+print(luxury.start())
+print()
+print(luxury.drive_to('Central World'))
+print()
+
+print(economy.start())
+print(economy.drive_to('Home'))
+print()
+
+# === ข้อดี: เปลี่ยน component ได้ง่าย ===
+luxury.engine = Engine(600, 'Electric')  # Swap engine!
+print(luxury.engine.start())
+
+# === เปรียบเทียบกับ Inheritance (ไม่ดี) ===
+print()
+print('=== Why not inheritance? ===')
+print('❌ class ElectricCarWithGPSAndSpeaker(ElectricCar, GPSCar, SpeakerCar)')
+print('   → Complex hierarchy, diamond problem, rigid structure')
+print()
+print('✅ Car(engine=Engine(...), gps=GPS(), speaker=Speaker(...))')
+print('   → Flexible, swappable, easy to test')
+"></div>
+                    <div class="output-container" id="output-editor-composition">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION: DATACLASS ==================== -->
+        <section class="content-section" id="section-dataclass">
+            <div class="section-hero">
+                <span class="section-tag">Chapter 15</span>
+                <h1>Dataclasses<br><em>Modern Python OOP</em></h1>
+                <p class="section-subtitle">เขียน class น้อยลง ได้ผลลัพธ์มากขึ้นด้วย @dataclass (Python 3.7+)</p>
+            </div>
+            <div class="content-body">
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">dataclasses_demo.py</span>
+                        <button class="run-btn" onclick="runCode('editor-dataclass')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-dataclass" data-default="from dataclasses import dataclass, field
+
+# === Basic Dataclass ===
+@dataclass
+class Point:
+    x: float
+    y: float
+    
+    def distance_to(self, other):
+        return ((self.x - other.x)**2 + (self.y - other.y)**2) ** 0.5
+
+p1 = Point(3, 4)
+p2 = Point(0, 0)
+print(f'p1 = {p1}')           # __repr__ อัตโนมัติ!
+print(f'p1 == Point(3,4)? {p1 == Point(3, 4)}')  # __eq__ อัตโนมัติ!
+print(f'Distance: {p1.distance_to(p2):.2f}')
+print()
+
+# === Advanced Dataclass ===
+@dataclass(order=True)  # เพิ่ม <, >, <=, >= operators
+class Student:
+    # sort_index ใช้สำหรับเรียงลำดับ (ไม่แสดงใน repr)
+    sort_index: float = field(init=False, repr=False)
+    name: str
+    gpa: float
+    courses: list = field(default_factory=list)  # mutable default!
+    
+    def __post_init__(self):
+        # เรียกหลัง __init__ อัตโนมัติ
+        self.sort_index = self.gpa  # เรียงตาม GPA
+    
+    def enroll(self, course):
+        self.courses.append(course)
+
+s1 = Student('Alice', 3.8)
+s2 = Student('Bob', 3.5)
+s3 = Student('Charlie', 3.9)
+
+s1.enroll('Math')
+s1.enroll('Physics')
+
+print(s1)
+print(f'Alice > Bob? {s1 > s2}')  # เทียบ GPA
+print()
+
+# Sorting works!
+students = [s1, s2, s3]
+students.sort(reverse=True)
+print('Ranked by GPA:')
+for i, s in enumerate(students, 1):
+    print(f'  {i}. {s.name} (GPA: {s.gpa})')
+print()
+
+# === Frozen Dataclass (Immutable) ===
+@dataclass(frozen=True)
+class Color:
+    r: int
+    g: int
+    b: int
+    
+    @property
+    def hex(self):
+        return f'#{self.r:02x}{self.g:02x}{self.b:02x}'
+
+RED = Color(255, 0, 0)
+BLUE = Color(0, 0, 255)
+print(f'RED = {RED} → {RED.hex}')
+print(f'BLUE = {BLUE} → {BLUE.hex}')
+
+# Frozen = immutable
+try:
+    RED.r = 100
+except Exception as e:
+    print(f'Cannot modify frozen: {e}')
+
+# Frozen ใช้เป็น dict key ได้!
+palette = {RED: 'danger', BLUE: 'primary'}
+print(f'palette[RED] = {palette[RED]}')
+"></div>
+                    <div class="output-container" id="output-editor-dataclass">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Click "Run" to see output...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CHALLENGE 1 ==================== -->
+        <section class="content-section" id="section-challenge1">
+            <div class="section-hero">
+                <span class="section-tag">⚡ Challenge</span>
+                <h1>Bank Account<br><em>System</em></h1>
+                <p class="section-subtitle">สร้างระบบบัญชีธนาคารที่มี SavingsAccount และ CheckingAccount</p>
+            </div>
+            <div class="content-body">
+                <h2>📋 โจทย์</h2>
+                <p>สร้างระบบธนาคารที่มีคุณสมบัติต่อไปนี้:</p>
+                <div class="challenge-requirements">
+                    <div class="req-item">✦ <code>BankAccount</code> (base class) — มี owner, balance, deposit(), withdraw()</div>
+                    <div class="req-item">✦ <code>SavingsAccount</code> — มี interest_rate, apply_interest()</div>
+                    <div class="req-item">✦ <code>CheckingAccount</code> — มี overdraft_limit, สามารถ withdraw เกิน balance ได้ถึง limit</div>
+                    <div class="req-item">✦ ใช้ Encapsulation ป้องกัน balance ไม่ให้แก้โดยตรง</div>
+                    <div class="req-item">✦ implement <code>__str__</code> และ <code>__add__</code> (โอนเงินระหว่างบัญชี)</div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">challenge_bank.py</span>
+                        <button class="run-btn" onclick="runCode('editor-challenge1')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-challenge1" data-default="# 🏦 Challenge: Bank Account System
+# เติมโค้ดให้สมบูรณ์!
+
+class BankAccount:
+    '''Base class สำหรับบัญชีธนาคาร'''
+    
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.__balance = balance  # private
+    
+    @property
+    def balance(self):
+        return self.__balance
+    
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError('Amount must be positive')
+        self.__balance += amount
+        return f'Deposited {amount}. Balance: {self.__balance}'
+    
+    def withdraw(self, amount):
+        if amount > self.__balance:
+            raise ValueError('Insufficient funds')
+        self.__balance -= amount
+        return f'Withdrawn {amount}. Balance: {self.__balance}'
+    
+    def __str__(self):
+        return f'{type(self).__name__}({self.owner}: ${self.__balance:,.2f})'
+    
+    def transfer(self, other, amount):
+        self.withdraw(amount)
+        other.deposit(amount)
+        return f'Transferred {amount} from {self.owner} to {other.owner}'
+
+
+class SavingsAccount(BankAccount):
+    '''บัญชีออมทรัพย์ — มีดอกเบี้ย'''
+    # TODO: เติมโค้ด
+    # - รับ interest_rate ใน __init__
+    # - สร้าง apply_interest() method
+    pass
+
+
+class CheckingAccount(BankAccount):
+    '''บัญชีกระแสรายวัน — มี overdraft'''
+    # TODO: เติมโค้ด
+    # - รับ overdraft_limit ใน __init__
+    # - Override withdraw() ให้ถอนเกินได้ถึง limit
+    pass
+
+
+# === ทดสอบ ===
+# savings = SavingsAccount('Alice', 10000, 0.05)
+# checking = CheckingAccount('Bob', 5000, 2000)
+# 
+# print(savings)
+# print(checking)
+# print()
+# print(savings.apply_interest())
+# print()
+# print(checking.withdraw(6000))  # เกิน balance แต่ไม่เกิน limit
+# print(checking)
+# print()
+# print(savings.transfer(checking, 1000))
+# print(savings)
+# print(checking)
+"></div>
+                    <div class="output-container" id="output-editor-challenge1">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Complete the challenge and click "Run"!</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CHALLENGE 2 ==================== -->
+        <section class="content-section" id="section-challenge2">
+            <div class="section-hero">
+                <span class="section-tag">⚡ Challenge</span>
+                <h1>RPG Game<br><em>Characters</em></h1>
+                <p class="section-subtitle">สร้างระบบตัวละคร RPG ด้วย Inheritance, Polymorphism, และ Magic Methods</p>
+            </div>
+            <div class="content-body">
+                <h2>📋 โจทย์</h2>
+                <div class="challenge-requirements">
+                    <div class="req-item">✦ <code>Character</code> (base) — name, hp, attack_power, defend(), is_alive()</div>
+                    <div class="req-item">✦ <code>Warrior</code> — bonus armor, rage_attack() (damage x2)</div>
+                    <div class="req-item">✦ <code>Mage</code> — mana, cast_spell() (ใช้ mana เพิ่ม damage)</div>
+                    <div class="req-item">✦ <code>Healer</code> — heal() ฟื้นฟู HP ให้ตัวเอง/เพื่อน</div>
+                    <div class="req-item">✦ ระบบ battle: <code>character1.attack(character2)</code></div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">challenge_rpg.py</span>
+                        <button class="run-btn" onclick="runCode('editor-challenge2')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-challenge2" data-default="# ⚔️ Challenge: RPG Character System
+import random
+
+class Character:
+    def __init__(self, name, hp, attack_power):
+        self.name = name
+        self.max_hp = hp
+        self.hp = hp
+        self.attack_power = attack_power
+    
+    def is_alive(self):
+        return self.hp > 0
+    
+    def take_damage(self, damage):
+        self.hp = max(0, self.hp - damage)
+        status = '💀 DEFEATED!' if not self.is_alive() else f'HP: {self.hp}/{self.max_hp}'
+        return f'{self.name} took {damage} damage! {status}'
+    
+    def attack(self, other):
+        damage = random.randint(self.attack_power - 3, self.attack_power + 3)
+        print(f'⚔️ {self.name} attacks {other.name}!')
+        print(f'   {other.take_damage(damage)}')
+        return damage
+    
+    def __str__(self):
+        bar_len = 20
+        filled = int(self.hp / self.max_hp * bar_len)
+        bar = '█' * filled + '░' * (bar_len - filled)
+        return f'{self.name} [{bar}] {self.hp}/{self.max_hp} HP'
+
+# TODO: สร้าง Warrior, Mage, Healer classes
+# แล้วทดสอบระบบ battle!
+
+class Warrior(Character):
+    pass  # เติมโค้ด
+
+class Mage(Character):
+    pass  # เติมโค้ด
+
+class Healer(Character):
+    pass  # เติมโค้ด
+
+# === ทดสอบ ===
+warrior = Character('Thor', 120, 25)
+mage = Character('Gandalf', 80, 35)
+
+print(warrior)
+print(mage)
+print()
+
+warrior.attack(mage)
+print()
+mage.attack(warrior)
+print()
+
+print(warrior)
+print(mage)
+"></div>
+                    <div class="output-container" id="output-editor-challenge2">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Complete the challenge and click "Run"!</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CHALLENGE 3 ==================== -->
+        <section class="content-section" id="section-challenge3">
+            <div class="section-hero">
+                <span class="section-tag">⚡ Challenge</span>
+                <h1>Shape<br><em>Calculator</em></h1>
+                <p class="section-subtitle">ใช้ Abstract Class สร้างระบบคำนวณรูปทรงเรขาคณิต</p>
+            </div>
+            <div class="content-body">
+                <h2>📋 โจทย์</h2>
+                <div class="challenge-requirements">
+                    <div class="req-item">✦ <code>Shape</code> (ABC) — abstract: area(), perimeter()</div>
+                    <div class="req-item">✦ <code>Circle</code>, <code>Rectangle</code>, <code>Triangle</code></div>
+                    <div class="req-item">✦ implement <code>__eq__</code> (เท่ากันถ้า area เท่ากัน)</div>
+                    <div class="req-item">✦ implement <code>__lt__</code> (เปรียบเทียบ area)</div>
+                    <div class="req-item">✦ สร้าง <code>ShapeCollection</code> ที่ sort ได้, หา total area</div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span class="editor-dot red"></span>
+                        <span class="editor-dot yellow"></span>
+                        <span class="editor-dot green"></span>
+                        <span class="editor-filename">challenge_shapes.py</span>
+                        <button class="run-btn" onclick="runCode('editor-challenge3')">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>
+                            Run
+                        </button>
+                    </div>
+                    <div class="editor-wrapper" id="editor-challenge3" data-default="# 📐 Challenge: Shape Calculator
+from abc import ABC, abstractmethod
+import math
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+    
+    @abstractmethod
+    def perimeter(self):
+        pass
+    
+    def __eq__(self, other):
+        return abs(self.area() - other.area()) < 0.0001
+    
+    def __lt__(self, other):
+        return self.area() < other.area()
+    
+    def __repr__(self):
+        return f'{type(self).__name__}(area={self.area():.2f})'
+
+# TODO: implement Circle, Rectangle, Triangle
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def area(self):
+        return math.pi * self.radius ** 2
+    
+    def perimeter(self):
+        return 2 * math.pi * self.radius
+
+# เติม Rectangle และ Triangle เอง!
+
+# === ทดสอบ ===
+shapes = [
+    Circle(5),
+    Circle(3),
+    # Rectangle(4, 6),
+    # Triangle(3, 4, 5),
+]
+
+print('All shapes:')
+for s in shapes:
+    print(f'  {s} | perimeter={s.perimeter():.2f}')
+
+print(f'\\nSorted by area:')
+for s in sorted(shapes):
+    print(f'  {s}')
+
+print(f'\\nTotal area: {sum(s.area() for s in shapes):.2f}')
+"></div>
+                    <div class="output-container" id="output-editor-challenge3">
+                        <div class="output-header">Output</div>
+                        <pre class="output-content">Complete the challenge and click "Run"!</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- end content-scroll -->
+</main>
+
+<!-- Monaco Editor from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python EP2 — Interactive Learning</title>
+  <!-- Noto Sans Thai + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Design system: load in order — tokens → components → layout -->
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="components.css" />
+  <link rel="stylesheet" href="layout.css" />
+  <!-- Pyodide -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js"></script>
+</head>
+<body>
+
+<!-- Pyodide Loading Overlay -->
+<div class="pyodide-overlay" id="pyodide-overlay">
+  <div class="pyodide-loader">
+    <div class="pyodide-spinner"></div>
+    <div class="pyodide-text">Loading Python Runtime...</div>
+    <div class="pyodide-sub">กำลังโหลด Pyodide — ใช้เวลาสักครู่</div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- App -->
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <a class="logo" href="#">
+      <div class="logo-icon">🐍</div>
+      Python<span>EP2</span>
+    </a>
+
+    <nav>
+      <button class="nav-btn active" data-page="learn">📚 Learn</button>
+      <button class="nav-btn" data-page="quiz">🎯 Practice</button>
+      <button class="nav-btn" data-page="bigo">📊 Big-O</button>
+    </nav>
+
+    <div class="header-right">
+      <div class="score-badge">
+        <span class="icon">⭐</span>
+        <span id="score-display">0 pts · 0/10</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════ LEARN PAGE ══════════ -->
+  <div class="page active" id="learn-page">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">หัวข้อ Week 2</div>
+        <div id="topic-list"></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="learn-main">
+
+      <!-- Tab buttons -->
+      <div class="content-tabs">
+        <button class="tab-btn active" data-tab="theory-tab">📖 เนื้อหา</button>
+        <button class="tab-btn" data-tab="practice-tab">💻 ทดลอง Code</button>
+      </div>
+
+      <!-- Theory Tab -->
+      <div class="tab-content active" id="theory-tab">
+        <div class="theory-panel">
+          <div id="theory-content">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Practice Tab -->
+      <div class="tab-content" id="practice-tab">
+        <div class="practice-panel">
+
+          <!-- Editor Header -->
+          <div class="editor-header">
+            <div class="editor-title">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+              <span style="margin-left:8px">main.py</span>
+            </div>
+            <div class="editor-actions">
+              <button class="btn btn-run" id="run-learn-btn" disabled>
+                ▶ Run
+              </button>
+              <button class="btn btn-reset" id="reset-learn-btn">
+                ↺ Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Monaco Editor -->
+          <div id="monaco-editor"></div>
+
+          <!-- Resize Handle -->
+          <div class="resize-handle"></div>
+
+          <!-- Output -->
+          <div class="output-panel">
+            <div class="output-header">
+              <span>▶</span> Output
+            </div>
+            <div class="output-body" id="learn-output-body">
+              <span style="color:var(--text-muted)">// กด Run เพื่อรัน code</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ PAGE ══════════ -->
+  <div class="page" id="quiz-page">
+
+    <div class="quiz-header">
+      <h1>🎯 Python Practice</h1>
+      <p>10 โจทย์ฝึกทักษะ · List · Slicing · LC · Matrix</p>
+      <div class="progress-bar" style="max-width:400px;margin:1rem auto 0">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="quiz-layout">
+
+      <!-- Problem List -->
+      <div class="problem-list">
+        <div class="problem-list-title">📋 โจทย์ทั้งหมด</div>
+        <div id="problem-list"></div>
+
+        <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border)">
+          <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);margin-bottom:0.4rem">Legend</div>
+          <div style="display:flex;flex-direction:column;gap:4px;font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted)">
+            <span><span class="difficulty-dot diff-easy" style="display:inline-block;margin-right:6px"></span>Easy +10pts</span>
+            <span><span class="difficulty-dot diff-medium" style="display:inline-block;margin-right:6px"></span>Medium +20pts</span>
+            <span><span class="difficulty-dot diff-hard" style="display:inline-block;margin-right:6px"></span>Hard +35pts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Problem Workspace -->
+      <div class="problem-workspace">
+
+        <!-- Problem Description -->
+        <div class="problem-card">
+          <div class="problem-card-header">
+            <h2 id="problem-title">Loading...</h2>
+            <span class="difficulty-badge" id="problem-difficulty">EASY</span>
+          </div>
+          <div class="problem-description" id="problem-description">
+            <!-- loaded dynamically -->
+          </div>
+          <div class="io-examples" id="io-examples">
+            <!-- loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Code Editor -->
+        <div class="quiz-editor-container">
+          <div class="quiz-editor-header">
+            <div class="quiz-editor-title">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+              <span style="margin-left:8px">solution.py</span>
+            </div>
+            <div class="quiz-editor-actions">
+              <button class="btn btn-run" id="run-quiz-btn" disabled>▶ Run</button>
+              <button class="btn btn-check" id="check-quiz-btn" disabled>✓ Submit</button>
+              <button class="btn btn-reset" id="reset-quiz-btn">↺ Reset</button>
+            </div>
+          </div>
+
+          <div id="quiz-monaco-editor"></div>
+
+          <!-- Output & Verdict -->
+          <div class="quiz-output-panel">
+            <div class="quiz-output-header">
+              <span>▶</span> Output
+            </div>
+            <div class="quiz-output-body output-body" id="quiz-output-body">
+              <span style="color:var(--text-muted)">// กด Run หรือ Submit เพื่อตรวจสอบ</span>
+            </div>
+            <div class="verdict" id="quiz-verdict"></div>
+            <div class="test-cases" id="test-chips"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ BIG-O PAGE ══════════ -->
+  <div class="page" id="bigo-page">
+
+    <div class="bigo-hero">
+      <h1>📊 Big-O Notation</h1>
+      <p>ทำความเข้าใจ Time Complexity ด้วย Visualization แบบ Interactive</p>
+    </div>
+
+    <!-- Interactive Visualizer -->
+    <div class="bigo-visualizer">
+      <h2>📈 Interactive Graph</h2>
+
+      <div class="viz-controls" id="viz-controls">
+        <!-- Toggles added by JS -->
+      </div>
+
+      <canvas id="bigo-main-canvas" style="width:100%;height:320px"></canvas>
+
+      <div class="n-slider-container">
+        <span class="n-slider-label">n (input size) =</span>
+        <input type="range" id="n-slider" min="5" max="50" value="20" />
+        <span class="n-value" id="n-value">20</span>
+      </div>
+
+      <!-- Legend -->
+      <div class="bigo-legend" id="bigo-legend">
+        <!-- Added by CSS/JS per card color -->
+      </div>
+    </div>
+
+    <!-- BigO Cards -->
+    <div class="bigo-grid" id="bigo-cards">
+      <!-- Generated by JS -->
+    </div>
+
+    <!-- List Operations Reference -->
+    <div style="max-width:900px;margin:0 auto 3rem;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--neon-orange);margin-bottom:1.5rem">
+        ⚡ Python List — Operation Complexity
+      </h2>
+      <table class="complexity-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Complexity</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>list[i]</td><td class="good">O(1)</td><td>Direct array access</td></tr>
+          <tr><td>list[i] = x</td><td class="good">O(1)</td><td>Direct index assignment</td></tr>
+          <tr><td>append(x)</td><td class="good">O(1)*</td><td>Amortized — occasional O(n) resize</td></tr>
+          <tr><td>pop()</td><td class="good">O(1)</td><td>Remove last element</td></tr>
+          <tr><td>pop(i)</td><td class="bad">O(n)</td><td>Shift elements after i</td></tr>
+          <tr><td>insert(0, x)</td><td class="bad">O(n)</td><td>Shift all elements right</td></tr>
+          <tr><td>insert(i, x)</td><td class="ok">O(n)</td><td>Shift elements from i onward</td></tr>
+          <tr><td>remove(x)</td><td class="bad">O(n)</td><td>Search then shift</td></tr>
+          <tr><td>x in list</td><td class="bad">O(n)</td><td>Linear search</td></tr>
+          <tr><td>len(list)</td><td class="good">O(1)</td><td>Cached length attribute</td></tr>
+          <tr><td>list[a:b]</td><td class="ok">O(k)</td><td>k = b - a elements copied</td></tr>
+          <tr><td>list + list2</td><td class="ok">O(n+m)</td><td>Copy both lists</td></tr>
+          <tr><td>sorted(list)</td><td class="ok">O(n log n)</td><td>Timsort — stable sort</td></tr>
+          <tr><td>list.sort()</td><td class="ok">O(n log n)</td><td>In-place Timsort</td></tr>
+          <tr><td>min(list) / max(list)</td><td class="bad">O(n)</td><td>Full scan required</td></tr>
+          <tr><td>list.reverse()</td><td class="ok">O(n)</td><td>In-place reversal</td></tr>
+          <tr><td>list.count(x)</td><td class="bad">O(n)</td><td>Full scan</td></tr>
+          <tr><td>list.index(x)</td><td class="bad">O(n)</td><td>Linear search</td></tr>
+          <tr><td>list.copy()</td><td class="ok">O(n)</td><td>Shallow copy</td></tr>
+          <tr><td>del list[i]</td><td class="bad">O(n)</td><td>Shift elements after i</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box note" style="margin-top:1.5rem">
+        <strong>💡 Pro Tip: Use collections.deque for Queue Operations</strong>
+        ถ้าต้องการ insert/remove ที่ทั้งหัวและท้าย List บ่อยๆ ให้ใช้ <code style="color:var(--neon-cyan);font-family:var(--font-mono)">collections.deque</code> แทน
+        ซึ่งมี <strong>O(1)</strong> สำหรับ appendleft() และ popleft()
+      </div>
+    </div>
+
+  </div>
+  <!-- end bigo-page -->
+
+</div>
+<!-- end app -->
+
+<script src="script.js"></script>
+
+</body>
+</html>

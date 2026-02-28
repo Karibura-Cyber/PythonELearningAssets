@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 4 — Stack & Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+
+/* COMPLEXITY */
+.cx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.cx-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.cx-card.fast{border-color:rgba(16,185,129,.3)}.cx-card.slow{border-color:rgba(239,68,68,.2)}
+.cx-card.mid{border-color:rgba(6,182,212,.3)}
+.cx-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.cx-val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.cx-card.fast .cx-val{color:var(--ac3)}.cx-card.slow .cx-val{color:var(--red)}.cx-card.mid .cx-val{color:var(--ac2)}
+.cx-desc{font-size:11.5px;color:var(--mu)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx)}
+.o1{color:var(--ac3);font-weight:700;font-family:'JetBrains Mono',monospace}
+.on{color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.stack{border-color:rgba(232,121,249,.3)}
+.concept-card.queue{border-color:rgba(6,182,212,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.stack::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.queue::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.stack .cc-title{color:var(--ac)}
+.concept-card.queue .cc-title{color:var(--ac2)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+.cc-eg{margin-top:10px;font-size:12px;color:var(--di);font-style:italic}
+
+/* VISUALIZER */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-title.stack-t{color:var(--ac)}
+.viz-title.queue-t{color:var(--ac2)}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.viz-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:110px;font-family:'JetBrains Mono',monospace;outline:none}
+.viz-inp:focus{border-color:var(--ac)}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.push{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.viz-btn.push:hover{background:rgba(232,121,249,.25)}
+.viz-btn.pop{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.viz-btn.pop:hover{background:rgba(239,68,68,.25)}
+.viz-btn.enq{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.viz-btn.enq:hover{background:rgba(6,182,212,.25)}
+.viz-btn.deq{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.viz-btn.deq:hover{background:rgba(245,158,11,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-stage{min-height:110px;display:flex;align-items:flex-end;gap:6px;padding:12px;background:#0a0c10;border-radius:8px;border:1px solid var(--bd);position:relative;overflow:hidden}
+.viz-stage.queue-stage{align-items:center;justify-content:flex-start}
+.viz-item{padding:8px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;border:1px solid;animation:itemIn .25s ease;display:flex;align-items:center;gap:5px;position:relative;flex-shrink:0}
+.viz-item.stack-item{background:rgba(232,121,249,.12);color:var(--ac);border-color:rgba(232,121,249,.35)}
+.viz-item.stack-item.top{background:rgba(232,121,249,.25);border-color:var(--ac)}
+.viz-item.queue-item{background:rgba(6,182,212,.12);color:var(--ac2);border-color:rgba(6,182,212,.35)}
+.viz-item.queue-item.front{background:rgba(6,182,212,.25);border-color:var(--ac2)}
+.viz-item.queue-item.back{background:rgba(245,158,11,.12);color:var(--warn);border-color:rgba(245,158,11,.35)}
+@keyframes itemIn{from{transform:scale(0.6) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.viz-arrow{font-size:11px;color:var(--di);flex-shrink:0}
+.viz-label{position:absolute;bottom:4px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;width:100%;text-align:center;left:0}
+.viz-label.top-l{color:var(--ac)}
+.viz-label.front-l{color:var(--ac2)}
+.viz-label.back-l{color:var(--warn)}
+.viz-log{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--mu);min-height:22px}
+.viz-empty{color:var(--di);font-size:12px;font-style:italic;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.stack-wrap{display:flex;flex-direction:column-reverse;align-items:center;width:100%;gap:4px;min-height:80px;padding-top:10px;position:relative}
+.stack-wrap .viz-item{width:100%;justify-content:center}
+.viz-stage{flex-direction:column;align-items:stretch;min-height:120px;justify-content:flex-end}
+.viz-stage .stack-wrap{flex-direction:column-reverse;width:100%}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* TECHNIQUE CARD */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.cx-grid,.concept-grid,.tech-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python EP2 · Week 4</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Stack vs Queue</a>
+    <a class="na" href="#stack">Part 1 — Stack (LIFO)</a>
+    <a class="na sub" href="#stack-ops">· Push / Pop / Peek</a>
+    <a class="na sub" href="#stack-app">· Applications</a>
+    <a class="na" href="#queue">Part 2 — Queue (FIFO)</a>
+    <a class="na sub" href="#queue-ops">· Enqueue / Dequeue</a>
+    <a class="na sub" href="#deque">· collections.deque</a>
+    <a class="na" href="#stack-viz">🎮 Stack Visualizer</a>
+    <a class="na" href="#queue-viz">🎮 Queue Visualizer</a>
+    <a class="na" href="#techniques">เทคนิค Stack/Queue</a>
+    <a class="na sub" href="#balanced">· Balanced Brackets</a>
+    <a class="na sub" href="#monotonic">· Monotonic Stack</a>
+    <a class="na sub" href="#bfs">· BFS กับ Queue</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. Reverse Stack <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. Balanced Brackets <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Hot Potato <span class="badge bb">Pre-TOI</span></a>
+    <a class="na sub" href="#ex4">4. Browser History <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex5">5. Queue Simulator <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6. Min Stack <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex7">7. Largest Rectangle <span class="badge br">TOI</span></a>
+    <a class="na sub" href="#ex8">8. เขาวงกต BFS <span class="badge br">TOI</span></a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์เพิ่มเติม 10 ข้อ</div>
+    <a class="na sub" href="#ex9">9. ล้างจาน <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex10">10. คิวร้านอาหาร <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex11">11. Palindrome <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex12">12. Undo System <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex13">13. Balanced 3 ชนิด <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex14">14. ตรวจสอบเลขคำนวณ <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex15">15. คิวธนาคาร <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex16">16. Stack Two Queues <span class="badge br">TOI</span></a>
+    <a class="na sub" href="#ex17">17. Sliding Window Max <span class="badge br">TOI</span></a>
+    <a class="na sub" href="#ex18">18. Decode String <span class="badge br">TOI</span></a>
+    <div class="nav-sec" style="margin-top:6px">สรุป</div>
+    <a class="na" href="#summary">Key Takeaways</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>/</span> Week 4 <span>/</span> Stack &amp; Queue</div>
+    <div class="py-st">
+      <div class="dot loading" id="dot"></div>
+      <span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero" id="top">
+      <div class="hw">Week 4 · 2 ชั่วโมง</div>
+      <div class="ht">Stack &amp; Queue</div>
+      <div class="hs">Data Structures ที่โลกขาดไม่ได้</div>
+      <!-- <div class="hm">ครูโจ๊ก (ณัฐพล บัวอุไร) · GDD Coding School</div> -->
+      <div class="tags">
+        <span class="tag">Python</span><span class="tag">Stack</span>
+        <span class="tag">Queue</span><span class="tag">LIFO</span>
+        <span class="tag">FIFO</span><span class="tag">deque</span>
+        <span class="tag">BFS</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">Introduction</div>
+      <h2>Stack กับ Queue คืออะไร?</h2>
+      <p>ทั้ง Stack และ Queue เป็น <strong>Data Structure เชิงเส้น</strong> ที่ควบคุมว่าข้อมูลเข้า-ออกได้อย่างไร ต่างกันตรงที่ <strong>กฎการเข้า-ออก</strong></p>
+      <div class="concept-grid">
+        <div class="concept-card stack">
+          <div class="cc-icon">📚</div>
+          <div class="cc-title">Stack — LIFO</div>
+          <div class="cc-desc">Last In, First Out<br>ตัวที่เข้าหลังสุด ออกก่อน — เหมือนกองจาน</div>
+          <div class="cc-eg">ตัวอย่าง: กองจาน, Undo/Redo, browser back, recursion call stack</div>
+        </div>
+        <div class="concept-card queue">
+          <div class="cc-icon">🚶</div>
+          <div class="cc-title">Queue — FIFO</div>
+          <div class="cc-desc">First In, First Out<br>ตัวที่เข้าก่อน ออกก่อน — เหมือนคิวรอ</div>
+          <div class="cc-eg">ตัวอย่าง: คิวรอ, print queue, BFS, task scheduler</div>
+        </div>
+      </div>
+      <div class="cx-grid">
+        <div class="cx-card fast"><div class="cx-type">Push/Enqueue</div><div class="cx-val">O(1)</div><div class="cx-desc">เพิ่มข้อมูลเข้า</div></div>
+        <div class="cx-card fast"><div class="cx-type">Pop/Dequeue</div><div class="cx-val">O(1)</div><div class="cx-desc">นำข้อมูลออก</div></div>
+        <div class="cx-card fast"><div class="cx-type">Peek/Front</div><div class="cx-val">O(1)</div><div class="cx-desc">ดูข้อมูลบนสุด/หน้าสุด</div></div>
+      </div>
+      <div class="callout">ทั้ง Stack และ Queue มีความซับซ้อน <strong>O(1)</strong> ทุก operation ทำให้เป็นที่นิยมในการแก้โจทย์แข่งขัน เช่น TOI, สอวน.</div>
+    </div>
+
+    <!-- STACK -->
+    <div class="sec" id="stack">
+      <div class="sl">Part 1</div>
+      <h2>Stack — Last In, First Out</h2>
+      <p><strong>Stack</strong> คือโครงสร้างข้อมูลแบบ <strong>กอง</strong> นึกถึงกองจานล้าง — จานที่วางทับสุดท้ายต้องยกออกก่อน</p>
+      <p>ใน Python เราใช้ <strong>List</strong> สร้าง Stack ได้เลย เพราะ <code>.append()</code> และ <code>.pop()</code> ทำงาน <strong>O(1)</strong></p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">stack_basic.py</span></div><button class="run-btn" onclick="runLesson(this,'L0','LO0')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L0"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO0">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- STACK OPS -->
+    <div class="sec" id="stack-ops">
+      <h3>Stack Operations ที่ต้องรู้</h3>
+
+      <h4>.append(x) — Push (วางของบนกอง)</h4>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">stack_push.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <h4>.pop() — Pop (หยิบของออกจากบนกอง)</h4>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">stack_pop.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <h4>stack[-1] — Peek (แอบดูของบนสุด ไม่เอาออก)</h4>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">stack_peek.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <table class="tbl">
+        <tr><th>Operation</th><th>Python</th><th>ความซับซ้อน</th><th>คำอธิบาย</th></tr>
+        <tr><td>Push</td><td><code>stack.append(x)</code></td><td><span class="o1">O(1)</span></td><td>วางของบนกอง</td></tr>
+        <tr><td>Pop</td><td><code>stack.pop()</code></td><td><span class="o1">O(1)</span></td><td>หยิบของบนสุดออก</td></tr>
+        <tr><td>Peek</td><td><code>stack[-1]</code></td><td><span class="o1">O(1)</span></td><td>แอบดูบนสุด ไม่นำออก</td></tr>
+        <tr><td>IsEmpty</td><td><code>len(stack) == 0</code></td><td><span class="o1">O(1)</span></td><td>ตรวจว่า Stack ว่าง?</td></tr>
+        <tr><td>Size</td><td><code>len(stack)</code></td><td><span class="o1">O(1)</span></td><td>จำนวน item ใน stack</td></tr>
+      </table>
+    </div>
+
+    <!-- STACK APP -->
+    <div class="sec" id="stack-app">
+      <h3>Stack ในชีวิตจริง — Balanced Brackets</h3>
+      <p>หนึ่งในการใช้ Stack ที่โด่งดังที่สุดคือ <strong>ตรวจสอบวงเล็บปิด-เปิดให้สมดุล</strong> — compiler และ IDE ทุกตัวใช้วิธีนี้</p>
+      <div class="callout info"><strong>หลักการ:</strong> เจอ <code>(</code> <code>[</code> <code>{</code> → push ลง stack | เจอ <code>)</code> <code>]</code> <code>}</code> → pop ออกมาเปรียบเทียบ ถ้าตรงกัน → OK</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">brackets.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="sec" id="queue">
+      <div class="sl">Part 2</div>
+      <h2>Queue — First In, First Out</h2>
+      <p><strong>Queue</strong> คือโครงสร้างแบบ <strong>คิวรอ</strong> — คนที่มาก่อนได้ออกก่อนเสมอ</p>
+      <div class="callout warn"><strong>ระวัง!</strong> อย่าใช้ <code>list.pop(0)</code> เพราะเป็น <span class="on">O(N)</span> ช้ามาก ควรใช้ <code>collections.deque</code> แทน เพราะ <code>popleft()</code> เป็น <span class="o1">O(1)</span></div>
+    </div>
+
+    <!-- QUEUE OPS -->
+    <div class="sec" id="queue-ops">
+      <h3>Queue ด้วย List (ห้ามใช้ในงานจริง)</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">queue_list.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- DEQUE -->
+    <div class="sec" id="deque">
+      <h3>collections.deque — Queue ที่ถูกต้อง</h3>
+      <p><code>deque</code> (Double-Ended Queue) รองรับการ append/pop จากทั้ง <strong>ซ้ายและขวา</strong> ด้วยความซับซ้อน <strong>O(1)</strong> ทุก operation</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">deque_basic.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <table class="tbl">
+        <tr><th>Operation</th><th>deque method</th><th>ความซับซ้อน</th><th>คำอธิบาย</th></tr>
+        <tr><td>Enqueue (ท้าย)</td><td><code>q.append(x)</code></td><td><span class="o1">O(1)</span></td><td>เพิ่มท้ายคิว</td></tr>
+        <tr><td>Dequeue (หน้า)</td><td><code>q.popleft()</code></td><td><span class="o1">O(1)</span></td><td>นำหน้าคิวออก</td></tr>
+        <tr><td>Front</td><td><code>q[0]</code></td><td><span class="o1">O(1)</span></td><td>ดูหน้าคิว</td></tr>
+        <tr><td>Back</td><td><code>q[-1]</code></td><td><span class="o1">O(1)</span></td><td>ดูท้ายคิว</td></tr>
+        <tr><td>เพิ่มหน้า</td><td><code>q.appendleft(x)</code></td><td><span class="o1">O(1)</span></td><td>เพิ่มหน้าคิว (deque พิเศษ)</td></tr>
+        <tr><td>นำท้ายออก</td><td><code>q.pop()</code></td><td><span class="o1">O(1)</span></td><td>นำท้ายคิวออก</td></tr>
+      </table>
+    </div>
+
+    <!-- STACK VISUALIZER -->
+    <div class="sec" id="stack-viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 Stack Visualizer</h2>
+      <p>ลองกด Push / Pop เพื่อดูการทำงานของ Stack แบบ Visual</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title stack-t">📚 STACK (LIFO)</span>
+          <span style="font-size:11px;color:var(--mu)">ซ้ายสุด = ล่างสุด | ขวาสุด = TOP</span>
+        </div>
+        <div class="viz-body">
+          <div class="viz-ctrl">
+            <input class="viz-inp" id="stkInput" placeholder="ค่า..." value="42" onkeydown="if(event.key==='Enter')vizStackPush()">
+            <button class="viz-btn push" onclick="vizStackPush()">⬆ Push</button>
+            <button class="viz-btn pop" onclick="vizStackPop()">⬇ Pop</button>
+            <button class="viz-btn rst" onclick="vizStackReset()">↺ Reset</button>
+          </div>
+          <div class="viz-stage" id="stkStage" style="flex-direction:row;align-items:center;min-height:80px;gap:4px;position:relative">
+            <span class="viz-empty" id="stkEmpty">Stack ว่างเปล่า — กด Push!</span>
+          </div>
+          <div class="viz-log" id="stkLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE VISUALIZER -->
+    <div class="sec" id="queue-viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 Queue Visualizer</h2>
+      <p>ลอง Enqueue / Dequeue เพื่อดูการทำงานของ Queue</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title queue-t">🚶 QUEUE (FIFO)</span>
+          <span style="font-size:11px;color:var(--mu)">ซ้าย = FRONT | ขวา = BACK</span>
+        </div>
+        <div class="viz-body">
+          <div class="viz-ctrl">
+            <input class="viz-inp" id="queInput" placeholder="ค่า..." value="🍕" style="border-color:rgba(6,182,212,.4)" onkeydown="if(event.key==='Enter')vizQueEnq()">
+            <button class="viz-btn enq" onclick="vizQueEnq()">➡ Enqueue</button>
+            <button class="viz-btn deq" onclick="vizQueDeq()">⬅ Dequeue</button>
+            <button class="viz-btn rst" onclick="vizQueReset()">↺ Reset</button>
+          </div>
+          <div class="viz-stage queue-stage" id="queStage" style="min-height:80px;position:relative;overflow-x:auto">
+            <span class="viz-empty" id="queEmpty">Queue ว่างเปล่า — กด Enqueue!</span>
+          </div>
+          <div class="viz-log" id="queLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="sec" id="techniques">
+      <div class="sl">เทคนิคขั้นสูง</div>
+      <h2>เทคนิคการใช้ Stack &amp; Queue</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Stack</span>Balanced Brackets</div>
+          <div class="tc-desc">ตรวจวงเล็บปิด-เปิดสมดุล เป็น pattern พื้นฐานที่สุด เจอในงานแทบทุกประเภท</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Stack</span>Monotonic Stack</div>
+          <div class="tc-desc">หา next greater/smaller element ทุกตัวใน O(N) ใช้ใน histogram, trap water</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">Queue</span>BFS (กราฟ/เขาวงกต)</div>
+          <div class="tc-desc">ค้นหาเส้นทางสั้นที่สุดในกราฟ หรือเขาวงกต ใช้ Queue เก็บ node ที่รอเยี่ยม</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">Both</span>Undo/Redo System</div>
+          <div class="tc-desc">Stack 2 ตัว — undo stack เก็บการกระทำ, redo stack เก็บที่ถูก undo ไป</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BALANCED -->
+    <div class="sec" id="balanced">
+      <h3>เทคนิค: Balanced Brackets</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">balanced_advanced.py</span></div><button class="run-btn" onclick="runLesson(this,'L7','LO7')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L7"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO7">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- MONOTONIC -->
+    <div class="sec" id="monotonic">
+      <h3>เทคนิค: Monotonic Stack (Next Greater Element)</h3>
+      <p>หา <strong>ตัวต่อไปที่มากกว่า</strong> สำหรับทุกตัวใน array ด้วย O(N) แทนที่จะใช้ Nested Loop O(N²)</p>
+      <div class="callout info"><strong>หลักการ:</strong> วนทุกตัว ถ้า top ของ stack เล็กกว่าตัวปัจจุบัน → ตัวปัจจุบันคือ "Next Greater" ของ top นั้น → pop ออก บันทึกคำตอบ</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">monotonic_stack.py</span></div><button class="run-btn" onclick="runLesson(this,'L8','LO8')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L8"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO8">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- BFS -->
+    <div class="sec" id="bfs">
+      <h3>เทคนิค: BFS กับ Queue</h3>
+      <p><strong>BFS (Breadth-First Search)</strong> ใช้ Queue หา<strong>เส้นทางสั้นที่สุด</strong> ในกราฟและเขาวงกต</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">bfs_maze.py</span></div><button class="run-btn" onclick="runLesson(this,'L9','LO9')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L9"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO9">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISES -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">1</div><div class="ex-info"><h3>Reverse Stack</h3><p>รับตัวเลขหลายตัวคั่นด้วยช่องว่าง จงพิมพ์ตัวเลขในลำดับ<strong>กลับหน้า</strong> โดยใช้ Stack</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">1 2 3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">5 4 3 2 1</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> Push ทุกตัวลง Stack แล้ว Pop ออกทีละตัว → ลำดับกลับหัวอัตโนมัติ!</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div><button class="check-btn" onclick="checkEx(this,1)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E1"></div>
+          </div>
+          <div class="verdict" id="V1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">2</div><div class="ex-info"><h3>Balanced Brackets</h3><p>รับ string 1 บรรทัด ตรวจว่าวงเล็บ <code>()</code> <code>[]</code> <code>{}</code> สมดุลหรือเปล่า พิมพ์ <code>YES</code> หรือ <code>NO</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">{[()()]}</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">YES</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">{[(]}</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">NO</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div><button class="check-btn" onclick="checkEx(this,2)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E2"></div>
+          </div>
+          <div class="verdict" id="V2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Pre-TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">3</div><div class="ex-info"><h3>Hot Potato (Queue)</h3><p>มีเด็ก N คน นั่งเป็นวงกลม รับ N และรายชื่อ บรรทัดที่ 3 คือ k ส่งต่อ k ครั้งแล้วคนที่ถือต้องออก วนจนเหลือคนเดียว — พิมพ์ชื่อผู้ชนะ</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+Bill David Susan Jane Kent
+7</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Susan</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ deque — วน k-1 ครั้ง appendleft(popleft()) แล้ว popleft() ออก วนจนเหลือคนสุดท้าย</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div><button class="check-btn" onclick="checkEx(this,3)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E3"></div>
+          </div>
+          <div class="verdict" id="V3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">4</div><div class="ex-info"><h3>Browser History (Stack)</h3><p>จำลอง browser — รับ command ทีละบรรทัด: <code>VISIT url</code>, <code>BACK</code>, <code>CURRENT</code> จนพิมพ์ <code>EXIT</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">VISIT google.com
+VISIT github.com
+VISIT claude.ai
+CURRENT
+BACK
+CURRENT
+EXIT</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">claude.ai
+github.com</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div><button class="check-btn" onclick="checkEx(this,4)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E4"></div>
+          </div>
+          <div class="verdict" id="V4"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">5</div><div class="ex-info"><h3>Queue Simulator — ระบบจัดคิว</h3><p>รับ N คำสั่ง: <code>ENQUEUE name</code>, <code>DEQUEUE</code>, <code>PEEK</code>, <code>SIZE</code> — ประมวลผลและพิมพ์ผลเฉพาะ DEQUEUE, PEEK, SIZE</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6
+ENQUEUE Alice
+ENQUEUE Bob
+PEEK
+DEQUEUE
+DEQUEUE
+SIZE</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Alice
+Alice
+Bob
+0</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div><button class="check-btn" onclick="checkEx(this,5)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E5"></div>
+          </div>
+          <div class="verdict" id="V5"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">6</div><div class="ex-info"><h3>Min Stack — Stack ที่รู้ค่าต่ำสุดตลอดเวลา</h3><p>รับ N คำสั่ง: <code>PUSH x</code>, <code>POP</code>, <code>MIN</code> — MIN ต้องตอบ O(1) เสมอ!</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7
+PUSH 5
+PUSH 3
+PUSH 7
+MIN
+POP
+MIN
+POP</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">3
+3</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ Stack 2 ตัว — stack ปกติ และ min_stack ที่เก็บค่าต่ำสุด ณ แต่ละ level</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex6.py</span></div><button class="check-btn" onclick="checkEx(this,6)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E6"></div>
+          </div>
+          <div class="verdict" id="V6"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — TOI Zero / สอวน.</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">7</div><div class="ex-info"><h3>Largest Rectangle in Histogram</h3><p>รับความสูงของแท่งกราฟ N แท่ง จงหาพื้นที่สี่เหลี่ยมผืนผ้า<strong>ที่ใหญ่ที่สุด</strong>ที่เกิดจากแท่งต่อเนื่องกัน</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 1 5 6 2 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">10</div></div>
+          </div>
+          <div class="callout warn" style="margin-bottom:10px;font-size:13px"><strong>Hint:</strong> ใช้ Monotonic Stack เก็บ index ของแท่งที่สูงขึ้นเรื่อยๆ เมื่อพบแท่งที่เล็กกว่า pop แล้วคำนวณพื้นที่</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex7.py</span></div><button class="check-btn" onclick="checkEx(this,7)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E7"></div>
+          </div>
+          <div class="verdict" id="V7"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">8</div><div class="ex-info"><h3>เขาวงกต — หาเส้นทางสั้นที่สุด (BFS)</h3><p>รับ R C แล้วรับ R บรรทัด (grid) <code>.</code>=ทาง <code>#</code>=กำแพง <code>S</code>=เริ่ม <code>E</code>=ปลาย พิมพ์จำนวนก้าวต่ำสุด หรือ <code>-1</code> ถ้าไปไม่ถึง</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 5
+S....
+#####
+....#
+#####
+....E</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">-1</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 5
+S....
+.###.
+....E</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">8</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex8.py</span></div><button class="check-btn" onclick="checkEx(this,8)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E8"></div>
+          </div>
+          <div class="verdict" id="V8"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXTRA 10 EXERCISES HEADER -->
+    <div class="sec" id="extra-intro">
+      <div class="sl">โจทย์เพิ่มเติม</div>
+      <h2>โจทย์ฝึกหัดเพิ่มเติม 10 ข้อ</h2>
+      <p>โจทย์ชุดนี้ออกแบบให้ครอบคลุมเนื้อหาจาก <strong>PDF Week 4</strong> ตั้งแต่ระดับ Basic จนถึง TOI พร้อมระบบตรวจคำตอบอัตโนมัติ</p>
+      <div class="callout info"><strong>วิธีใช้:</strong> เขียนโค้ด Python ในช่องด้านล่าง แล้วกด "ตรวจคำตอบ" — ระบบจะรัน Test Cases ทั้งหมดให้อัตโนมัติ</div>
+    </div>
+
+    <!-- EX 9 -->
+    <div class="sec" id="ex9">
+      <div class="sl">โจทย์ที่ 9 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">9</div><div class="ex-info"><h3>ระบบล้างจาน (Dish Washing Stack)</h3><p>รับชื่อจานทีละบรรทัดจนกว่าจะเจอคำว่า <code>exit</code> แล้วแสดงลำดับการล้างจาน (จานที่มาทีหลังต้องถูกล้างก่อน)</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">แดง
+เหลือง
+น้ำเงิน
+exit</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">ล้าง: น้ำเงิน
+ล้าง: เหลือง
+ล้าง: แดง</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> Push ชื่อจานลง Stack จนเจอ "exit" แล้ว Pop ออกทีละใบ พิมพ์ "ล้าง: {ชื่อ}"</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex9.py</span></div><button class="check-btn" onclick="checkEx(this,9)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E9"></div>
+          </div>
+          <div class="verdict" id="V9"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 10 -->
+    <div class="sec" id="ex10">
+      <div class="sl">โจทย์ที่ 10 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">10</div><div class="ex-info"><h3>คิวร้านอาหาร (Restaurant Queue Simulator)</h3><p>รับชื่อลูกค้าและจำนวนสินค้าที่ซื้อ N คน แต่ละสินค้าใช้เวลา 10 วินาที คำนวณเวลาที่แต่ละคนรับบริการเสร็จ</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+Alice 3
+Bob 1
+Charlie 2</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Alice เสร็จที่วินาที 30
+Bob เสร็จที่วินาที 40
+Charlie เสร็จที่วินาที 60</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ deque เก็บ (ชื่อ, จำนวนสินค้า) → popleft() ทีละคน → total_time += count * 10</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex10.py</span></div><button class="check-btn" onclick="checkEx(this,10)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E10"></div>
+          </div>
+          <div class="verdict" id="V10"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 11 -->
+    <div class="sec" id="ex11">
+      <div class="sl">โจทย์ที่ 11 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">11</div><div class="ex-info"><h3>Palindrome Checker (Stack + Queue)</h3><p>รับ string 1 บรรทัด ตรวจว่าเป็น Palindrome (อ่านซ้าย→ขวา = ขวา→ซ้าย) โดยใช้ <strong>Stack และ Queue ร่วมกัน</strong> พิมพ์ <code>YES</code> หรือ <code>NO</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">level</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">YES</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">hello</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">NO</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> Push ทุกตัวลง Stack และ Enqueue ลง Queue → Pop จาก Stack เปรียบเทียบกับ Dequeue จาก Queue ทีละตัว ถ้าตรงกันทั้งหมด = Palindrome</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex11.py</span></div><button class="check-btn" onclick="checkEx(this,11)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E11"></div>
+          </div>
+          <div class="verdict" id="V11"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 12 -->
+    <div class="sec" id="ex12">
+      <div class="sl">โจทย์ที่ 12 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">12</div><div class="ex-info"><h3>Undo / Redo System</h3><p>จำลองระบบ Undo/Redo — รับคำสั่ง: <code>DO text</code>, <code>UNDO</code>, <code>REDO</code>, <code>SHOW</code> จนถึง <code>EXIT</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">DO hello
+DO world
+SHOW
+UNDO
+SHOW
+REDO
+SHOW
+EXIT</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">hello world
+hello
+hello world</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ Stack 2 ตัว — <code>undo_stack</code> เก็บ state ปัจจุบัน, <code>redo_stack</code> เก็บสิ่งที่ UNDO ไป | <code>SHOW</code> = พิมพ์ content ที่ join ด้วยช่องว่าง</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex12.py</span></div><button class="check-btn" onclick="checkEx(this,12)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E12"></div>
+          </div>
+          <div class="verdict" id="V12"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 13 -->
+    <div class="sec" id="ex13">
+      <div class="sl">โจทย์ที่ 13 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">13</div><div class="ex-info"><h3>Balanced Brackets — 3 ชนิด (Workshop จาก PDF)</h3><p>รับ T test cases แต่ละ case รับ string 1 บรรทัด ตรวจวงเล็บ <code>()</code> <code>[]</code> <code>{}</code> ว่าสมดุลไหม พิมพ์ <code>ถูกต้อง</code> หรือ <code>ไม่ถูกต้อง</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+{[()]}
+{[)]}
+(()</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">ถูกต้อง
+ไม่ถูกต้อง
+ไม่ถูกต้อง</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ dict mapping <code>&#123;")" : "(", "]" : "[", "}" : "{"&#125;</code> ตอน pop ต้องเช็คว่าตรงคู่หรือเปล่า</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex13.py</span></div><button class="check-btn" onclick="checkEx(this,13)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E13"></div>
+          </div>
+          <div class="verdict" id="V13"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 14 -->
+    <div class="sec" id="ex14">
+      <div class="sl">โจทย์ที่ 14 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">14</div><div class="ex-info"><h3>Evaluate Postfix Expression (นิพจน์ Postfix)</h3><p>รับนิพจน์ Postfix (Reverse Polish Notation) 1 บรรทัด คั่นด้วยช่องว่าง — คำนวณและพิมพ์ผลลัพธ์</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 4 + 2 *</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">14</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 1 2 + 4 * + 3 -</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">14</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> วนทุก token → ถ้าเป็นตัวเลข push ลง stack → ถ้าเป็น operator pop 2 ตัว คำนวณ แล้ว push ผลลัพธ์ → คำตอบคือตัวสุดท้ายใน stack</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex14.py</span></div><button class="check-btn" onclick="checkEx(this,14)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E14"></div>
+          </div>
+          <div class="verdict" id="V14"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 15 -->
+    <div class="sec" id="ex15">
+      <div class="sl">โจทย์ที่ 15 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">15</div><div class="ex-info"><h3>คิวธนาคาร (Bank Queue)</h3><p>รับ N คำสั่ง: <code>ARRIVE name priority</code> (priority 1=VIP, 2=ปกติ), <code>SERVE</code> — VIP ต้องได้รับบริการก่อนเสมอ แต่ VIP ด้วยกันเรียงตาม FIFO</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6
+ARRIVE Alice 2
+ARRIVE Bob 1
+ARRIVE Carol 2
+ARRIVE Dave 1
+SERVE
+SERVE</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Bob
+Dave</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ deque 2 ตัว — <code>vip_queue</code> และ <code>normal_queue</code> → SERVE: dequeue จาก vip ก่อน ถ้าไม่มีค่อย dequeue จาก normal</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex15.py</span></div><button class="check-btn" onclick="checkEx(this,15)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E15"></div>
+          </div>
+          <div class="verdict" id="V15"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 16 -->
+    <div class="sec" id="ex16">
+      <div class="sl">โจทย์ที่ 16 — TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">16</div><div class="ex-info"><h3>Implement Stack using Two Queues</h3><p>จำลอง Stack ด้วย Queue 2 ตัวเท่านั้น — รับ N คำสั่ง: <code>PUSH x</code>, <code>POP</code>, <code>TOP</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6
+PUSH 1
+PUSH 2
+PUSH 3
+TOP
+POP
+TOP</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">3
+3
+2</div></div>
+          </div>
+          <div class="callout warn" style="margin-bottom:10px;font-size:13px"><strong>ข้อห้าม:</strong> ห้ามใช้ Python list โดยตรงเป็น Stack — ต้องใช้ <code>deque</code> 2 ตัวเท่านั้น | <strong>Hint:</strong> ทุกครั้งที่ PUSH ย้ายสมาชิกทั้งหมดจาก q1 ไป q2 แล้ว append ค่าใหม่ลง q1 แล้วสลับ q1 กับ q2</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex16.py</span></div><button class="check-btn" onclick="checkEx(this,16)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E16"></div>
+          </div>
+          <div class="verdict" id="V16"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 17 -->
+    <div class="sec" id="ex17">
+      <div class="sl">โจทย์ที่ 17 — TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">17</div><div class="ex-info"><h3>Sliding Window Maximum (Monotonic Deque)</h3><p>รับ array ตัวเลข N ตัว และขนาดหน้าต่าง K จงหา <strong>ค่าสูงสุด</strong> ของทุก window ขนาด K ที่เลื่อนไปทีละ 1</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">8 3
+1 3 -1 -3 5 3 6 7</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">3 3 5 5 6 7</div></div>
+          </div>
+          <div class="callout warn" style="margin-bottom:10px;font-size:13px"><strong>Constraint:</strong> ต้องใช้ <code>deque</code> ให้ได้ O(N) — ห้ามใช้ max() แบบ brute force ที่เป็น O(NK) | <strong>Hint:</strong> deque เก็บ index โดยรักษา monotone decreasing — ตัวเล็กกว่าทางขวา pop ออก, ตัวนอก window pop จากซ้าย</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex17.py</span></div><button class="check-btn" onclick="checkEx(this,17)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E17"></div>
+          </div>
+          <div class="verdict" id="V17"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 18 -->
+    <div class="sec" id="ex18">
+      <div class="sl">โจทย์ที่ 18 — TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">18</div><div class="ex-info"><h3>Decode String (Stack)</h3><p>รับ encoded string ในรูปแบบ <code>k[s]</code> = repeat s จำนวน k ครั้ง — decode และพิมพ์ผลลัพธ์</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3[a]2[bc]</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">aaabcbc</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2[3[a]b]</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">aaabaaab</div></div>
+          </div>
+          <div class="callout warn" style="margin-bottom:10px;font-size:13px"><strong>Hint:</strong> ใช้ Stack 2 ตัว — <code>num_stack</code> เก็บจำนวน, <code>str_stack</code> เก็บ string ก่อนหน้า | เจอ <code>[</code> push, เจอ <code>]</code> pop แล้ว repeat</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex18.py</span></div><button class="check-btn" onclick="checkEx(this,18)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E18"></div>
+          </div>
+          <div class="verdict" id="V18"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- SUMMARY -->
+    <div class="sec" id="summary">
+      <div class="sl">สรุป</div>
+      <h2>Key Takeaways</h2>
+      <table class="tbl">
+        <tr><th>สถานการณ์</th><th>ใช้อะไร</th><th>เพราะ</th></tr>
+        <tr><td>ต้องการ LIFO (ล่าสุดออกก่อน)</td><td><code>Stack (list)</code></td><td>append/pop = O(1)</td></tr>
+        <tr><td>ต้องการ FIFO (แรกเข้าออกก่อน)</td><td><code>deque</code></td><td>popleft() = O(1)</td></tr>
+        <tr><td>ตรวจวงเล็บสมดุล</td><td><code>Stack</code></td><td>เปิด=push, ปิด=pop เปรียบเทียบ</td></tr>
+        <tr><td>หา Next Greater Element</td><td><code>Monotonic Stack</code></td><td>O(N) แทน O(N²)</td></tr>
+        <tr><td>หาเส้นทางสั้นสุดในกราฟ</td><td><code>BFS + Queue</code></td><td>แน่ใจว่าสั้นที่สุดเสมอ</td></tr>
+        <tr><td>ต้องการรู้ min/max ใน O(1)</td><td><code>Stack 2 ตัว</code></td><td>min_stack ติดตามค่าต่ำสุดแต่ละ level</td></tr>
+      </table>
+      <div class="callout ok" style="margin-top:20px"><strong>เป้าหมาย:</strong> จำแนกให้ได้ว่าโจทย์ไหนต้องการ Stack, Queue, หรือทั้งสอง — ดูที่ <strong>"ลำดับการประมวลผล"</strong> คือสัญญาณสำคัญ!</div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Monaco -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+// ════════════════════════════════
+//  LESSON CODES
+// ════════════════════════════════
+const LC = [
+/* L0 stack_basic */
+`# Stack ใน Python ใช้ List ได้เลย
+stack = []
+
+# Push
+stack.append(10)
+stack.append(20)
+stack.append(30)
+
+print("Stack:", stack)
+print("Top:", stack[-1])   # ดูบนสุด
+
+# Pop
+top = stack.pop()
+print("Pop ได้:", top)
+print("Stack หลัง pop:", stack)
+print("ว่างไหม?", len(stack) == 0)`,
+
+/* L1 stack_push */
+`stack = []
+items = ["🍎", "🍌", "🍇", "🍓"]
+
+for item in items:
+    stack.append(item)
+    print(f"Push {item} → Stack: {stack}  | Top: {stack[-1]}")
+
+print()
+print("Stack สุดท้าย:", stack)
+print("สิ่งที่อยู่บนสุด:", stack[-1])`,
+
+/* L2 stack_pop */
+`stack = [1, 2, 3, 4, 5]
+print("เริ่มต้น:", stack)
+print()
+
+while stack:
+    val = stack.pop()
+    print(f"Pop → {val}  | เหลือ: {stack}")
+
+print()
+# Pop จาก stack ว่าง → Error
+try:
+    stack.pop()
+except IndexError as e:
+    print("pop() บน stack ว่าง → IndexError:", e)`,
+
+/* L3 stack_peek */
+`stack = ["A", "B", "C", "D"]
+print("Stack:", stack)
+
+# Peek — ดูโดยไม่นำออก
+top = stack[-1]
+print("Peek →", top)
+print("Stack ยังอยู่:", stack)  # ไม่เปลี่ยน
+
+# ตรวจก่อน peek
+if stack:
+    print("Top คือ:", stack[-1])
+else:
+    print("Stack ว่างเปล่า")`,
+
+/* L4 brackets */
+`def is_balanced(s):
+    stack = []
+    mapping = {')': '(', ']': '[', '}': '{'}
+    
+    for ch in s:
+        if ch in '([{':
+            stack.append(ch)
+        elif ch in ')]}':
+            if not stack or stack[-1] != mapping[ch]:
+                return False
+            stack.pop()
+    
+    return len(stack) == 0
+
+tests = [
+    "(())",
+    "{[()()]}",
+    "([{}])",
+    "([)]",
+    "{[}",
+    "(((",
+    "",
+]
+
+for t in tests:
+    result = "✅ สมดุล" if is_balanced(t) else "❌ ไม่สมดุล"
+    print(f"{t!r:20} → {result}")`,
+
+/* L5 queue_list */
+`# Queue แบบ List — ห้ามใช้ในงานจริง
+queue = []
+
+# Enqueue (O(1))
+queue.append("A")
+queue.append("B")
+queue.append("C")
+print("Queue:", queue)
+
+# Dequeue — pop(0) ช้า! O(N)
+first = queue.pop(0)
+print("Dequeue:", first)
+print("Queue หลัง dequeue:", queue)
+print()
+print("⚠️ list.pop(0) = O(N) ช้า!")
+print("✅ ควรใช้ collections.deque แทน")`,
+
+/* L6 deque_basic */
+`from collections import deque
+
+q = deque()
+
+# Enqueue — ท้ายคิว
+q.append("Alice")
+q.append("Bob")
+q.append("Charlie")
+print("Queue:", list(q))
+print("Front:", q[0])
+print("Back:", q[-1])
+print()
+
+# Dequeue — หน้าคิว O(1)
+served = q.popleft()
+print("Dequeue:", served)
+print("Queue หลัง dequeue:", list(q))
+print()
+
+# deque พิเศษ — เพิ่มหน้า
+q.appendleft("VIP")
+print("เพิ่ม VIP ด้านหน้า:", list(q))`,
+
+/* L7 balanced_advanced */
+`# Balanced Brackets — พร้อม error message
+def check_brackets(s):
+    stack = []
+    mapping = {')': '(', ']': '[', '}': '{'}
+    opens  = set('([{')
+    closes = set(')]}')
+    
+    for i, ch in enumerate(s):
+        if ch in opens:
+            stack.append((ch, i))
+        elif ch in closes:
+            if not stack:
+                return False, f"ตำแหน่ง {i}: '{ch}' ไม่มีวงเล็บเปิดคู่"
+            top, pos = stack.pop()
+            if top != mapping[ch]:
+                return False, f"ตำแหน่ง {i}: '{ch}' ไม่ตรงกับ '{top}' ที่ตำแหน่ง {pos}"
+    
+    if stack:
+        ch, pos = stack[-1]
+        return False, f"ตำแหน่ง {pos}: '{ch}' ไม่มีวงเล็บปิดคู่"
+    
+    return True, "OK ✓"
+
+tests = ["(())", "([)]", "{[(", "{{{}}}"]
+for t in tests:
+    ok, msg = check_brackets(t)
+    status = "✅" if ok else "❌"
+    print(f"{status} {t!r:12} → {msg}")`,
+
+/* L8 monotonic_stack */
+`def next_greater(arr):
+    """หาค่าต่อไปที่มากกว่าสำหรับทุกตัว O(N)"""
+    n = len(arr)
+    result = [-1] * n   # -1 = ไม่มีตัวที่ใหญ่กว่า
+    stack = []          # เก็บ index
+    
+    for i in range(n):
+        # ตราบใดที่ arr[i] > arr[top] → arr[i] คือ NGE ของ top
+        while stack and arr[stack[-1]] < arr[i]:
+            idx = stack.pop()
+            result[idx] = arr[i]
+        stack.append(i)
+    
+    return result
+
+arr = [2, 1, 5, 6, 2, 3]
+nge = next_greater(arr)
+
+print("Array :", arr)
+print("NGE   :", nge)
+print()
+for i, (val, ng) in enumerate(zip(arr, nge)):
+    ans = str(ng) if ng != -1 else "ไม่มี"
+    print(f"arr[{i}]={val} → Next Greater: {ans}")`,
+
+/* L9 bfs_maze */
+`from collections import deque
+
+def bfs(grid, start, end):
+    R, C = len(grid), len(grid[0])
+    q = deque([(start, 0)])
+    visited = set([start])
+    
+    while q:
+        (r, c), dist = q.popleft()
+        if (r, c) == end:
+            return dist
+        for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nr, nc = r+dr, c+dc
+            if 0<=nr<R and 0<=nc<C and (nr,nc) not in visited and grid[nr][nc]!='#':
+                visited.add((nr, nc))
+                q.append(((nr, nc), dist+1))
+    return -1
+
+maze = [
+    "S....",
+    ".###.",
+    ".###.",
+    "....E"
+]
+grid = [list(row) for row in maze]
+
+# หา S และ E
+start = end = None
+for r, row in enumerate(grid):
+    for c, ch in enumerate(row):
+        if ch == 'S': start = (r, c)
+        if ch == 'E': end   = (r, c)
+
+steps = bfs(grid, start, end)
+print("เขาวงกต:")
+for row in maze:
+    print(" ", row)
+print()
+if steps == -1:
+    print("❌ ไม่สามารถถึงจุดหมาย")
+else:
+    print(f"✅ เส้นทางสั้นที่สุด: {steps} ก้าว")`
+];
+
+// ════════════════════════════════
+//  EXERCISE TEST CASES
+// ════════════════════════════════
+const EX = {
+  1: { start: `# รับตัวเลขคั่นด้วยช่องว่าง 1 บรรทัด
+# พิมพ์กลับหน้าโดยใช้ Stack
+`,
+    tests: [
+      {inp:"1 2 3 4 5",     exp:"5 4 3 2 1"},
+      {inp:"10 20 30",      exp:"30 20 10"},
+      {inp:"7",             exp:"7"},
+      {inp:"A B C D",       exp:"D C B A"},
+    ]},
+
+  2: { start: `# รับ string 1 บรรทัด
+# พิมพ์ YES หรือ NO
+`,
+    tests: [
+      {inp:"{[()()]}",      exp:"YES"},
+      {inp:"([)]",          exp:"NO"},
+      {inp:"((()",          exp:"NO"},
+      {inp:"",              exp:"YES"},
+      {inp:"{}[](){{}}",    exp:"YES"},
+      {inp:"{[}",           exp:"NO"},
+    ]},
+
+  3: { start: `from collections import deque
+# บรรทัด 1: N
+# บรรทัด 2: ชื่อ N คน คั่นด้วยช่องว่าง
+# บรรทัด 3: k
+`,
+    tests: [
+      {inp:"5\nBill David Susan Jane Kent\n7", exp:"Susan"},
+      {inp:"6\nA B C D E F\n2",              exp:"E"},
+      {inp:"1\nAlone\n100",                  exp:"Alone"},
+    ]},
+
+  4: { start: `# รับ commands ทีละบรรทัดจนถึง EXIT
+# VISIT url, BACK, CURRENT
+`,
+    tests: [
+      {inp:"VISIT google.com\nVISIT github.com\nVISIT claude.ai\nCURRENT\nBACK\nCURRENT\nEXIT",
+       exp:"claude.ai\ngithub.com"},
+      {inp:"VISIT a.com\nCURRENT\nBACK\nCURRENT\nEXIT",
+       exp:"a.com\na.com"},
+    ]},
+
+  5: { start: `from collections import deque
+# บรรทัดแรก: N
+# N บรรทัดถัดไป: ENQUEUE/DEQUEUE/PEEK/SIZE
+`,
+    tests: [
+      {inp:"6\nENQUEUE Alice\nENQUEUE Bob\nPEEK\nDEQUEUE\nDEQUEUE\nSIZE",
+       exp:"Alice\nAlice\nBob\n0"},
+      {inp:"4\nENQUEUE X\nENQUEUE Y\nSIZE\nPEEK",
+       exp:"2\nX"},
+    ]},
+
+  6: { start: `# บรรทัดแรก: N
+# N บรรทัดถัดไป: PUSH x / POP / MIN
+`,
+    tests: [
+      {inp:"7\nPUSH 5\nPUSH 3\nPUSH 7\nMIN\nPOP\nMIN\nPOP",
+       exp:"3\n3"},
+      {inp:"5\nPUSH 10\nPUSH 1\nPUSH 5\nMIN\nPOP",
+       exp:"1"},
+    ]},
+
+  7: { start: `# รับความสูงคั่นด้วยช่องว่าง 1 บรรทัด
+# พิมพ์พื้นที่สูงสุด
+`,
+    tests: [
+      {inp:"2 1 5 6 2 3",   exp:"10"},
+      {inp:"1 1 1 1 1",     exp:"5"},
+      {inp:"6 2 5 4 5 1 6", exp:"12"},
+      {inp:"3",             exp:"3"},
+    ]},
+
+  8: { start: `from collections import deque
+# บรรทัดแรก: R C
+# R บรรทัดถัดไป: grid (., #, S, E)
+`,
+    tests: [
+      {inp:"5 5\nS....\n#####\n....#\n#####\n....E", exp:"-1"},
+      {inp:"3 5\nS....\n.###.\n....E",               exp:"8"},
+      {inp:"2 2\nSE\n..",                            exp:"1"},
+    ]},
+
+  9: { start: `# รับชื่อจานทีละบรรทัดจนเจอ "exit"
+# พิมพ์ลำดับการล้างจาน
+`,
+    tests: [
+      {inp:"แดง\nเหลือง\nน้ำเงิน\nexit",
+       exp:"ล้าง: น้ำเงิน\nล้าง: เหลือง\nล้าง: แดง"},
+      {inp:"A\nB\nC\nexit",
+       exp:"ล้าง: C\nล้าง: B\nล้าง: A"},
+      {inp:"จาน1\nexit",
+       exp:"ล้าง: จาน1"},
+    ]},
+
+  10: { start: `from collections import deque
+# บรรทัดแรก: N
+# N บรรทัดถัดไป: ชื่อ จำนวนสินค้า
+`,
+    tests: [
+      {inp:"3\nAlice 3\nBob 1\nCharlie 2",
+       exp:"Alice เสร็จที่วินาที 30\nBob เสร็จที่วินาที 40\nCharlie เสร็จที่วินาที 60"},
+      {inp:"2\nAnn 5\nBen 2",
+       exp:"Ann เสร็จที่วินาที 50\nBen เสร็จที่วินาที 70"},
+      {inp:"1\nSolo 1",
+       exp:"Solo เสร็จที่วินาที 10"},
+    ]},
+
+  11: { start: `from collections import deque
+# รับ string 1 บรรทัด
+# พิมพ์ YES หรือ NO
+`,
+    tests: [
+      {inp:"level",    exp:"YES"},
+      {inp:"hello",    exp:"NO"},
+      {inp:"racecar",  exp:"YES"},
+      {inp:"python",   exp:"NO"},
+      {inp:"a",        exp:"YES"},
+      {inp:"abba",     exp:"YES"},
+    ]},
+
+  12: { start: `# รับ command ทีละบรรทัดจนถึง EXIT
+# DO text, UNDO, REDO, SHOW
+`,
+    tests: [
+      {inp:"DO hello\nDO world\nSHOW\nUNDO\nSHOW\nREDO\nSHOW\nEXIT",
+       exp:"hello world\nhello\nhello world"},
+      {inp:"DO a\nDO b\nDO c\nUNDO\nUNDO\nSHOW\nREDO\nSHOW\nEXIT",
+       exp:"a\na b"},
+      {inp:"DO x\nSHOW\nEXIT",
+       exp:"x"},
+    ]},
+
+  13: { start: `# บรรทัดแรก: T (จำนวน test cases)
+# T บรรทัดถัดไป: string วงเล็บ
+# พิมพ์ "ถูกต้อง" หรือ "ไม่ถูกต้อง"
+`,
+    tests: [
+      {inp:"3\n{[()]}\n{[)]}\n(()",
+       exp:"ถูกต้อง\nไม่ถูกต้อง\nไม่ถูกต้อง"},
+      {inp:"4\n()\n{}\n[]\n([)]",
+       exp:"ถูกต้อง\nถูกต้อง\nถูกต้อง\nไม่ถูกต้อง"},
+      {inp:"2\n\n{{}}",
+       exp:"ถูกต้อง\nถูกต้อง"},
+    ]},
+
+  14: { start: `# รับนิพจน์ Postfix 1 บรรทัด คั่นด้วยช่องว่าง
+# พิมพ์ผลลัพธ์จำนวนเต็ม
+`,
+    tests: [
+      {inp:"3 4 + 2 *",           exp:"14"},
+      {inp:"5 1 2 + 4 * + 3 -",   exp:"14"},
+      {inp:"2 3 * 4 +",           exp:"10"},
+      {inp:"10 2 /",              exp:"5"},
+    ]},
+
+  15: { start: `from collections import deque
+# บรรทัดแรก: N
+# N บรรทัดถัดไป: ARRIVE name priority(1=VIP,2=ปกติ) หรือ SERVE
+`,
+    tests: [
+      {inp:"6\nARRIVE Alice 2\nARRIVE Bob 1\nARRIVE Carol 2\nARRIVE Dave 1\nSERVE\nSERVE",
+       exp:"Bob\nDave"},
+      {inp:"4\nARRIVE X 2\nARRIVE Y 2\nSERVE\nSERVE",
+       exp:"X\nY"},
+      {inp:"3\nARRIVE A 1\nARRIVE B 2\nSERVE",
+       exp:"A"},
+    ]},
+
+  16: { start: `from collections import deque
+# บรรทัดแรก: N
+# N บรรทัดถัดไป: PUSH x / POP / TOP
+# ใช้ deque 2 ตัวเท่านั้น — ห้ามใช้ list โดยตรงเป็น Stack
+`,
+    tests: [
+      {inp:"6\nPUSH 1\nPUSH 2\nPUSH 3\nTOP\nPOP\nTOP",
+       exp:"3\n3\n2"},
+      {inp:"4\nPUSH 10\nPUSH 20\nPOP\nTOP",
+       exp:"20\n10"},
+      {inp:"5\nPUSH 5\nTOP\nPUSH 9\nPOP\nTOP",
+       exp:"5\n9\n5"},
+    ]},
+
+  17: { start: `from collections import deque
+# บรรทัดแรก: N K
+# บรรทัดที่สอง: N ตัวเลข คั่นด้วยช่องว่าง
+# พิมพ์ค่าสูงสุดแต่ละ window คั่นด้วยช่องว่าง
+`,
+    tests: [
+      {inp:"8 3\n1 3 -1 -3 5 3 6 7",   exp:"3 3 5 5 6 7"},
+      {inp:"5 2\n4 3 2 1 5",            exp:"4 3 2 5"},
+      {inp:"4 4\n1 2 3 4",              exp:"4"},
+      {inp:"6 1\n1 5 2 4 3 6",          exp:"1 5 2 4 3 6"},
+    ]},
+
+  18: { start: `# รับ encoded string 1 บรรทัด รูปแบบ k[s]
+# พิมพ์ decoded string
+`,
+    tests: [
+      {inp:"3[a]2[bc]",    exp:"aaabcbc"},
+      {inp:"2[3[a]b]",     exp:"aaabaaab"},
+      {inp:"abc",          exp:"abc"},
+      {inp:"10[x]",        exp:"xxxxxxxxxx"},
+    ]},
+};
+
+// ════════════════════════════════
+//  VISUALIZER — STACK
+// ════════════════════════════════
+let stkData = [];
+function vizStackPush() {
+  const val = document.getElementById('stkInput').value.trim();
+  if (!val) return;
+  stkData.push(val);
+  renderStack();
+  document.getElementById('stkLog').textContent = `Push(${val}) → Stack size: ${stkData.length}`;
+  document.getElementById('stkInput').select();
+}
+function vizStackPop() {
+  if (!stkData.length) { document.getElementById('stkLog').textContent = '⚠️ Stack ว่าง — ไม่มีอะไรให้ Pop'; return; }
+  const val = stkData.pop();
+  renderStack();
+  document.getElementById('stkLog').textContent = `Pop() → ${val}  | Stack size: ${stkData.length}`;
+}
+function vizStackReset() {
+  stkData = [];
+  renderStack();
+  document.getElementById('stkLog').textContent = '';
+}
+function renderStack() {
+  const stage = document.getElementById('stkStage');
+  const empty = document.getElementById('stkEmpty');
+  stage.innerHTML = '';
+  if (!stkData.length) { stage.appendChild(empty); return; }
+  stkData.forEach((v, i) => {
+    const isTop = i === stkData.length - 1;
+    const el = document.createElement('div');
+    el.className = 'viz-item stack-item' + (isTop ? ' top' : '');
+    el.innerHTML = v + (isTop ? ' <span style="font-size:10px;opacity:.7">TOP</span>' : '');
+    stage.appendChild(el);
+    if (i < stkData.length - 1) {
+      const arr = document.createElement('span');
+      arr.className = 'viz-arrow';
+      arr.textContent = '→';
+      stage.appendChild(arr);
+    }
+  });
+}
+
+// ════════════════════════════════
+//  VISUALIZER — QUEUE
+// ════════════════════════════════
+let queData = [];
+function vizQueEnq() {
+  const val = document.getElementById('queInput').value.trim();
+  if (!val) return;
+  queData.push(val);
+  renderQueue();
+  document.getElementById('queLog').textContent = `Enqueue(${val}) → Queue size: ${queData.length}`;
+  document.getElementById('queInput').select();
+}
+function vizQueDeq() {
+  if (!queData.length) { document.getElementById('queLog').textContent = '⚠️ Queue ว่าง — ไม่มีอะไรให้ Dequeue'; return; }
+  const val = queData.shift();
+  renderQueue();
+  document.getElementById('queLog').textContent = `Dequeue() → ${val}  | Queue size: ${queData.length}`;
+}
+function vizQueReset() {
+  queData = [];
+  renderQueue();
+  document.getElementById('queLog').textContent = '';
+}
+function renderQueue() {
+  const stage = document.getElementById('queStage');
+  const empty = document.getElementById('queEmpty');
+  stage.innerHTML = '';
+  if (!queData.length) { stage.appendChild(empty); return; }
+  queData.forEach((v, i) => {
+    const isFront = i === 0;
+    const isBack  = i === queData.length - 1;
+    const el = document.createElement('div');
+    let cls = 'viz-item queue-item';
+    if (isFront) cls += ' front';
+    else if (isBack) cls += ' back';
+    let label = isFront ? ' <span style="font-size:10px;opacity:.7">FRONT</span>' : (isBack ? ' <span style="font-size:10px;opacity:.7">BACK</span>' : '');
+    el.className = cls;
+    el.innerHTML = v + label;
+    stage.appendChild(el);
+    if (i < queData.length - 1) {
+      const arr = document.createElement('span');
+      arr.className = 'viz-arrow';
+      arr.textContent = '→';
+      stage.appendChild(arr);
+    }
+  });
+}
+
+// ════════════════════════════════
+//  MONACO INIT
+// ════════════════════════════════
+const EDITORS    = {};
+const EX_EDITORS = {};
+let pyodide = null, pyReady = false;
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('gdd', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword', foreground:'c678dd', fontStyle:'bold'},
+      {token:'string',  foreground:'98c379'},
+      {token:'comment', foreground:'5c6370', fontStyle:'italic'},
+      {token:'number',  foreground:'d19a66'},
+    ],
+    colors: {
+      'editor.background':               '#0d0f14',
+      'editor.foreground':               '#abb2bf',
+      'editorLineNumber.foreground':     '#3a3f52',
+      'editorLineNumber.activeForeground':'#7b82a0',
+      'editor.lineHighlightBackground':  '#1a1e2a',
+      'editorCursor.foreground':         '#e879f9',
+      'editor.selectionBackground':      '#3b4261',
+    }
+  });
+
+  const BASE = {
+    language:'python', theme:'gdd',
+    fontSize:13, fontFamily:"'JetBrains Mono', monospace",
+    minimap:{enabled:false}, scrollBeyondLastLine:false,
+    automaticLayout:true, tabSize:4, insertSpaces:true,
+    wordWrap:'on', padding:{top:10,bottom:10},
+    scrollbar:{verticalScrollbarSize:4,horizontalScrollbarSize:4},
+    lineNumbers:'on', renderLineHighlight:'line',
+  };
+
+  LC.forEach((code, i) => {
+    const el = document.getElementById(`L${i}`);
+    if (el) EDITORS[i] = monaco.editor.create(el, {...BASE, value: code});
+  });
+
+  Object.keys(EX).forEach(id => {
+    const el = document.getElementById(`E${id}`);
+    if (el) EX_EDITORS[id] = monaco.editor.create(el, {...BASE, value: EX[id].start});
+  });
+});
+
+// ════════════════════════════════
+//  PYODIDE LOADER
+// ════════════════════════════════
+(function loadPyodideCDN() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      pyodide = await window.loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+      });
+      pyReady = true;
+      dot('ready', 'Python พร้อมใช้งาน ✓', 'var(--ac3)');
+    } catch(e) {
+      dot('error', 'โหลด Python ไม่สำเร็จ — ลองรีเฟรช', 'var(--red)');
+    }
+  };
+  s.onerror = () => dot('error', 'โหลด Pyodide ไม่ได้ — ตรวจสอบ Internet', 'var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt;
+  t.style.color = col;
+}
+
+// ════════════════════════════════
+//  PYTHON RUNNER
+// ════════════════════════════════
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่แล้วลองใหม่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try {
+    pyodide.runPython(code);
+  } catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l, i) => i === lines.length - 1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured + '\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+// ════════════════════════════════
+//  LESSON RUN
+// ════════════════════════════════
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) {
+    out.textContent = e.message;
+    out.className = 'out-txt err';
+  }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// ════════════════════════════════
+//  EXERCISE CHECKER
+// ════════════════════════════════
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById(`V${id}`);
+  if (!ed || !vEl) return;
+
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) {
+      got  = e.message;
+      pass = false;
+    }
+    if (!pass) allPass = false;
+
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+
+    rows.push(`
+<div class="vd-row">
+  <span class="vd-icon">${pass ? '✅' : '❌'}</span>
+  <div class="vd-content">
+    <div class="vd-title">Test Case ${i+1}</div>
+    <div class="vd-in">Input: ${inpDisplay}</div>
+    <div class="vd-row-inner">
+      <div>
+        <div class="vd-label">ผลลัพธ์ที่ได้</div>
+        <div class="${pass ? 'vd-got' : 'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div>
+      </div>
+      ${!pass ? `<div>
+        <div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div>
+        <div class="vd-expect">${esc(exp.trim())}</div>
+      </div>` : ''}
+    </div>
+  </div>
+</div>`);
+  }
+
+  let passCount = 0;
+  for (const r of rows) if (r.includes('✅')) passCount++;
+
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass
+    ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!`
+    : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.textContent = busy ? 'กำลังทำงาน...' : label;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
