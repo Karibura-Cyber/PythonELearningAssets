@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python L1.7 — Treasure Chests of Data (Lists)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px}
+.o1{color:var(--ac3);font-weight:700;font-family:'JetBrains Mono',monospace}
+.on{color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.list{border-color:rgba(232,121,249,.3)}
+.concept-card.feat{border-color:rgba(6,182,212,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.list::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.feat::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.list .cc-title{color:var(--ac)}
+.concept-card.feat .cc-title{color:var(--ac2)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+.cc-eg{margin-top:10px;font-size:12px;color:var(--di);font-style:italic}
+
+/* VISUALIZER */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-title.list-t{color:var(--ac)}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.viz-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:100px;font-family:'JetBrains Mono',monospace;outline:none}
+.viz-inp:focus{border-color:var(--ac)}
+.viz-inp-idx{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:70px;font-family:'JetBrains Mono',monospace;outline:none}
+.viz-inp-idx:focus{border-color:var(--ac2)}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.app{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.viz-btn.app:hover{background:rgba(16,185,129,.25)}
+.viz-btn.ins{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.viz-btn.ins:hover{background:rgba(6,182,212,.25)}
+.viz-btn.rem{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.viz-btn.rem:hover{background:rgba(239,68,68,.25)}
+.viz-btn.pop{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.viz-btn.pop:hover{background:rgba(245,158,11,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn.srt{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.viz-btn.srt:hover{background:rgba(232,121,249,.25)}
+.viz-stage{min-height:80px;display:flex;align-items:center;gap:4px;padding:12px;background:#0a0c10;border-radius:8px;border:1px solid var(--bd);position:relative;overflow-x:auto;flex-wrap:wrap}
+.viz-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;animation:itemIn .25s ease}
+.viz-item-val{padding:8px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;border:1px solid;background:rgba(232,121,249,.12);color:var(--ac);border-color:rgba(232,121,249,.35);min-width:44px;text-align:center}
+.viz-item-val.hi{background:rgba(232,121,249,.28);border-color:var(--ac)}
+.viz-item-idx{font-size:9px;font-weight:700;color:var(--di);font-family:'JetBrains Mono',monospace}
+.viz-item-neg{font-size:9px;color:#3a3f52;font-family:'JetBrains Mono',monospace}
+@keyframes itemIn{from{transform:scale(0.6) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.viz-arrow{font-size:11px;color:var(--di);flex-shrink:0;align-self:center;padding-bottom:14px}
+.viz-empty{color:var(--di);font-size:12px;font-style:italic;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.viz-log{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--mu);min-height:22px}
+
+/* INDEX MAP */
+.idx-map{display:flex;gap:2px;margin:16px 0;overflow-x:auto;padding-bottom:4px}
+.idx-cell{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.idx-val{width:52px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;border:1px solid rgba(232,121,249,.35);background:rgba(232,121,249,.1);color:var(--ac);border-radius:6px}
+.idx-pos{font-size:10px;color:var(--ac2);font-family:'JetBrains Mono',monospace;font-weight:600}
+.idx-neg{font-size:10px;color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:600}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* TECHNIQUE CARD */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.tech-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python L1 · Week 7</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — คืออะไร?</a>
+    <a class="na" href="#declare">Part 1 — การสร้าง List</a>
+    <a class="na sub" href="#index">· Index &amp; Negative Index</a>
+    <a class="na sub" href="#slicing">· Slicing</a>
+    <a class="na" href="#modify">Part 2 — แก้ไขข้อมูล</a>
+    <a class="na sub" href="#methods">· List Methods</a>
+    <a class="na sub" href="#add-remove">· เพิ่ม &amp; ลบข้อมูล</a>
+    <a class="na" href="#list-viz">🎮 List Visualizer</a>
+    <a class="na" href="#techniques">เทคนิคการใช้ List</a>
+    <a class="na sub" href="#list-comp">· List Comprehension</a>
+    <a class="na sub" href="#loop">· Loop กับ List</a>
+    <a class="na sub" href="#nested">· Nested List</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. Sum of List <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. Reverse List <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Remove Duplicates <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Count &amp; Find <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex5">5. Sort &amp; Rank <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6. Flatten Nested <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex7">7. Matrix Row Sum <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex8">8. Stock Max Profit <span class="badge br">Harder</span></a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python <span>›</span> Level 1 <span>›</span> Week 7 — Lists</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Level 1 · Week 7</div>
+      <div class="ht">Treasure Chests of Data</div>
+      <div class="hs">Lists — กล่องเก็บข้อมูลสุดพลัง</div>
+      <div class="hm">เรียนรู้การใช้ List โครงสร้างข้อมูลพื้นฐานของ Python · Index, Slicing, Methods, Loop และเทคนิคขั้นสูง</div>
+      <div class="tags">
+        <span class="tag">List</span><span class="tag">Index</span><span class="tag">Slicing</span>
+        <span class="tag">Methods</span><span class="tag">Loop</span><span class="tag">List Comprehension</span>
+        <span class="tag">Nested List</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>List คืออะไร?</h2>
+      <p><strong>List</strong> คือโครงสร้างข้อมูล (Data Structure) แบบหนึ่งใน Python ที่ใช้สำหรับ<strong>เก็บข้อมูลหลายค่าไว้ในตัวแปรเดียว</strong> โดยสามารถเก็บข้อมูลได้หลากหลายประเภท ทั้ง <code>int</code>, <code>str</code>, <code>float</code>, <code>bool</code> หรือแม้แต่ List ซ้อน List</p>
+      <div class="concept-grid">
+        <div class="concept-card list">
+          <div class="cc-icon">📦</div>
+          <div class="cc-title">Mutable (เปลี่ยนได้)</div>
+          <div class="cc-desc">สามารถแก้ไข เพิ่ม ลบข้อมูลได้หลังสร้างแล้ว ต่างจาก Tuple ที่เปลี่ยนไม่ได้</div>
+          <div class="cc-eg">fruits[0] = "mango"  # ได้เลย!</div>
+        </div>
+        <div class="concept-card feat">
+          <div class="cc-icon">🔢</div>
+          <div class="cc-title">Ordered & Indexed</div>
+          <div class="cc-desc">ข้อมูลเรียงตามลำดับ เข้าถึงได้ด้วย Index เริ่มต้นที่ 0 และนับถอยหลังได้ด้วย -1</div>
+          <div class="cc-eg">fruits[0], fruits[-1]</div>
+        </div>
+        <div class="concept-card list">
+          <div class="cc-icon">🔄</div>
+          <div class="cc-title">Mixed Types</div>
+          <div class="cc-desc">เก็บข้อมูลต่างชนิดกันได้ในรายการเดียว เช่น ตัวเลข, ข้อความ, บูลีน</div>
+          <div class="cc-eg">mixed = [1, "hello", 3.14, True]</div>
+        </div>
+        <div class="concept-card feat">
+          <div class="cc-icon">🪆</div>
+          <div class="cc-title">Nested List</div>
+          <div class="cc-desc">ซ้อน List ใน List ได้ ใช้สร้าง Matrix หรือตารางข้อมูล 2 มิติ</div>
+          <div class="cc-eg">matrix = [[1,2],[3,4],[5,6]]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECLARE -->
+    <div class="sec" id="declare">
+      <div class="sl">Part 1</div>
+      <h2>การสร้างและประกาศ List</h2>
+      <p>ใช้เครื่องหมาย <code>[ ]</code> ครอบค่าที่ต้องการเก็บ คั่นด้วยเครื่องหมาย comma <code>,</code></p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">list_basics.py</span></div><button class="run-btn" onclick="runLesson(this,'L0','LO0')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L0"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO0">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <!-- INDEX -->
+      <div id="index" style="scroll-margin-top:66px">
+        <h3>การเข้าถึงด้วย Index</h3>
+        <p>ข้อมูลใน List มีตำแหน่งเรียกว่า <strong>Index</strong> เริ่มจาก <code>0</code> และนับถอยหลังด้วย Negative Index <code>-1</code></p>
+        <div class="idx-map" id="idxMapDisplay"></div>
+        <div class="callout info"><strong>จำง่าย:</strong> Index ปกติเริ่มที่ 0 จากซ้าย · Negative Index เริ่มที่ -1 จากขวา · <code>fruits[-1]</code> คือตัวสุดท้ายเสมอ</div>
+        <div class="ed-block">
+          <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">index_access.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+          <div class="mc h240" id="L1"></div>
+          <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+        </div>
+      </div>
+
+      <!-- SLICING -->
+      <div id="slicing" style="scroll-margin-top:66px">
+        <h3>Slicing — ตัดข้อมูลเป็นช่วง</h3>
+        <p>ใช้ <code>list[start:stop:step]</code> เพื่อดึงข้อมูลบางส่วน โดย <code>stop</code> <strong>ไม่รวม</strong>ตำแหน่งนั้น</p>
+        <table class="tbl">
+          <tr><th>Syntax</th><th>ความหมาย</th><th>ตัวอย่าง (fruits = ["apple","banana","cherry","date","elderberry"])</th></tr>
+          <tr><td>list[1:3]</td><td>index 1 ถึง 2</td><td><code>["banana","cherry"]</code></td></tr>
+          <tr><td>list[:2]</td><td>ตั้งแต่ต้น ถึง index 1</td><td><code>["apple","banana"]</code></td></tr>
+          <tr><td>list[2:]</td><td>ตั้งแต่ index 2 ถึงท้าย</td><td><code>["cherry","date","elderberry"]</code></td></tr>
+          <tr><td>list[::2]</td><td>ทุกๆ 2 ตัว</td><td><code>["apple","cherry","elderberry"]</code></td></tr>
+          <tr><td>list[::-1]</td><td>กลับหน้าหลัง</td><td><code>["elderberry","date","cherry","banana","apple"]</code></td></tr>
+        </table>
+        <div class="ed-block">
+          <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">slicing.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+          <div class="mc h280" id="L2"></div>
+          <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODIFY -->
+    <div class="sec" id="modify">
+      <div class="sl">Part 2</div>
+      <h2>การแก้ไขข้อมูลใน List</h2>
+      <p>เนื่องจาก List เป็น <strong>Mutable</strong> จึงสามารถเปลี่ยนค่าในตำแหน่งต่างๆ ได้โดยตรง เหมือนกับการกำหนดค่าตัวแปรทั่วไป</p>
+
+      <!-- METHODS -->
+      <div id="methods" style="scroll-margin-top:66px">
+        <h3>List Methods ที่ใช้บ่อย</h3>
+        <table class="tbl">
+          <tr><th>Method</th><th>ความหมาย</th><th>ตัวอย่าง</th><th>Return</th></tr>
+          <tr><td>append(x)</td><td>เพิ่มต่อท้าย</td><td><code>lst.append("orange")</code></td><td>None</td></tr>
+          <tr><td>insert(i, x)</td><td>แทรกที่ตำแหน่ง i</td><td><code>lst.insert(1, "grape")</code></td><td>None</td></tr>
+          <tr><td>extend(iterable)</td><td>รวม List อื่นเข้า</td><td><code>lst.extend(["a","b"])</code></td><td>None</td></tr>
+          <tr><td>remove(x)</td><td>ลบค่าแรกที่เจอ</td><td><code>lst.remove("banana")</code></td><td>None</td></tr>
+          <tr><td>pop(i)</td><td>ลบ&ดึงค่าตามตำแหน่ง</td><td><code>lst.pop(0)</code></td><td>ค่าที่ถูกลบ</td></tr>
+          <tr><td>clear()</td><td>ลบทั้งหมด</td><td><code>lst.clear()</code></td><td>None</td></tr>
+          <tr><td>index(x)</td><td>หาตำแหน่งแรกของ x</td><td><code>lst.index("apple")</code></td><td>int</td></tr>
+          <tr><td>count(x)</td><td>นับจำนวน x ที่ซ้ำ</td><td><code>lst.count(2)</code></td><td>int</td></tr>
+          <tr><td>sort()</td><td>เรียงลำดับ (in-place)</td><td><code>lst.sort(reverse=True)</code></td><td>None</td></tr>
+          <tr><td>reverse()</td><td>กลับลำดับ (in-place)</td><td><code>lst.reverse()</code></td><td>None</td></tr>
+          <tr><td>copy()</td><td>คัดลอก List ใหม่</td><td><code>new = lst.copy()</code></td><td>List</td></tr>
+        </table>
+        <div class="callout warn"><strong>⚠️ ระวัง:</strong> <code>sort()</code> และ <code>reverse()</code> แก้ไข List ตัวเดิม (in-place) คืนค่า <code>None</code> ไม่ใช่ List ใหม่ — ถ้าต้องการ List ใหม่ให้ใช้ <code>sorted()</code> หรือ <code>lst[::-1]</code> แทน</div>
+        <div class="ed-block">
+          <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">list_methods.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+          <div class="mc h340" id="L3"></div>
+          <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+        </div>
+      </div>
+
+      <!-- ADD REMOVE -->
+      <div id="add-remove" style="scroll-margin-top:66px">
+        <h3>การเพิ่มและลบข้อมูล</h3>
+        <div class="ed-block">
+          <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">add_remove.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+          <div class="mc h300" id="L4"></div>
+          <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUALIZER -->
+    <div class="sec" id="list-viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 List Visualizer</h2>
+      <p>ทดลองเพิ่ม ลบ แทรก และเรียงข้อมูลใน List แบบ Real-time เพื่อทำความเข้าใจการทำงานของ Methods ต่างๆ</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title list-t">📋 LIST VISUALIZER</span>
+          <span style="font-size:11px;color:var(--mu)" id="vizListInfo">size: 0</span>
+        </div>
+        <div class="viz-body">
+          <div class="viz-ctrl">
+            <input class="viz-inp" id="vizVal" placeholder="ค่า..." value="🍎" onkeydown="if(event.key==='Enter')vizAppend()">
+            <input class="viz-inp-idx" id="vizIdx" placeholder="index" value="0">
+            <button class="viz-btn app" onclick="vizAppend()">+ append</button>
+            <button class="viz-btn ins" onclick="vizInsert()">↓ insert(i)</button>
+            <button class="viz-btn rem" onclick="vizRemove()">✕ remove</button>
+            <button class="viz-btn pop" onclick="vizPop()">⬅ pop(i)</button>
+            <button class="viz-btn srt" onclick="vizSort()">⇅ sort</button>
+            <button class="viz-btn rst" onclick="vizReset()">↺ reset</button>
+          </div>
+          <div class="viz-stage" id="vizStage" style="min-height:90px">
+            <span class="viz-empty" id="vizEmpty">List ว่างเปล่า — กด append!</span>
+          </div>
+          <div class="viz-log" id="vizLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="sec" id="techniques">
+      <div class="sl">เทคนิคขั้นสูง</div>
+      <h2>เทคนิคการใช้ List</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Shortcut</span>List Comprehension</div>
+          <div class="tc-desc">สร้าง List ใหม่ใน 1 บรรทัด ด้วย pattern <code>[expr for x in iterable if cond]</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">Loop</span>enumerate()</div>
+          <div class="tc-desc">วน Loop พร้อมได้ index และค่าพร้อมกัน ไม่ต้องนับ index เอง</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">Built-in</span>sorted() / min() / max()</div>
+          <div class="tc-desc">ฟังก์ชัน built-in ที่คืน List ใหม่หรือค่าโดยไม่แก้ไข List เดิม</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Matrix</span>Nested List</div>
+          <div class="tc-desc">สร้างตาราง 2D ด้วย List ซ้อน ใช้ double loop หรือ comprehension</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIST COMPREHENSION -->
+    <div class="sec" id="list-comp">
+      <h3>เทคนิค: List Comprehension</h3>
+      <p>แทนที่จะเขียน Loop หลายบรรทัด สามารถสร้าง List ใหม่ได้ใน <strong>1 บรรทัด</strong> ด้วย List Comprehension</p>
+      <div class="callout info"><strong>รูปแบบ:</strong> <code>[expression for variable in iterable]</code> หรือเพิ่มเงื่อนไข <code>[expression for variable in iterable if condition]</code></div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">list_comprehension.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- LOOP -->
+    <div class="sec" id="loop">
+      <h3>เทคนิค: Loop กับ List</h3>
+      <p>Python มีหลายวิธีในการวน Loop ผ่าน List เลือกวิธีที่เหมาะกับงาน</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">loop_list.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- NESTED -->
+    <div class="sec" id="nested">
+      <h3>เทคนิค: Nested List (2D Matrix)</h3>
+      <p>ใช้ List ซ้อนกันเพื่อสร้างตารางหรือเมทริกซ์ 2 มิติ เข้าถึงด้วย <code>matrix[row][col]</code></p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">nested_list.py</span></div><button class="run-btn" onclick="runLesson(this,'L7','LO7')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L7"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO7">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISES -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">1</div><div class="ex-info"><h3>Sum of List</h3><p>รับตัวเลขหลายตัวคั่นด้วยช่องว่าง จงพิมพ์ผลบวก, ค่าต่ำสุด, ค่าสูงสุด และค่าเฉลี่ย (ทศนิยม 2 ตำแหน่ง)</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 1 4 1 5 9 2 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Sum: 31
+Min: 1
+Max: 9
+Avg: 3.88</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div><button class="check-btn" onclick="checkEx(this,1)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E1"></div>
+          </div>
+          <div class="verdict" id="V1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">2</div><div class="ex-info"><h3>Reverse List</h3><p>รับตัวเลขหลายตัวคั่นด้วยช่องว่าง จงพิมพ์ List กลับหลัง โดยใช้ Slicing <code>[::-1]</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">1 2 3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">5 4 3 2 1</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ <code>[::-1]</code> กลับ List โดยไม่ต้องเขียน Loop</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div><button class="check-btn" onclick="checkEx(this,2)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E2"></div>
+          </div>
+          <div class="verdict" id="V2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">3</div><div class="ex-info"><h3>Remove Duplicates</h3><p>รับตัวเลขหลายตัวคั่นด้วยช่องว่าง จงพิมพ์เฉพาะค่าที่ไม่ซ้ำ <strong>ตามลำดับที่ปรากฏครั้งแรก</strong></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 1 4 1 5 9 2 6 5 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">3 1 4 5 9 2 6</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div><button class="check-btn" onclick="checkEx(this,3)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E3"></div>
+          </div>
+          <div class="verdict" id="V3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">4</div><div class="ex-info"><h3>Count &amp; Find</h3><p>รับตัวเลขหลายตัว บรรทัดที่ 2 คือค่า X ให้นับว่า X ปรากฏกี่ครั้ง และ X อยู่ที่ index อะไรบ้าง (คั่นด้วย space)</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 3 8 3 9 3 1
+3</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Count: 3
+Indexes: 1 3 5</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div><button class="check-btn" onclick="checkEx(this,4)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E4"></div>
+          </div>
+          <div class="verdict" id="V4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">5</div><div class="ex-info"><h3>Sort &amp; Rank</h3><p>รับตัวเลข N ตัว จงพิมพ์ค่าเรียงน้อย→มาก และ มาก→น้อย (คั่นด้วย space) บรรทัดละ 1 แถว</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 2 8 1 9 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">1 2 3 5 8 9
+9 8 5 3 2 1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div><button class="check-btn" onclick="checkEx(this,5)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E5"></div>
+          </div>
+          <div class="verdict" id="V5"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">6</div><div class="ex-info"><h3>Flatten Nested List</h3><p>รับ List ซ้อน 2 ชั้น (แต่ละบรรทัดคือ sub-list คั่นด้วย space) รวมทุกค่าเป็น List เดียว แล้วพิมพ์</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">1 2 3
+4 5
+6 7 8 9</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">1 2 3 4 5 6 7 8 9</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex6.py</span></div><button class="check-btn" onclick="checkEx(this,6)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E6"></div>
+          </div>
+          <div class="verdict" id="V6"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">7</div><div class="ex-info"><h3>Matrix Row Sum</h3><p>รับเมทริกซ์ N×M (N บรรทัด แต่ละบรรทัด M ตัวเลข) จงพิมพ์ผลบวกของแต่ละแถว 1 แถวต่อบรรทัด</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">1 2 3
+4 5 6
+7 8 9</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">6
+15
+24</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex7.py</span></div><button class="check-btn" onclick="checkEx(this,7)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E7"></div>
+          </div>
+          <div class="verdict" id="V7"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">8</div><div class="ex-info"><h3>Stock Max Profit</h3><p>รับราคาหุ้นคั่นด้วยช่องว่าง (ซื้อก่อนขาย index ต้องน้อยกว่า) จงพิมพ์กำไรสูงสุดที่ทำได้ ถ้าไม่ได้กำไรให้พิมพ์ 0</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7 1 5 3 6 4</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">5</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7 6 4 3 1</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">0</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> วน Loop เก็บราคาต่ำสุดที่เจอมา แล้วคำนวณกำไร <code>price - min_price</code> ทุกวัน</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex8.py</span></div><button class="check-btn" onclick="checkEx(this,8)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E8"></div>
+          </div>
+          <div class="verdict" id="V8"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ════════════════════════════════
+//  LESSON CODE SNIPPETS
+// ════════════════════════════════
+const LC = [
+  /* L0 list_basics.py */
+`# การสร้าง List แบบต่างๆ
+numbers = [1, 2, 3, 4, 5]
+fruits = ["apple", "banana", "cherry"]
+mixed = [1, "hello", 3.14, True]
+empty = []
+
+print("numbers:", numbers)
+print("fruits:", fruits)
+print("mixed:", mixed)
+print("empty:", empty)
+print("ความยาว fruits:", len(fruits))
+print("ประเภท:", type(numbers))`,
+
+  /* L1 index_access.py */
+`fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+
+# Positive Index
+print(fruits[0])   # apple
+print(fruits[2])   # cherry
+
+# Negative Index
+print(fruits[-1])  # elderberry (ตัวสุดท้าย)
+print(fruits[-2])  # date
+
+# แก้ไขค่า
+fruits[1] = "mango"
+print("หลังแก้ไข:", fruits)`,
+
+  /* L2 slicing.py */
+`fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+
+print(fruits[1:3])    # ['banana', 'cherry']
+print(fruits[:2])     # ['apple', 'banana']
+print(fruits[2:])     # ['cherry', 'date', 'elderberry']
+print(fruits[::2])    # ทุก 2 ตัว
+print(fruits[::-1])   # กลับหลัง
+
+# Slice แก้ไขหลายตัวพร้อมกัน
+fruits[1:3] = ["kiwi", "melon"]
+print("หลัง slice assign:", fruits)`,
+
+  /* L3 list_methods.py */
+`fruits = ["apple", "banana", "cherry"]
+
+# append — เพิ่มท้าย
+fruits.append("orange")
+print("append:", fruits)
+
+# insert — แทรกตำแหน่ง
+fruits.insert(1, "grape")
+print("insert:", fruits)
+
+# remove — ลบตามค่า
+fruits.remove("banana")
+print("remove:", fruits)
+
+# pop — ลบและรับค่ากลับมา
+popped = fruits.pop(0)
+print("pop:", popped, "| เหลือ:", fruits)
+
+# sort & reverse
+nums = [3, 1, 4, 1, 5, 9]
+nums.sort()
+print("sort:", nums)
+nums.reverse()
+print("reverse:", nums)
+
+# count & index
+print("count 1:", nums.count(1))`,
+
+  /* L4 add_remove.py */
+`fruits = ["apple", "banana", "cherry"]
+
+# extend — รวม 2 List
+more = ["kiwi", "melon"]
+fruits.extend(more)
+print("extend:", fruits)
+
+# del — ลบด้วย keyword
+del fruits[0]
+print("del [0]:", fruits)
+
+# clear — ล้างทั้งหมด
+backup = fruits.copy()
+fruits.clear()
+print("clear:", fruits)
+print("backup:", backup)
+
+# ตัวอย่างรวม
+lst = [5, 2, 8, 1, 9, 3]
+lst.append(4)
+lst.remove(1)
+lst.sort()
+print("สุดท้าย:", lst)`,
+
+  /* L5 list_comprehension.py */
+`# แบบปกติ vs List Comprehension
+# สร้าง list กำลังสอง
+squares_loop = []
+for n in range(1, 6):
+    squares_loop.append(n ** 2)
+
+squares_comp = [n ** 2 for n in range(1, 6)]
+print("squares:", squares_comp)
+
+# เฉพาะเลขคู่
+evens = [x for x in range(1, 11) if x % 2 == 0]
+print("evens:", evens)
+
+# แปลงข้อความ
+words = ["hello", "world", "python"]
+upper = [w.upper() for w in words]
+print("upper:", upper)
+
+# Nested comprehension (matrix)
+matrix = [[i * j for j in range(1, 4)] for i in range(1, 4)]
+for row in matrix:
+    print(row)`,
+
+  /* L6 loop_list.py */
+`fruits = ["apple", "banana", "cherry"]
+
+# for loop ธรรมดา
+print("--- for loop ---")
+for f in fruits:
+    print(f)
+
+# range + index
+print("--- range index ---")
+for i in range(len(fruits)):
+    print(i, fruits[i])
+
+# enumerate — ดีที่สุด!
+print("--- enumerate ---")
+for i, f in enumerate(fruits):
+    print(f"[{i}] {f}")
+
+# คำนวณใน loop
+numbers = [1, 2, 3, 4, 5]
+squares = []
+for n in numbers:
+    squares.append(n ** 2)
+print("squares:", squares)
+
+# zip — วน 2 list พร้อมกัน
+names = ["Alice", "Bob", "Carol"]
+scores = [95, 87, 92]
+for name, score in zip(names, scores):
+    print(f"{name}: {score}")`,
+
+  /* L7 nested_list.py */
+`# Matrix 3x3
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+print("matrix[1][2] =", matrix[1][2])  # 6
+
+# วน double loop
+print("ทุกช่อง:")
+for row in matrix:
+    for val in row:
+        print(val, end=" ")
+    print()
+
+# หา diagonal
+diagonal = [matrix[i][i] for i in range(3)]
+print("diagonal:", diagonal)
+
+# Transpose (สลับแถว-คอลัมน์)
+transposed = [[matrix[r][c] for r in range(3)] for c in range(3)]
+print("transposed:")
+for row in transposed:
+    print(row)`,
+];
+
+// ════════════════════════════════
+//  EXERCISE DEFINITIONS
+// ════════════════════════════════
+const EX = {
+  1: { start: `nums = list(map(int, input().split()))
+# พิมพ์ Sum, Min, Max, Avg
+`,
+    tests: [
+      {inp:"3 1 4 1 5 9 2 6",   exp:"Sum: 31\nMin: 1\nMax: 9\nAvg: 3.88"},
+      {inp:"10 20 30",           exp:"Sum: 60\nMin: 10\nMax: 30\nAvg: 20.00"},
+      {inp:"7",                  exp:"Sum: 7\nMin: 7\nMax: 7\nAvg: 7.00"},
+    ]},
+
+  2: { start: `nums = list(map(int, input().split()))
+# พิมพ์ list กลับหลังด้วย slicing
+`,
+    tests: [
+      {inp:"1 2 3 4 5",   exp:"5 4 3 2 1"},
+      {inp:"9 8 7",       exp:"7 8 9"},
+      {inp:"42",          exp:"42"},
+    ]},
+
+  3: { start: `nums = list(map(int, input().split()))
+# ลบค่าซ้ำ รักษาลำดับแรกที่พบ
+`,
+    tests: [
+      {inp:"3 1 4 1 5 9 2 6 5 3",  exp:"3 1 4 5 9 2 6"},
+      {inp:"1 1 1 1",              exp:"1"},
+      {inp:"1 2 3 4",              exp:"1 2 3 4"},
+    ]},
+
+  4: { start: `nums = list(map(int, input().split()))
+x = int(input())
+# นับและหา index ของ x
+`,
+    tests: [
+      {inp:"5 3 8 3 9 3 1\n3",  exp:"Count: 3\nIndexes: 1 3 5"},
+      {inp:"1 2 3 4 5\n6",      exp:"Count: 0\nIndexes: "},
+      {inp:"2 2 2\n2",          exp:"Count: 3\nIndexes: 0 1 2"},
+    ]},
+
+  5: { start: `nums = list(map(int, input().split()))
+# เรียงน้อย→มาก และ มาก→น้อย
+`,
+    tests: [
+      {inp:"5 2 8 1 9 3",   exp:"1 2 3 5 8 9\n9 8 5 3 2 1"},
+      {inp:"3 1 2",         exp:"1 2 3\n3 2 1"},
+      {inp:"5",             exp:"5\n5"},
+    ]},
+
+  6: { start: `import sys
+lines = sys.stdin.read().strip().split('\\n')
+# รวม nested list เป็น flat list
+`,
+    tests: [
+      {inp:"1 2 3\n4 5\n6 7 8 9",  exp:"1 2 3 4 5 6 7 8 9"},
+      {inp:"10 20\n30",            exp:"10 20 30"},
+      {inp:"1 2 3 4 5",            exp:"1 2 3 4 5"},
+    ]},
+
+  7: { start: `import sys
+lines = sys.stdin.read().strip().split('\\n')
+# พิมพ์ผลบวกแต่ละแถว
+`,
+    tests: [
+      {inp:"1 2 3\n4 5 6\n7 8 9",   exp:"6\n15\n24"},
+      {inp:"10 20\n30 40",          exp:"30\n70"},
+      {inp:"5 5 5 5",              exp:"20"},
+    ]},
+
+  8: { start: `prices = list(map(int, input().split()))
+# หากำไรสูงสุด (ซื้อก่อนขาย)
+`,
+    tests: [
+      {inp:"7 1 5 3 6 4",   exp:"5"},
+      {inp:"7 6 4 3 1",     exp:"0"},
+      {inp:"1 2",           exp:"1"},
+      {inp:"3 3 3",         exp:"0"},
+    ]},
+};
+
+// ════════════════════════════════
+//  INDEX MAP DISPLAY
+// ════════════════════════════════
+function buildIdxMap() {
+  const data = ["apple","banana","cherry","date","elderberry"];
+  const map = document.getElementById('idxMapDisplay');
+  if (!map) return;
+  data.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'idx-cell';
+    cell.innerHTML = `
+      <div class="idx-pos">[${i}]</div>
+      <div class="idx-val">${v.slice(0,5)}</div>
+      <div class="idx-neg">[-${data.length-i}]</div>`;
+    map.appendChild(cell);
+    if (i < data.length-1) {
+      const sep = document.createElement('div');
+      sep.style.cssText='color:#3a3f52;font-size:18px;align-self:center;padding-bottom:18px';
+      sep.textContent='·';
+      map.appendChild(sep);
+    }
+  });
+}
+buildIdxMap();
+
+// ════════════════════════════════
+//  LIST VISUALIZER
+// ════════════════════════════════
+let listData = [];
+function vizRender() {
+  const stage = document.getElementById('vizStage');
+  const empty = document.getElementById('vizEmpty');
+  const info  = document.getElementById('vizListInfo');
+  stage.innerHTML = '';
+  info.textContent = `size: ${listData.length}`;
+  if (!listData.length) { stage.appendChild(empty); return; }
+  listData.forEach((v, i) => {
+    const item = document.createElement('div');
+    item.className = 'viz-item';
+    item.innerHTML = `<div class="idx-pos" style="font-size:9px;color:var(--ac2)">[${i}]</div>
+                      <div class="viz-item-val">${v}</div>
+                      <div class="viz-item-neg" style="font-size:9px;color:var(--red)">[-${listData.length-i}]</div>`;
+    stage.appendChild(item);
+    if (i < listData.length-1) {
+      const arr = document.createElement('span');
+      arr.className='viz-arrow'; arr.textContent=',';
+      stage.appendChild(arr);
+    }
+  });
+}
+function vizLog(msg) { document.getElementById('vizLog').textContent = msg; }
+function getVal()    { return document.getElementById('vizVal').value.trim(); }
+function getIdx()    { return parseInt(document.getElementById('vizIdx').value); }
+
+function vizAppend() {
+  const v = getVal(); if (!v) return;
+  listData.push(v);
+  vizRender(); vizLog(`append("${v}") → List size: ${listData.length}`);
+  document.getElementById('vizVal').select();
+}
+function vizInsert() {
+  const v = getVal(), i = getIdx();
+  if (!v || isNaN(i)) return;
+  listData.splice(i < 0 ? Math.max(0, listData.length+i+1) : Math.min(i, listData.length), 0, v);
+  vizRender(); vizLog(`insert(${i}, "${v}") → List size: ${listData.length}`);
+}
+function vizRemove() {
+  const v = getVal(); if (!v) return;
+  const idx = listData.indexOf(v);
+  if (idx === -1) { vizLog(`⚠️ "${v}" ไม่พบใน List`); return; }
+  listData.splice(idx, 1);
+  vizRender(); vizLog(`remove("${v}") → ลบที่ index ${idx} | size: ${listData.length}`);
+}
+function vizPop() {
+  const i = getIdx();
+  if (!listData.length) { vizLog('⚠️ List ว่าง'); return; }
+  const idx = isNaN(i) ? listData.length-1 : ((i < 0 ? listData.length+i : i));
+  if (idx < 0 || idx >= listData.length) { vizLog(`⚠️ index ${i} เกินขอบเขต`); return; }
+  const val = listData.splice(idx, 1)[0];
+  vizRender(); vizLog(`pop(${idx}) → "${val}" | size: ${listData.length}`);
+}
+function vizSort() {
+  listData.sort();
+  vizRender(); vizLog(`sort() → เรียงลำดับ A→Z แล้ว`);
+}
+function vizReset() {
+  listData = [];
+  vizRender(); vizLog('');
+}
+
+// ════════════════════════════════
+//  MONACO INIT
+// ════════════════════════════════
+const EDITORS    = {};
+const EX_EDITORS = {};
+let pyodide = null, pyReady = false;
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('gdd', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword', foreground:'c678dd', fontStyle:'bold'},
+      {token:'string',  foreground:'98c379'},
+      {token:'comment', foreground:'5c6370', fontStyle:'italic'},
+      {token:'number',  foreground:'d19a66'},
+    ],
+    colors: {
+      'editor.background':               '#0d0f14',
+      'editor.foreground':               '#abb2bf',
+      'editorLineNumber.foreground':     '#3a3f52',
+      'editorLineNumber.activeForeground':'#7b82a0',
+      'editor.lineHighlightBackground':  '#1a1e2a',
+      'editorCursor.foreground':         '#e879f9',
+      'editor.selectionBackground':      '#3b4261',
+    }
+  });
+
+  const BASE = {
+    language:'python', theme:'gdd',
+    fontSize:13, fontFamily:"'JetBrains Mono', monospace",
+    minimap:{enabled:false}, scrollBeyondLastLine:false,
+    automaticLayout:true, tabSize:4, insertSpaces:true,
+    wordWrap:'on', padding:{top:10,bottom:10},
+    scrollbar:{verticalScrollbarSize:4,horizontalScrollbarSize:4},
+    lineNumbers:'on', renderLineHighlight:'line',
+  };
+
+  LC.forEach((code, i) => {
+    const el = document.getElementById(`L${i}`);
+    if (el) EDITORS[i] = monaco.editor.create(el, {...BASE, value: code});
+  });
+
+  Object.keys(EX).forEach(id => {
+    const el = document.getElementById(`E${id}`);
+    if (el) EX_EDITORS[id] = monaco.editor.create(el, {...BASE, value: EX[id].start});
+  });
+});
+
+// ════════════════════════════════
+//  PYODIDE LOADER
+// ════════════════════════════════
+(function loadPyodideCDN() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      dot('loading', 'กำลังโหลด Python...', 'var(--ac)');
+      pyodide = await window.loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+      });
+      pyReady = true;
+      dot('ready', 'Python พร้อมใช้งาน ✓', 'var(--ac3)');
+    } catch(e) {
+      dot('error', 'โหลด Python ไม่สำเร็จ — ลองรีเฟรช', 'var(--red)');
+    }
+  };
+  s.onerror = () => dot('error', 'โหลด Pyodide ไม่ได้ — ตรวจสอบ Internet', 'var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt; t.style.color = col;
+}
+
+// ════════════════════════════════
+//  PYTHON RUNNER
+// ════════════════════════════════
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่แล้วลองใหม่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try {
+    pyodide.runPython(code);
+  } catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l,i) => i===lines.length-1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured+'\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+// ════════════════════════════════
+//  LESSON RUN
+// ════════════════════════════════
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) {
+    out.textContent = e.message;
+    out.className = 'out-txt err';
+  }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// ════════════════════════════════
+//  EXERCISE CHECKER
+// ════════════════════════════════
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById(`V${id}`);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) {
+      got  = e.message; pass = false;
+    }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`
+<div class="vd-row">
+  <span class="vd-icon">${pass ? '✅' : '❌'}</span>
+  <div class="vd-content">
+    <div class="vd-title">Test Case ${i+1}</div>
+    <div class="vd-in">Input: ${inpDisplay}</div>
+    <div class="vd-row-inner">
+      <div>
+        <div class="vd-label">ผลลัพธ์ที่ได้</div>
+        <div class="${pass ? 'vd-got' : 'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div>
+      </div>
+      ${!pass ? `<div>
+        <div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div>
+        <div class="vd-expect">${esc(exp.trim())}</div>
+      </div>` : ''}
+    </div>
+  </div>
+</div>`);
+  }
+  let passCount = rows.filter(r => r.includes('✅')).length;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass
+    ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!`
+    : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.textContent = busy ? 'กำลังทำงาน...' : label;
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
