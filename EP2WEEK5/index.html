@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 5 — Time Complexity &amp; Search Algorithms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+
+/* BIG O COMPLEXITY CARDS */
+.cx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.cx-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.cx-card.fast{border-color:rgba(16,185,129,.3)}
+.cx-card.slow{border-color:rgba(239,68,68,.2)}
+.cx-card.mid{border-color:rgba(6,182,212,.3)}
+.cx-card.warn-c{border-color:rgba(245,158,11,.3)}
+.cx-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.cx-val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.cx-card.fast .cx-val{color:var(--ac3)}
+.cx-card.slow .cx-val{color:var(--red)}
+.cx-card.mid .cx-val{color:var(--ac2)}
+.cx-card.warn-c .cx-val{color:var(--warn)}
+.cx-desc{font-size:11.5px;color:var(--mu)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx)}
+.o1{color:var(--ac3);font-weight:700;font-family:'JetBrains Mono',monospace}
+.on{color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace}
+.ologn{color:var(--ac2);font-weight:700;font-family:'JetBrains Mono',monospace}
+.on2{color:#f97316;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* TECHNIQUE CARD */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-badge.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.r{background:rgba(239,68,68,.15);color:var(--red)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SEARCH VISUALIZER */
+.search-viz{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.sv-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sv-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac2)}
+.sv-body{padding:16px}
+.sv-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.sv-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:90px;font-family:'JetBrains Mono',monospace;outline:none}
+.sv-inp:focus{border-color:var(--ac2)}
+.sv-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.sv-btn.lin{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.sv-btn.bin{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.sv-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.sv-btn:hover{opacity:.85;transform:translateY(-1px)}
+.sv-arr{display:flex;gap:4px;flex-wrap:wrap;padding:12px;background:#0a0c10;border-radius:8px;border:1px solid var(--bd);min-height:56px;align-items:center}
+.sv-cell{width:44px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--mu);transition:all .2s;position:relative;flex-shrink:0}
+.sv-cell.active{background:rgba(6,182,212,.2);border-color:var(--ac2);color:var(--ac2);transform:scale(1.08)}
+.sv-cell.found{background:rgba(16,185,129,.25);border-color:var(--ac3);color:var(--ac3);transform:scale(1.1)}
+.sv-cell.checked{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--di)}
+.sv-cell.range{background:rgba(232,121,249,.1);border-color:rgba(232,121,249,.3);color:#c5c9d8}
+.sv-idx{font-size:9px;font-weight:400;color:var(--di);position:absolute;bottom:2px}
+.sv-stats{display:flex;gap:14px;margin-top:10px;font-size:12px}
+.sv-stat{color:var(--mu)}.sv-stat strong{color:var(--tx)}
+.sv-log{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac);min-height:22px;line-height:1.5}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.cx-grid,.tech-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">GDD CODING</div>
+    <div class="sb-title">Python EP2 · Week 5</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Big O</a>
+    <a class="na" href="#o1">O(1) — Constant Time</a>
+    <a class="na" href="#on">O(n) — Linear Time</a>
+    <a class="na" href="#on2">O(n²) — Quadratic Time</a>
+    <a class="na" href="#ologn">O(log n) — Logarithmic</a>
+    <a class="na" href="#compare">เปรียบเทียบ Big O</a>
+    <a class="na" href="#linear-search">Linear Search</a>
+    <a class="na" href="#binary-search">Binary Search</a>
+    <a class="na" href="#search-viz">🎮 Search Visualizer</a>
+    <a class="na" href="#sorting">Sorting Algorithms</a>
+    <a class="na sub" href="#bubble-sort">· Bubble Sort</a>
+    <a class="na sub" href="#python-sort">· Python Built-in Sort</a>
+    <a class="na" href="#techniques">เทคนิคเพิ่มเติม</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด 10 ข้อ</div>
+    <a class="na sub" href="#ex1">1. นับจำนวน <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. หาค่ามาก/น้อย <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Linear Search <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex4">4. Binary Search <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. นับรอบ O(n²) <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex6">6. Bubble Sort <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex7">7. Two Sum O(n) <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex8">8. ค้นหาชื่อ <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex9">9. Guess Number <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex10">10. Top-k Score <span class="badge br">TOI</span></a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>›</span> Week 5 <span>›</span> Time Complexity &amp; Search</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt">กำลังโหลด Python...</span></div>
+  </div>
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Programming EP2 · Week 5</div>
+      <div class="ht">Time Complexity<br>&amp; Search Algorithms</div>
+      <div class="hs">เขียนโค้ดให้ทำงานได้เหมือนโปรแกรมเมอร์ระดับโลก</div>
+      <p class="hm">เรียนรู้ Big O Notation — วัดความ "เหนื่อย" ของอัลกอริทึม และเปรียบเทียบ Linear Search กับ Binary Search ผ่านการทดลองจริง</p>
+      <div class="tags">
+        <span class="tag">Big O Notation</span>
+        <span class="tag">O(1) O(n) O(n²) O(log n)</span>
+        <span class="tag">Linear Search</span>
+        <span class="tag">Binary Search</span>
+        <span class="tag">Bubble Sort</span>
+        <span class="tag">Python sorted()</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>Big O คืออะไร?</h2>
+      <p>เวลาเราวัดความเร็วของโปรแกรม เราไม่ใช้ "วินาที" เพราะคอมแต่ละเครื่องแรงไม่เท่ากัน แต่เรา<strong>วัดที่จำนวนรอบที่คอมต้องทำงาน</strong> เมื่อข้อมูลเยอะขึ้น</p>
+      <div class="callout"><strong>🎯 Big O คือ "หน่วยวัดความเหนื่อย"</strong> — บอกว่าถ้าข้อมูลเพิ่มขึ้น n เท่า โปรแกรมจะช้าลงเท่าไหร่?</div>
+      <div class="cx-grid">
+        <div class="cx-card fast">
+          <div class="cx-type">เร็วที่สุด</div>
+          <div class="cx-val">O(1)</div>
+          <div class="cx-desc">ทำงาน 1 ครั้งเสมอ<br>ไม่ว่าข้อมูลจะมากแค่ไหน</div>
+        </div>
+        <div class="cx-card mid">
+          <div class="cx-type">เร็วมาก</div>
+          <div class="cx-val">O(log n)</div>
+          <div class="cx-desc">ข้อมูล 1 ล้านตัว<br>ใช้แค่ ~20 รอบ</div>
+        </div>
+        <div class="cx-card" style="border-color:rgba(16,185,129,.15)">
+          <div class="cx-type">โอเค</div>
+          <div class="cx-val" style="color:var(--ac)">O(n)</div>
+          <div class="cx-desc">ข้อมูล n ตัว<br>ทำงาน n รอบ</div>
+        </div>
+        <div class="cx-card warn-c">
+          <div class="cx-type">ช้าพอควร</div>
+          <div class="cx-val">O(n log n)</div>
+          <div class="cx-desc">ใช้ใน Merge Sort<br>QuickSort</div>
+        </div>
+        <div class="cx-card slow" style="grid-column:span 2">
+          <div class="cx-type">⚠️ อันตราย</div>
+          <div class="cx-val">O(n²)</div>
+          <div class="cx-desc">ข้อมูล 100 ตัว → ทำงาน 10,000 รอบ! ระวัง Nested Loop</div>
+        </div>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Notation</th><th>ชื่อ</th><th>n=10</th><th>n=100</th><th>n=1,000</th><th>n=1,000,000</th></tr></thead>
+        <tbody>
+          <tr><td><span class="o1">O(1)</span></td><td>Constant</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+          <tr><td><span class="ologn">O(log n)</span></td><td>Logarithmic</td><td>3</td><td>7</td><td>10</td><td>20</td></tr>
+          <tr><td><span style="color:var(--ac);font-weight:700;font-family:'JetBrains Mono'">O(n)</span></td><td>Linear</td><td>10</td><td>100</td><td>1,000</td><td>1,000,000</td></tr>
+          <tr><td><span class="on2">O(n log n)</span></td><td>Linearithmic</td><td>33</td><td>664</td><td>9,966</td><td>~20M</td></tr>
+          <tr><td><span class="on">O(n²)</span></td><td>Quadratic</td><td>100</td><td>10,000</td><td>1,000,000</td><td>10¹²</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- O(1) -->
+    <div class="sec" id="o1">
+      <div class="sl">Part 1</div>
+      <h2>O(1) — Constant Time</h2>
+      <p><strong>O(1)</strong> หมายถึงโปรแกรมทำงาน <strong>"1 ครั้งเสมอ"</strong> ไม่ว่าข้อมูลจะมีกี่ล้านตัว ความเร็วก็ไม่เปลี่ยน</p>
+      <div class="callout ok"><strong>ตัวอย่างในชีวิตจริง:</strong> การหยิบหนังสือเล่มที่วางอยู่บนสุดของกอง (ไม่ว่ากองจะสูงแค่ไหน ก็หยิบเล่มบนสุดได้ทันที)</div>
+      <h3>ตัวอย่างโค้ด O(1)</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">o1_examples.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- O(n) -->
+    <div class="sec" id="on">
+      <div class="sl">Part 2</div>
+      <h2>O(n) — Linear Time</h2>
+      <p><strong>O(n)</strong> คือความเหนื่อยที่เพิ่มขึ้น<strong>เท่ากับ</strong>จำนวนข้อมูล ถ้ามีข้อมูล n ตัว ก็ทำงาน n รอบ — เป็น 1 Loop ธรรมดา</p>
+      <div class="callout info"><strong>ตัวอย่างในชีวิตจริง:</strong> การเดินตรวจบัตรนักเรียนทีละคนในแถว (ถ้ามี 10 คน ตรวจ 10 ครั้ง ถ้ามี 100 คน ตรวจ 100 ครั้ง)</div>
+      <h3>ตัวอย่างโค้ด O(n)</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">on_examples.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- O(n^2) -->
+    <div class="sec" id="on2">
+      <div class="sl">Part 3 — ⚠️ ระวัง!</div>
+      <h2>O(n²) — Quadratic Time</h2>
+      <p>เมื่อเราใส่ <strong>Loop ซ้อนไว้ใน Loop (Nested Loop)</strong> ความเหนื่อยจะไม่ได้เพิ่มแบบบวก แต่จะเพิ่มแบบ<strong>คูณ</strong></p>
+      <ul>
+        <li>Loop นอกรัน n รอบ และ Loop ในรัน n รอบ → รวมทำงาน n × n = <strong>n² ครั้ง</strong></li>
+        <li>ข้อมูลแค่ 100 ตัว → คอมต้องทำงานถึง <strong>10,000 ครั้ง!</strong></li>
+        <li>ข้อมูล 1,000 ตัว → ทำงาน <strong>1,000,000 ครั้ง!</strong></li>
+      </ul>
+      <div class="callout"><strong>กฎง่ายๆ:</strong> ถ้าเห็น for ซ้อน for และทั้งคู่วนตาม n → นั่นคือ O(n²) ต้องระวัง!</div>
+      <h3>สร้างตารางสูตรคูณ (ตัวอย่าง O(n²))</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">on2_multiplication.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- O(log n) -->
+    <div class="sec" id="ologn">
+      <div class="sl">Part 4 — The Hero</div>
+      <h2>O(log n) — Logarithmic Time</h2>
+      <p><strong>O(log n)</strong> คือจำนวนครั้งที่เราสามารถ <strong>"หาร 2"</strong> ไปได้เรื่อยๆ จนเหลือ 1</p>
+      <div class="cx-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="cx-card mid">
+          <div class="cx-type">2¹⁰ = 1,024</div>
+          <div class="cx-val">10 ครั้ง</div>
+          <div class="cx-desc">หาใน ~1,000 ตัว</div>
+        </div>
+        <div class="cx-card mid">
+          <div class="cx-type">2²⁰ ≈ 1,048,576</div>
+          <div class="cx-val">20 ครั้ง</div>
+          <div class="cx-desc">หาใน ~1 ล้านตัว</div>
+        </div>
+        <div class="cx-card mid">
+          <div class="cx-type">2³⁰ ≈ 10⁹</div>
+          <div class="cx-val">30 ครั้ง</div>
+          <div class="cx-desc">หาใน 1 พันล้านตัว!</div>
+        </div>
+      </div>
+      <div class="callout ok"><strong>นี่คือพลังของ Binary Search!</strong> ข้อมูล 1 ล้านตัว แต่หาเจอได้ใน 20 ครั้ง ขณะที่ Linear Search ต้องใช้ถึง 1,000,000 ครั้ง</div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="sec" id="compare">
+      <div class="sl">สรุป</div>
+      <h2>เปรียบเทียบ Big O</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge g">O(1)</span>Constant — เร็วที่สุด</div>
+          <div class="tc-desc">การเข้าถึง list[i], dict key lookup, push/pop stack — ทำงานทันทีโดยไม่สนจำนวนข้อมูล</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">O(log n)</span>Logarithmic — เร็วมาก</div>
+          <div class="tc-desc">Binary Search — แต่ละรอบตัดข้อมูลออกครึ่งหนึ่ง ทำให้หาใน 1 ล้านตัวได้ใน 20 รอบ</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">O(n)</span>Linear — โอเค</div>
+          <div class="tc-desc">Linear Search, วน for loop 1 ชั้น, หาค่า max/min — ช้าตามสัดส่วนข้อมูล</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge r">O(n²)</span>Quadratic — ระวัง!</div>
+          <div class="tc-desc">Nested Loop 2 ชั้น, Bubble Sort — ข้อมูล 10,000 ตัว = ทำงาน 100 ล้านครั้ง!</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- LINEAR SEARCH -->
+    <div class="sec" id="linear-search">
+      <div class="sl">Algorithm 1</div>
+      <h2>Linear Search — ค้นหาแบบเดินทีละช่อง</h2>
+      <p>วิธีง่ายที่สุด — เดินหาทีละตัวตั้งแต่ตัวแรกจนเจอ ทำงาน <strong>O(n)</strong> ในกรณีเลวร้าย (worst case)</p>
+      <ul>
+        <li><strong>ข้อดี:</strong> ใช้ได้กับข้อมูลที่ยังไม่ได้เรียง (unsorted)</li>
+        <li><strong>ข้อเสีย:</strong> ช้าเมื่อข้อมูลมาก ถ้าหาเลขสุดท้ายต้องผ่านทุกตัว</li>
+      </ul>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">linear_search.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- BINARY SEARCH -->
+    <div class="sec" id="binary-search">
+      <div class="sl">Algorithm 2 ⭐</div>
+      <h2>Binary Search — กระโดดข้ามทีละครึ่ง</h2>
+      <p><strong>⚠️ ข้อกำหนด:</strong> ข้อมูล<strong>ต้องเรียงลำดับ</strong> (sorted) ก่อน!</p>
+      <p>หลักการคือเปิดหน้ากลาง ถ้าน้อยกว่าให้ตัดซีกซ้ายทิ้ง ถ้ามากกว่าตัดซีกขวาทิ้ง ทำซ้ำจนเจอ — <strong>O(log n)</strong></p>
+      <div class="callout ok"><strong>ถ้าเป้าหมายคือ 854,321 จากข้อมูล 1 ล้านตัว:</strong><br>Linear Search ใช้ถึง <strong>854,321 ครั้ง</strong> — Binary Search ใช้แค่ <strong>20 ครั้ง</strong>!</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">binary_search.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- SEARCH VISUALIZER -->
+    <div class="sec" id="search-viz">
+      <div class="sl">🎮 Interactive Demo</div>
+      <h2>Search Algorithm Visualizer</h2>
+      <p>ลองค้นหาตัวเลขแล้วดูว่า Linear Search กับ Binary Search ทำงานต่างกันอย่างไร</p>
+      <div class="search-viz">
+        <div class="sv-hd">
+          <span class="sv-title">🔍 The Race of Search Algorithms</span>
+          <div style="font-size:11px;color:var(--mu)">กด "สร้างข้อมูลใหม่" แล้วใส่เลขที่ต้องการค้นหา</div>
+        </div>
+        <div class="sv-body">
+          <div class="sv-ctrl">
+            <button class="sv-btn rst" onclick="svGenerate()">🔀 สร้างข้อมูลใหม่</button>
+            <input class="sv-inp" id="svTarget" type="number" min="1" max="100" placeholder="ค้นหา..." value="">
+            <button class="sv-btn lin" onclick="svLinear()">▶ Linear Search O(n)</button>
+            <button class="sv-btn bin" onclick="svBinary()">⚡ Binary Search O(log n)</button>
+          </div>
+          <div id="svArr" class="sv-arr"></div>
+          <div class="sv-stats">
+            <div class="sv-stat">รอบที่ผ่านมา: <strong id="svSteps">0</strong></div>
+            <div class="sv-stat">วิธี: <strong id="svMethod">—</strong></div>
+            <div class="sv-stat">ผล: <strong id="svResult">—</strong></div>
+          </div>
+          <div class="sv-log" id="svLog">สร้างข้อมูลใหม่ก่อนแล้วกดค้นหา...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SORTING -->
+    <div class="sec" id="sorting">
+      <div class="sl">Part 5</div>
+      <h2>จัดระเบียบข้อมูล (Sorting)</h2>
+      <p>จะทำ Binary Search ได้ ข้อมูลต้อง<strong>"เรียง"</strong>ก่อน! การเรียงลำดับมักใช้พลังงานสูง</p>
+      <table class="tbl">
+        <thead><tr><th>Algorithm</th><th>Big O (Avg)</th><th>Big O (Worst)</th><th>หลักการ</th></tr></thead>
+        <tbody>
+          <tr><td>Bubble Sort</td><td><span class="on">O(n²)</span></td><td><span class="on">O(n²)</span></td><td>สลับคู่ที่อยู่ผิดที่ซ้ำๆ จนจบ</td></tr>
+          <tr><td>Selection Sort</td><td><span class="on">O(n²)</span></td><td><span class="on">O(n²)</span></td><td>เลือกตัวเล็กสุดมาใส่ทีละที่</td></tr>
+          <tr><td>Merge Sort</td><td><span class="on2">O(n log n)</span></td><td><span class="on2">O(n log n)</span></td><td>แบ่งครึ่งแล้วผสานกลับ</td></tr>
+          <tr><td>Python sorted()</td><td><span class="on2">O(n log n)</span></td><td><span class="on2">O(n log n)</span></td><td>Timsort — เร็วระดับโลก!</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BUBBLE SORT -->
+    <div class="sec" id="bubble-sort">
+      <h3>Bubble Sort — เริ่มต้นง่าย แต่ช้า O(n²)</h3>
+      <p>หลักการ: วนเปรียบเทียบตัวติดกัน ถ้าตัวซ้ายมากกว่าตัวขวา ให้สลับที่กัน วนซ้ำจนไม่มีการสลับ</p>
+      <div class="callout warn"><strong>สังเกต:</strong> มี Loop ซ้อนกัน 2 ชั้น → นั่นคือ O(n²) ใช้ได้กับข้อมูลน้อยๆ เท่านั้น!</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">bubble_sort.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- PYTHON SORT -->
+    <div class="sec" id="python-sort">
+      <h3>Pythonic Way — ใช้ built-in sort() ที่เร็วระดับโลก!</h3>
+      <p>Python มีคำสั่งสำเร็จรูปที่เร็วกว่า Bubble Sort มาก ใช้ <strong>Timsort</strong> ซึ่งทำงาน O(n log n)</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">pythonic_sort.py</span></div><button class="run-btn" onclick="runLesson(this,'L7','LO7')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L7"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO7">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="sec" id="techniques">
+      <div class="sl">เทคนิคขั้นสูง</div>
+      <h2>เทคนิคสำคัญที่ต้องรู้</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">O(n)</span>Two Pointers</div>
+          <div class="tc-desc">ใช้ตัวชี้ 2 ตัว (ซ้าย-ขวา) เดินเข้าหากัน แทน Nested Loop ลด O(n²) → O(n) ได้!</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">O(1)</span>Hash Map Lookup</div>
+          <div class="tc-desc">ใช้ dict/set ในการค้นหา ได้ O(1) แทน O(n) ของ Linear Search ใน list</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge g">O(n log n)</span>Sort แล้ว Binary</div>
+          <div class="tc-desc">เสียเวลา sort ครั้งเดียว O(n log n) แต่ค้นหาทุกครั้งได้ O(log n) คุ้มมากถ้าค้นหาบ่อย</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">ทำงาน</span>Prefix Sum</div>
+          <div class="tc-desc">คำนวณผลรวมย่อยล่วงหน้า O(n) ทำให้ query ช่วงใดก็ได้ทำได้ใน O(1) แทน O(n)</div>
+        </div>
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">two_sum_techniques.py</span></div><button class="run-btn" onclick="runLesson(this,'L8','LO8')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L8"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO8">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISES -->
+
+    <!-- EX 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">1</div><div class="ex-info"><h3>นับจำนวนรอบ</h3><p>รับ N บรรทัดแรก จากนั้น N บรรทัดถัดไปเป็นคำสั่ง <code>O1</code>, <code>ON</code>, <code>ON2</code> นับรวมว่าคำสั่งแต่ละประเภทปรากฏกี่ครั้ง</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+O1
+ON
+ON2
+O1
+ON</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">O1: 2
+ON: 2
+ON2: 1</div></div>
+          </div>
+          <div class="callout info" style="font-size:13px;margin-bottom:10px"><strong>แนวคิด:</strong> ใช้ dict นับจำนวนแต่ละประเภท แล้วพิมพ์ผลลัพธ์ในลำดับ O1 → ON → ON2</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div><button class="check-btn" onclick="checkEx(this,1)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E1"></div>
+          </div>
+          <div class="verdict" id="V1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">2</div><div class="ex-info"><h3>หาค่ามากสุดและน้อยสุด</h3><p>รับตัวเลข N ตัวคั่นด้วยช่องว่าง พิมพ์ค่ามากสุดและน้อยสุด — ห้ามใช้ <code>max()</code> และ <code>min()</code> ให้วน Loop เอง</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 1 4 1 5 9 2 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">max: 9
+min: 1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div><button class="check-btn" onclick="checkEx(this,2)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E2"></div>
+          </div>
+          <div class="verdict" id="V2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">3</div><div class="ex-info"><h3>Linear Search</h3><p>รับบรรทัดแรกเป็นตัวเลขหลายตัวคั่นด้วยช่องว่าง บรรทัดสองเป็นตัวที่ต้องการหา พิมพ์ index ที่พบ (เริ่มที่ 0) หรือ <code>-1</code> ถ้าไม่พบ</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">10 20 30 40 50
+30</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">2</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 10 15
+99</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">-1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div><button class="check-btn" onclick="checkEx(this,3)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E3"></div>
+          </div>
+          <div class="verdict" id="V3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">4</div><div class="ex-info"><h3>Binary Search</h3><p>รับบรรทัดแรกเป็นตัวเลขหลายตัวคั่นด้วยช่องว่าง (ข้อมูลเรียงแล้ว) บรรทัดสองเป็นตัวที่ต้องการหา พิมพ์ <code>FOUND index ใช้ X ครั้ง</code> หรือ <code>NOT FOUND</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">1 3 5 7 9 11 13 15
+7</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">FOUND 3 ใช้ 1 ครั้ง</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 4 6 8 10
+5</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">NOT FOUND</div></div>
+          </div>
+          <div class="callout info" style="font-size:13px;margin-bottom:10px"><strong>แนวคิด:</strong> ใช้ low=0, high=len-1, mid=(low+high)//2 วนจน low&gt;high</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div><button class="check-btn" onclick="checkEx(this,4)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E4"></div>
+          </div>
+          <div class="verdict" id="V4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">5</div><div class="ex-info"><h3>นับรอบ O(n²)</h3><p>รับ N เขียนโปรแกรม Nested Loop แล้วพิมพ์จำนวนรอบทั้งหมดที่ Loop ทำงาน</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">16</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">10</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">100</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div><button class="check-btn" onclick="checkEx(this,5)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E5"></div>
+          </div>
+          <div class="verdict" id="V5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">6</div><div class="ex-info"><h3>Bubble Sort</h3><p>รับตัวเลขคั่นด้วยช่องว่าง เรียงจากน้อยไปมากโดยใช้ Bubble Sort แล้วพิมพ์ผลลัพธ์ <strong>ห้ามใช้</strong> <code>.sort()</code> หรือ <code>sorted()</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 3 8 1 9 2</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">1 2 3 5 8 9</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7 4 2</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">2 4 7</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex6.py</span></div><button class="check-btn" onclick="checkEx(this,6)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E6"></div>
+          </div>
+          <div class="verdict" id="V6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">7</div><div class="ex-info"><h3>Two Sum — O(n) ด้วย dict</h3><p>รับตัวเลข N ตัวคั่นช่องว่าง บรรทัดสองเป็น target หาคู่ตัวเลขที่บวกกันได้ target พิมพ์ index ทั้งสอง (คั่นด้วยช่องว่าง) หรือ <code>NOT FOUND</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 7 11 15
+9</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">0 1</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 5 8 1
+4</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">NOT FOUND</div></div>
+          </div>
+          <div class="callout info" style="font-size:13px;margin-bottom:10px"><strong>แนวคิด:</strong> ใช้ dict เก็บ {ค่า: index} วนแค่รอบเดียว ถ้าเจอ target - arr[i] ใน dict ก็จบ — O(n)!</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex7.py</span></div><button class="check-btn" onclick="checkEx(this,7)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E7"></div>
+          </div>
+          <div class="verdict" id="V7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">8</div><div class="ex-info"><h3>ค้นหาชื่อนักเรียน</h3><p>โรงเรียน GDD มีรายชื่อนักเรียน N คน รับ N และชื่อ N คน จากนั้นรับชื่อที่ต้องการค้นหา พิมพ์ตำแหน่ง (เริ่มที่ 1) หรือ <code>ไม่พบ</code></p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+Alice
+Bob
+Charlie
+David
+Eve
+Charlie</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">พบที่ตำแหน่ง 3</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+Ann
+Ben
+Carl
+Zoe</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">ไม่พบ</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex8.py</span></div><button class="check-btn" onclick="checkEx(this,8)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E8"></div>
+          </div>
+          <div class="verdict" id="V8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 9 -->
+    <div class="sec" id="ex9">
+      <div class="sl">โจทย์ที่ 9 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">9</div><div class="ex-info"><h3>Guess Number — Binary Search Style</h3><p>รับ N (upper bound) และ target (ตัวลึกลับ) จำลองเกมทายตัวเลขโดยใช้กลยุทธ์ Binary Search พิมพ์การเดาทีละบรรทัดและจำนวนครั้งที่ใช้</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">16
+11</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">เดา 8: สูงกว่า
+เดา 12: ต่ำกว่า
+เดา 10: สูงกว่า
+เดา 11: ถูก!
+ใช้ 4 ครั้ง</div></div>
+          </div>
+          <div class="callout info" style="font-size:13px;margin-bottom:10px"><strong>แนวคิด:</strong> low=1, high=N, mid=(low+high)//2, เปรียบเทียบ mid กับ target แล้วขยับ low/high</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex9.py</span></div><button class="check-btn" onclick="checkEx(this,9)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E9"></div>
+          </div>
+          <div class="verdict" id="V9"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 10 -->
+    <div class="sec" id="ex10">
+      <div class="sl">โจทย์ที่ 10 — TOI</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">10</div><div class="ex-info"><h3>Top-K Score</h3><p>รับ N และ K จากนั้น N บรรทัด ชื่อ คะแนน พิมพ์ชื่อ K อันดับแรกที่คะแนนมากที่สุด (เรียงจากมากไปน้อย) ถ้าคะแนนเท่ากันให้เรียงตามชื่อ a-z</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5 3
+Alice 95
+Bob 87
+Charlie 95
+David 70
+Eve 88</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Alice 95
+Charlie 95
+Eve 88</div></div>
+          </div>
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 2
+Zara 80
+Alan 80
+Mike 75</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Alan 80
+Zara 80</div></div>
+          </div>
+          <div class="callout" style="font-size:13px;margin-bottom:10px"><strong>แนวคิด:</strong> เรียงแบบ sorted(students, key=lambda x: (-x[1], x[0])) → คะแนนมากสุดก่อน ถ้าเท่ากันเรียงตามชื่อ</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex10.py</span></div><button class="check-btn" onclick="checkEx(this,10)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E10"></div>
+          </div>
+          <div class="verdict" id="V10"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Monaco -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+// ════════════════════════════════
+//  MONACO SETUP
+// ════════════════════════════════
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+const EDITORS = {};
+const EX_EDITORS = {};
+const MON_OPTS = {
+  language: 'python', theme: 'vs-dark', fontSize: 13,
+  fontFamily: "'JetBrains Mono', monospace", minimap: { enabled: false },
+  scrollBeyondLastLine: false, automaticLayout: true,
+  lineNumbers: 'on', renderLineHighlight: 'line',
+  tabSize: 4, insertSpaces: true
+};
+
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('gdddark', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword',foreground:'e879f9',fontStyle:'bold'},
+      {token:'string',foreground:'a8ff78'},
+      {token:'comment',foreground:'4a5168',fontStyle:'italic'},
+      {token:'number',foreground:'f59e0b'},
+      {token:'identifier',foreground:'06b6d4'},
+    ],
+    colors: {
+      'editor.background': '#0a0c10',
+      'editor.foreground': '#e8eaf0',
+      'editorLineNumber.foreground': '#4a5168',
+      'editor.lineHighlightBackground': '#13161e',
+      'editorCursor.foreground': '#e879f9',
+    }
+  });
+  monaco.editor.setTheme('gdddark');
+
+  const mk = (id, code, height) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.height = height || '200px';
+    return monaco.editor.create(el, { ...MON_OPTS, value: code });
+  };
+
+  // Lesson editors
+  EDITORS[1] = mk('L1', LESSONS[0], '240px');
+  EDITORS[2] = mk('L2', LESSONS[1], '240px');
+  EDITORS[3] = mk('L3', LESSONS[2], '280px');
+  EDITORS[4] = mk('L4', LESSONS[3], '300px');
+  EDITORS[5] = mk('L5', LESSONS[4], '340px');
+  EDITORS[6] = mk('L6', LESSONS[5], '300px');
+  EDITORS[7] = mk('L7', LESSONS[6], '280px');
+  EDITORS[8] = mk('L8', LESSONS[7], '340px');
+
+  // Exercise editors
+  for (let i = 1; i <= 10; i++) {
+    const el = document.getElementById(`E${i}`);
+    if (!el) continue;
+    EX_EDITORS[i] = monaco.editor.create(el, {
+      ...MON_OPTS,
+      value: EX[i].start,
+      fontSize: 12,
+    });
+  }
+});
+
+// ════════════════════════════════
+//  LESSON CODE
+// ════════════════════════════════
+const LESSONS = [
+/* L1 o1_examples */
+`# O(1) — Constant Time: ทำงานครั้งเดียวไม่ว่าข้อมูลจะมากแค่ไหน
+students = ["Mick", "Ken", "Bright", "Win", "Oat"]
+
+# หยิบคนแรก — O(1) ทุกครั้ง
+first = students[0]
+print("คนแรก:", first)
+
+# หยิบคนสุดท้าย — O(1)
+last = students[-1]
+print("คนสุดท้าย:", last)
+
+# ตรวจว่า list ว่างหรือเปล่า — O(1)
+is_empty = len(students) == 0
+print("ว่างเปล่า:", is_empty)
+
+# Dict lookup — O(1)
+scores = {"Alice": 95, "Bob": 87, "Charlie": 92}
+print("คะแนน Alice:", scores["Alice"])
+
+print()
+print("✅ ทุกบรรทัดด้านบน = O(1)")
+print("   ไม่ว่า list จะมี 5 หรือ 5,000,000 ตัว ก็เร็วเท่าเดิม!")`,
+
+/* L2 on_examples */
+`# O(n) — Linear Time: ทำงานตามจำนวนข้อมูล
+items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
+
+# วนหาทุกชิ้น — O(n)
+count = 0
+for item in items:
+    count += 1
+    print(f"  ตรวจ: {item}")
+
+print(f"ตรวจทั้งหมด {count} รอบ (= จำนวนข้อมูล)")
+print()
+
+# หาค่าสูงสุด — O(n) ต้องผ่านทุกตัว
+numbers = [34, 12, 78, 5, 90, 23]
+maximum = numbers[0]
+for n in numbers:
+    if n > maximum:
+        maximum = n
+print("ค่าสูงสุด:", maximum)
+print()
+
+# หารวม — O(n)
+total = 0
+for n in numbers:
+    total += n
+print("รวม:", total)`,
+
+/* L3 on2_multiplication */
+`# O(n²) — Quadratic: Loop ซ้อน Loop
+n = 5
+count = 0  # ตัวนับว่าคอมทำงานไปกี่ครั้ง
+
+print(f"สร้างตารางสูตรคูณ {n}x{n}:")
+print("-" * 30)
+
+for i in range(1, n+1):
+    for j in range(1, n+1):
+        count += 1
+        print(f"{i} x {j} = {i*j:3}", end="  ")
+    print()
+
+print("-" * 30)
+print(f"ข้อมูล n={n} แต่คอมทำงานไปทั้งหมด {count} รอบ")
+print(f"นั่นคือ {n} × {n} = {n*n} = n²")
+print()
+
+# เปรียบเทียบ
+for n_test in [5, 10, 100]:
+    print(f"n={n_test:4} → ทำงาน {n_test**2:8,} รอบ (n²)")`,
+
+/* L4 linear_search */
+`import random
+
+def linear_search(data, target):
+    """O(n) — ค้นหาทีละตัวตั้งแต่แรก"""
+    for i, item in enumerate(data):
+        if item == target:
+            return i  # พบแล้ว! คืน index
+    return -1  # ไม่พบ
+
+# ทดสอบกับข้อมูลเล็กๆ
+data = [64, 25, 12, 22, 11, 90, 38, 47]
+target = 22
+
+print("ข้อมูล:", data)
+print(f"ค้นหา: {target}")
+print()
+
+result = linear_search(data, target)
+if result != -1:
+    print(f"✅ พบที่ index {result}")
+else:
+    print("❌ ไม่พบ")
+
+print()
+
+# เปรียบกรณีดีที่สุด vs แย่ที่สุด
+data_big = list(range(1, 1001))
+for target_test in [1, 500, 1000, 9999]:
+    idx = linear_search(data_big, target_test)
+    steps = idx + 1 if idx != -1 else len(data_big)
+    print(f"ค้นหา {target_test:4} → ใช้ {steps:4} รอบ {'✅' if idx!=-1 else '❌'}") `,
+
+/* L5 binary_search */
+`import random
+
+def binary_search(data, target):
+    """O(log n) — กระโดดทีละครึ่ง (ข้อมูลต้องเรียงแล้ว!)"""
+    low, high = 0, len(data) - 1
+    count = 0
+    
+    while low <= high:
+        count += 1
+        mid = (low + high) // 2  # หาตำแหน่งกลาง
+        
+        if data[mid] == target:
+            return mid, count      # เจอแล้ว!
+        elif data[mid] < target:
+            low = mid + 1          # ตัดซีกซ้ายทิ้ง
+        else:
+            high = mid - 1         # ตัดซีกขวาทิ้ง
+    
+    return -1, count
+
+# ข้อมูล 1 ล้านตัว (เรียงแล้ว)
+data = list(range(1, 1_000_001))
+target = random.randint(1, 1_000_000)
+
+lin_steps = target  # Linear ต้องผ่านทุกตัวจนถึง target
+bin_result, bin_steps = binary_search(data, target)
+
+print(f"ข้อมูล: 1,000,000 ตัว")
+print(f"เป้าหมาย: {target:,}")
+print()
+print(f"Linear Search: ใช้ {lin_steps:,} รอบ")
+print(f"Binary Search: ใช้ {bin_steps} รอบ")
+print()
+print(f"Binary Search เร็วกว่า {lin_steps // bin_steps:,} เท่า!")
+print()
+print("👑 Binary Search พบที่ index:", bin_result)`,
+
+/* L6 bubble_sort */
+`# Bubble Sort — เรียงแบบฟองอากาศ O(n²)
+numbers = [64, 34, 25, 12, 22, 11, 90]
+n = len(numbers)
+
+print("ก่อนเรียง:", numbers)
+print()
+print("กำลังเรียง...")
+
+swap_count = 0
+
+for i in range(n):
+    swapped = False
+    for j in range(0, n - i - 1):
+        if numbers[j] > numbers[j + 1]:
+            # สลับที่กัน
+            numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]
+            swap_count += 1
+            swapped = True
+    
+    print(f"  รอบที่ {i+1}: {numbers}")
+    
+    if not swapped:
+        print("  (ไม่มีการสลับแล้ว — จบก่อนกำหนด!)")
+        break
+
+print()
+print("หลังเรียง:", numbers)
+print(f"จำนวนการสลับทั้งหมด: {swap_count} ครั้ง")`,
+
+/* L7 pythonic_sort */
+`# Python built-in sort — O(n log n) Timsort
+import time
+
+data_original = [50, 10, 80, 30, 60, 20, 90, 40, 70, 5, 15, 25]
+print("ต้นฉบับ:  ", data_original)
+
+# วิธีที่ 1: .sort() — เรียงในตัวเดิมเลย
+data1 = data_original.copy()
+data1.sort()
+print("sort()   :", data1)
+
+# วิธีที่ 2: sorted() — สร้าง list ใหม่
+data2 = sorted(data_original)
+print("sorted() :", data2)
+
+# เรียงกลับ (descending)
+data3 = sorted(data_original, reverse=True)
+print("reverse  :", data3)
+
+# เรียง string ตามความยาว
+words = ["banana", "apple", "kiwi", "cherry", "fig"]
+sorted_words = sorted(words, key=len)
+print()
+print("คำดั้งเดิม  :", words)
+print("เรียงตามความยาว:", sorted_words)
+
+# เรียง dict ตาม value
+scores = {"Alice": 92, "Bob": 78, "Charlie": 95, "David": 85}
+top = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+print()
+print("อันดับคะแนน:")
+for rank, (name, score) in enumerate(top, 1):
+    print(f"  {rank}. {name}: {score}")`,
+
+/* L8 two_sum_techniques */
+`# เทคนิค: Two Sum O(n) ด้วย Hash Map
+# ปัญหา: หาคู่ตัวเลขที่รวมกันได้ target
+
+def two_sum_brute(arr, target):
+    """วิธีแรก — Brute Force O(n²)"""
+    n = len(arr)
+    steps = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            steps += 1
+            if arr[i] + arr[j] == target:
+                return i, j, steps
+    return -1, -1, steps
+
+def two_sum_hash(arr, target):
+    """วิธีฉลาด — Hash Map O(n)"""
+    seen = {}  # {ค่า: index}
+    steps = 0
+    for i, num in enumerate(arr):
+        steps += 1
+        complement = target - num
+        if complement in seen:
+            return seen[complement], i, steps
+        seen[num] = i
+    return -1, -1, steps
+
+arr = [2, 7, 11, 15, 1, 8, 3, 5, 9, 4]
+target = 9
+
+i1, j1, s1 = two_sum_brute(arr, target)
+i2, j2, s2 = two_sum_hash(arr, target)
+
+print(f"Array: {arr}")
+print(f"Target: {target}")
+print()
+print(f"Brute Force O(n²): arr[{i1}]+arr[{j1}] = {arr[i1]}+{arr[j1]} ใช้ {s1} รอบ")
+print(f"Hash Map  O(n) : arr[{i2}]+arr[{j2}] = {arr[i2]}+{arr[j2]} ใช้ {s2} รอบ")
+print()
+print(f"Hash Map เร็วกว่า {s1//max(s2,1)} เท่า!")`
+];
+
+// ════════════════════════════════
+//  EXERCISE TEST CASES
+// ════════════════════════════════
+const EX = {
+  1: {
+    start: `# รับ N บรรทัดแรก
+# จากนั้น N บรรทัด: O1, ON, หรือ ON2
+# พิมพ์ O1: x   ON: y   ON2: z
+n = int(input())
+`,
+    tests: [
+      {inp:"5\nO1\nON\nON2\nO1\nON",            exp:"O1: 2\nON: 2\nON2: 1"},
+      {inp:"3\nON2\nON2\nON2",                  exp:"O1: 0\nON: 0\nON2: 3"},
+      {inp:"4\nO1\nO1\nO1\nO1",                 exp:"O1: 4\nON: 0\nON2: 0"},
+      {inp:"6\nO1\nON\nON2\nO1\nON\nON2",       exp:"O1: 2\nON: 2\nON2: 2"},
+    ]
+  },
+
+  2: {
+    start: `# รับตัวเลขคั่นด้วยช่องว่าง 1 บรรทัด
+# พิมพ์ max: x และ min: y (ห้ามใช้ max(), min())
+nums = list(map(int, input().split()))
+`,
+    tests: [
+      {inp:"3 1 4 1 5 9 2 6",   exp:"max: 9\nmin: 1"},
+      {inp:"10",                 exp:"max: 10\nmin: 10"},
+      {inp:"-5 0 5",             exp:"max: 5\nmin: -5"},
+      {inp:"100 50 75 25",       exp:"max: 100\nmin: 25"},
+    ]
+  },
+
+  3: {
+    start: `# บรรทัด 1: ตัวเลขคั่นด้วยช่องว่าง
+# บรรทัด 2: ตัวที่ต้องการหา
+# พิมพ์ index (เริ่มที่ 0) หรือ -1
+`,
+    tests: [
+      {inp:"10 20 30 40 50\n30",  exp:"2"},
+      {inp:"5 10 15\n99",         exp:"-1"},
+      {inp:"7\n7",                exp:"0"},
+      {inp:"1 2 3 4 5\n5",        exp:"4"},
+      {inp:"1 2 3\n1",            exp:"0"},
+    ]
+  },
+
+  4: {
+    start: `# บรรทัด 1: ตัวเลขเรียงแล้วคั่นด้วยช่องว่าง
+# บรรทัด 2: เลขที่ต้องการหา
+# พิมพ์: FOUND <index> ใช้ <x> ครั้ง  หรือ NOT FOUND
+`,
+    tests: [
+      {inp:"1 3 5 7 9 11 13 15\n7",   exp:"FOUND 3 ใช้ 1 ครั้ง"},
+      {inp:"2 4 6 8 10\n5",           exp:"NOT FOUND"},
+      {inp:"1 2 3 4 5 6 7 8\n1",      exp:"FOUND 0 ใช้ 3 ครั้ง"},
+      {inp:"10 20 30\n30",            exp:"FOUND 2 ใช้ 2 ครั้ง"},
+    ]
+  },
+
+  5: {
+    start: `# รับ N
+# พิมพ์จำนวนรอบทั้งหมดที่ Nested Loop ทำงาน (n*n)
+n = int(input())
+`,
+    tests: [
+      {inp:"4",   exp:"16"},
+      {inp:"10",  exp:"100"},
+      {inp:"1",   exp:"1"},
+      {inp:"100", exp:"10000"},
+    ]
+  },
+
+  6: {
+    start: `# รับตัวเลขคั่นด้วยช่องว่าง 1 บรรทัด
+# เรียงจากน้อยไปมากด้วย Bubble Sort (ห้ามใช้ .sort() หรือ sorted())
+# พิมพ์ผลลัพธ์คั่นด้วยช่องว่าง
+`,
+    tests: [
+      {inp:"5 3 8 1 9 2",    exp:"1 2 3 5 8 9"},
+      {inp:"7 4 2",          exp:"2 4 7"},
+      {inp:"1",              exp:"1"},
+      {inp:"3 3 3",          exp:"3 3 3"},
+      {inp:"9 8 7 6 5",      exp:"5 6 7 8 9"},
+    ]
+  },
+
+  7: {
+    start: `# บรรทัด 1: ตัวเลขคั่นด้วยช่องว่าง
+# บรรทัด 2: target
+# พิมพ์ i j (index 2 ตัวที่บวกกันได้ target) หรือ NOT FOUND
+`,
+    tests: [
+      {inp:"2 7 11 15\n9",       exp:"0 1"},
+      {inp:"3 5 8 1\n4",         exp:"NOT FOUND"},
+      {inp:"3 2 4\n6",           exp:"1 2"},
+      {inp:"1 3 5 7 9\n10",      exp:"0 4"},
+      {inp:"0 4 3 0\n0",         exp:"0 3"},
+    ]
+  },
+
+  8: {
+    start: `# บรรทัด 1: N
+# N บรรทัดถัดไป: ชื่อนักเรียนทีละคน
+# บรรทัดสุดท้าย: ชื่อที่ต้องการค้นหา
+# พิมพ์: พบที่ตำแหน่ง X  หรือ  ไม่พบ
+`,
+    tests: [
+      {inp:"5\nAlice\nBob\nCharlie\nDavid\nEve\nCharlie",  exp:"พบที่ตำแหน่ง 3"},
+      {inp:"3\nAnn\nBen\nCarl\nZoe",                       exp:"ไม่พบ"},
+      {inp:"1\nOnly\nOnly",                                exp:"พบที่ตำแหน่ง 1"},
+      {inp:"4\nA\nB\nC\nD\nA",                             exp:"พบที่ตำแหน่ง 1"},
+    ]
+  },
+
+  9: {
+    start: `# บรรทัด 1: N (upper bound 1 ถึง N)
+# บรรทัด 2: target (ตัวที่ต้องทาย)
+# จำลองการทายด้วย Binary Search
+# พิมพ์ "เดา X: สูงกว่า/ต่ำกว่า/ถูก!" ทีละบรรทัด
+# พิมพ์ "ใช้ X ครั้ง" ท้ายสุด
+`,
+    tests: [
+      {inp:"16\n11",  exp:"เดา 8: สูงกว่า\nเดา 12: ต่ำกว่า\nเดา 10: สูงกว่า\nเดา 11: ถูก!\nใช้ 4 ครั้ง"},
+      {inp:"8\n1",    exp:"เดา 4: ต่ำกว่า\nเดา 2: ต่ำกว่า\nเดา 1: ถูก!\nใช้ 3 ครั้ง"},
+      {inp:"4\n4",    exp:"เดา 2: สูงกว่า\nเดา 3: สูงกว่า\nเดา 4: ถูก!\nใช้ 3 ครั้ง"},
+    ]
+  },
+
+  10: {
+    start: `# บรรทัด 1: N K
+# N บรรทัดถัดไป: ชื่อ คะแนน
+# พิมพ์ Top-K อันดับ (คะแนนมาก→น้อย ถ้าเท่ากันเรียงชื่อ a-z)
+`,
+    tests: [
+      {inp:"5 3\nAlice 95\nBob 87\nCharlie 95\nDavid 70\nEve 88",   exp:"Alice 95\nCharlie 95\nEve 88"},
+      {inp:"3 2\nZara 80\nAlan 80\nMike 75",                         exp:"Alan 80\nZara 80"},
+      {inp:"4 1\nX 100\nY 50\nZ 75\nW 100",                         exp:"X 100"},
+      {inp:"2 2\nBeta 60\nAlpha 60",                                 exp:"Alpha 60\nBeta 60"},
+    ]
+  }
+};
+
+// ════════════════════════════════
+//  SEARCH VISUALIZER
+// ════════════════════════════════
+let svData = [];
+let svAnimTimer = null;
+
+function svGenerate() {
+  if (svAnimTimer) { clearTimeout(svAnimTimer); svAnimTimer = null; }
+  const size = 20;
+  const pool = Array.from({length: 50}, (_, i) => i * 2 + 1);
+  svData = pool.sort(() => Math.random() - 0.5).slice(0, size).sort((a, b) => a - b);
+  renderSvArr(svData, [], []);
+  document.getElementById('svSteps').textContent = '0';
+  document.getElementById('svMethod').textContent = '—';
+  document.getElementById('svResult').textContent = '—';
+  document.getElementById('svLog').textContent = 'เลือกตัวเลขที่ต้องการค้นหา แล้วกด Linear หรือ Binary Search';
+}
+
+function renderSvArr(data, active, checked, found, range) {
+  const container = document.getElementById('svArr');
+  container.innerHTML = '';
+  data.forEach((val, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'sv-cell';
+    if (found !== undefined && found === i) cell.classList.add('found');
+    else if (active.includes(i)) cell.classList.add('active');
+    else if (checked.includes(i)) cell.classList.add('checked');
+    else if (range && i >= range[0] && i <= range[1]) cell.classList.add('range');
+    cell.innerHTML = `${val}<span class="sv-idx">${i}</span>`;
+    container.appendChild(cell);
+  });
+}
+
+async function svLinear() {
+  const target = parseInt(document.getElementById('svTarget').value);
+  if (!svData.length || isNaN(target)) {
+    alert('กรุณาสร้างข้อมูลและใส่ตัวเลขที่ต้องการค้นหาก่อน');
+    return;
+  }
+  if (svAnimTimer) { clearTimeout(svAnimTimer); svAnimTimer = null; }
+  document.getElementById('svMethod').textContent = 'Linear Search';
+  document.getElementById('svResult').textContent = '...';
+
+  const checked = [];
+  for (let i = 0; i < svData.length; i++) {
+    document.getElementById('svSteps').textContent = i + 1;
+    document.getElementById('svLog').textContent = `ตรวจ index ${i}: ${svData[i]} ${svData[i] === target ? '✅ เจอแล้ว!' : '≠ ' + target}`;
+    if (svData[i] === target) {
+      renderSvArr(svData, [], checked, i);
+      document.getElementById('svResult').textContent = `✅ พบที่ index ${i}`;
+      return;
+    }
+    checked.push(i);
+    renderSvArr(svData, [i], checked.slice(0, -1));
+    await sleep(120);
+  }
+  document.getElementById('svResult').textContent = '❌ ไม่พบ';
+  document.getElementById('svLog').textContent = `ผ่านครบทุกตัว ${svData.length} รอบ — ไม่พบ ${target}`;
+}
+
+async function svBinary() {
+  const target = parseInt(document.getElementById('svTarget').value);
+  if (!svData.length || isNaN(target)) {
+    alert('กรุณาสร้างข้อมูลและใส่ตัวเลขที่ต้องการค้นหาก่อน');
+    return;
+  }
+  if (svAnimTimer) { clearTimeout(svAnimTimer); svAnimTimer = null; }
+  document.getElementById('svMethod').textContent = 'Binary Search';
+  document.getElementById('svResult').textContent = '...';
+
+  let low = 0, high = svData.length - 1, steps = 0;
+  while (low <= high) {
+    steps++;
+    const mid = Math.floor((low + high) / 2);
+    document.getElementById('svSteps').textContent = steps;
+    document.getElementById('svLog').textContent =
+      `รอบ ${steps}: [${low}..${high}] mid=${mid} → ${svData[mid]} ${svData[mid] === target ? '✅' : svData[mid] < target ? '< target ตัดซีกซ้าย' : '> target ตัดซีกขวา'}`;
+    renderSvArr(svData, [mid], [], undefined, [low, high]);
+    await sleep(500);
+    if (svData[mid] === target) {
+      renderSvArr(svData, [], [], mid);
+      document.getElementById('svResult').textContent = `✅ พบที่ index ${mid}`;
+      return;
+    } else if (svData[mid] < target) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+  renderSvArr(svData, [], []);
+  document.getElementById('svResult').textContent = '❌ ไม่พบ';
+  document.getElementById('svLog').textContent = `ใช้ ${steps} รอบ — ไม่พบ ${target} ในข้อมูล`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// init on load
+svGenerate();
+
+// ════════════════════════════════
+//  PYODIDE
+// ════════════════════════════════
+let pyodide = null;
+let pyReady = false;
+
+(function () {
+  dot('loading', 'กำลังโหลด Python...', 'var(--ac)');
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      pyodide = await window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+      pyReady = true;
+      dot('ready', 'Python พร้อมใช้งาน ✓', 'var(--ac3)');
+    } catch(e) {
+      dot('error', 'โหลด Python ไม่สำเร็จ — ลองรีเฟรช', 'var(--red)');
+    }
+  };
+  s.onerror = () => dot('error', 'โหลด Pyodide ไม่ได้ — ตรวจสอบ Internet', 'var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt;
+  t.style.color = col;
+}
+
+// ════════════════════════════════
+//  PYTHON RUNNER
+// ════════════════════════════════
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่แล้วลองใหม่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try {
+    pyodide.runPython(code);
+  } catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l, i) => i === lines.length - 1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured + '\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+// ════════════════════════════════
+//  LESSON RUN
+// ════════════════════════════════
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) {
+    out.textContent = e.message;
+    out.className = 'out-txt err';
+  }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// ════════════════════════════════
+//  EXERCISE CHECKER
+// ════════════════════════════════
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById(`V${id}`);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) {
+      got  = e.message;
+      pass = false;
+    }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`
+<div class="vd-row">
+  <span class="vd-icon">${pass ? '✅' : '❌'}</span>
+  <div class="vd-content">
+    <div class="vd-title">Test Case ${i+1}</div>
+    <div class="vd-in">Input: ${inpDisplay}</div>
+    <div class="vd-row-inner">
+      <div>
+        <div class="vd-label">ผลลัพธ์ที่ได้</div>
+        <div class="${pass ? 'vd-got' : 'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div>
+      </div>
+      ${!pass ? `<div>
+        <div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div>
+        <div class="vd-expect">${esc(exp.trim())}</div>
+      </div>` : ''}
+    </div>
+  </div>
+</div>`);
+  }
+  let passCount = 0;
+  for (const r of rows) if (r.includes('✅')) passCount++;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass
+    ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!`
+    : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.textContent = busy ? 'กำลังทำงาน...' : label;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
