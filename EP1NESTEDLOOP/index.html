@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python L1.9 — Nested Loop (ลูปซ้อนลูป)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;--or:#f97316;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+.bo{background:rgba(249,115,22,.15);color:var(--or)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+.callout.or{border-left-color:var(--or);background:rgba(249,115,22,.06)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.outer{border-color:rgba(232,121,249,.3)}
+.concept-card.inner{border-color:rgba(6,182,212,.3)}
+.concept-card.compare{border-color:rgba(16,185,129,.3)}
+.concept-card.perf{border-color:rgba(249,115,22,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.outer::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.inner::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.concept-card.compare::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.concept-card.perf::before{background:linear-gradient(90deg,var(--or),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.outer .cc-title{color:var(--ac)}
+.concept-card.inner .cc-title{color:var(--ac2)}
+.concept-card.compare .cc-title{color:var(--ac3)}
+.concept-card.perf .cc-title{color:var(--or)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+
+/* NESTED LOOP VISUALIZER */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.viz-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:80px;font-family:'JetBrains Mono',monospace;outline:none}
+.viz-inp:focus{border-color:var(--ac)}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.run{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.viz-btn.run:hover{background:rgba(16,185,129,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn:disabled{opacity:.4;cursor:not-allowed}
+.viz-label{font-size:11px;color:var(--mu);font-weight:600}
+
+/* LOOP ANIMATION GRID */
+.loop-grid-wrap{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:12px}
+.loop-grid{display:grid;gap:4px;width:fit-content;margin:0 auto}
+.lg-cell{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border:1px solid var(--bd);background:var(--sf);color:var(--di);transition:all .3s}
+.lg-cell.active-outer{background:rgba(232,121,249,.15);border-color:rgba(232,121,249,.5);color:var(--ac)}
+.lg-cell.active-inner{background:rgba(6,182,212,.25);border-color:var(--ac2);color:var(--ac2);transform:scale(1.08)}
+.lg-cell.done{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:var(--ac3)}
+.loop-stats{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.loop-stat{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;font-size:12px}
+.ls-label{color:var(--mu);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.ls-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--tx)}
+.ls-val.outer-c{color:var(--ac)}
+.ls-val.inner-c{color:var(--ac2)}
+.ls-val.total-c{color:var(--ac3)}
+
+/* PATTERN VIEWER */
+.pattern-out{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:16px;line-height:1.6;color:var(--ac);min-height:80px;white-space:pre;letter-spacing:2px}
+.pattern-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pat-btn{border:1px solid var(--bd);background:var(--sf2);color:var(--mu);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s;font-weight:600}
+.pat-btn:hover{color:var(--tx);border-color:var(--ac)}
+.pat-btn.active{background:rgba(232,121,249,.12);color:var(--ac);border-color:rgba(232,121,249,.5)}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-num.o{background:rgba(249,115,22,.15);color:var(--or)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* QUIZ */
+.quiz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.quiz-hd{background:var(--sf2);padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.quiz-title{font-size:14px;font-weight:700;color:var(--tx)}
+.quiz-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;color:var(--tx);font-weight:600;margin-bottom:14px;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:#c5c9d8;background:var(--sf2)}
+.quiz-opt:hover{border-color:var(--ac);color:var(--tx)}
+.quiz-opt.selected{border-color:var(--ac2);background:rgba(6,182,212,.08);color:var(--ac2)}
+.quiz-opt.correct{border-color:var(--ac3);background:rgba(16,185,129,.1);color:var(--ac3)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.08);color:var(--red)}
+.quiz-opt-key{width:22px;height:22px;border-radius:6px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.quiz-fb{padding:12px 14px;border-radius:8px;font-size:13px;margin-top:8px;display:none}
+.quiz-fb.correct{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--ac3)}
+.quiz-fb.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.quiz-submit{background:var(--ac2);color:#fff;border:none;padding:7px 20px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-submit:hover{background:#38bdf8}
+.quiz-submit:disabled{background:var(--di);cursor:not-allowed}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.quiz-prog-text{font-size:11px;color:var(--mu)}
+.quiz-nav-btns{display:flex;gap:8px}
+.quiz-nav-btn{background:var(--sf2);border:1px solid var(--bd);color:var(--mu);padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-nav-btn:hover:not(:disabled){color:var(--tx);border-color:var(--ac)}
+.quiz-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.quiz-score-wrap{text-align:center;padding:30px 20px;display:none}
+.quiz-score-num{font-size:52px;font-weight:800;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.quiz-score-label{font-size:14px;color:var(--mu);margin-bottom:20px}
+.quiz-retry{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3);padding:8px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s}
+.quiz-retry:hover{background:rgba(232,121,249,.25)}
+.quiz-dots{display:flex;gap:5px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.quiz-dot{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:all .3s}
+.quiz-dot.answered{background:var(--ac2)}
+.quiz-dot.current{background:var(--ac);transform:scale(1.3)}
+.quiz-dot.correct-d{background:var(--ac3)}
+.quiz-dot.wrong-d{background:var(--red)}
+
+/* COMPARISON TABLE */
+.comp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.comp-box{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.comp-box-hd{padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.comp-box-hd.single{background:rgba(16,185,129,.07);color:var(--ac3)}
+.comp-box-hd.nested{background:rgba(232,121,249,.07);color:var(--ac)}
+.comp-box-body{padding:14px;font-size:12.5px;color:#c5c9d8;line-height:1.7}
+.comp-box-body code{font-family:'JetBrains Mono',monospace;display:block;white-space:pre;background:none;padding:0;font-size:12px;margin:8px 0;color:#c5c9d8}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-badge.o{background:rgba(249,115,22,.15);color:var(--or)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.tech-grid,.comp-row,.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python L1 · Week 9</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — ลูปซ้อนลูปคืออะไร?</a>
+    <a class="na" href="#compare">Part 1 — Single vs Nested Loop</a>
+    <a class="na" href="#viz">🎮 Loop Visualizer</a>
+    <a class="na" href="#patterns">Part 2 — การสร้าง Pattern</a>
+    <a class="na sub" href="#pat-square">· สี่เหลี่ยม / บันได</a>
+    <a class="na sub" href="#pat-table">· ตารางคูณ</a>
+    <a class="na" href="#matrix">Part 3 — Matrix (2D List)</a>
+    <a class="na" href="#pairwise">Part 4 — Pairwise Processing</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. สี่เหลี่ยม * <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. บันได Pattern <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. ตารางคูณ <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. กรอบสี่เหลี่ยม <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. Matrix Sum <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6. Find Duplicates <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex7">7. Transpose Matrix <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex8">8. Number Triangle <span class="badge bp">Expert</span></a>
+    <div class="nav-sec" style="margin-top:6px">แบบทดสอบ</div>
+    <a class="na" href="#quiz">🧠 Quiz 10 ข้อ</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python <span>›</span> Level 1 <span>›</span> Week 9 — Nested Loop</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Level 1 · Week 9</div>
+      <div class="ht">Nested Loop<br>ลูปซ้อนลูป</div>
+      <div class="hs">วนซ้ำหลายมิติ — ตาราง, Pattern, Matrix</div>
+      <div class="hm">เรียนรู้การใช้ลูปซ้อนกันสำหรับข้อมูล 2D สร้าง Pattern สวยงาม วิเคราะห์ Matrix และประมวลผลข้อมูลแบบ Pairwise</div>
+      <div class="tags">
+        <span class="tag">Nested Loop</span>
+        <span class="tag">Pattern</span>
+        <span class="tag">2D List / Matrix</span>
+        <span class="tag">Pairwise</span>
+        <span class="tag">O(n²)</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>Nested Loop คืออะไร?</h2>
+      <p><strong>Nested Loop (ลูปซ้อนลูป)</strong> คือการนำ Loop หนึ่งไว้<strong>ภายใน</strong> Loop อีกอัน ใช้เมื่อต้องการทำงานกับข้อมูล 2 มิติ เช่น ตาราง (แถว × คอลัมน์) หรือต้องการเปรียบเทียบทุกคู่ข้อมูล</p>
+      <div class="concept-grid">
+        <div class="concept-card outer">
+          <div class="cc-icon">🔄</div>
+          <div class="cc-title">Outer Loop (ลูปรอบนอก)</div>
+          <div class="cc-desc">ควบคุมจำนวน<strong>แถว</strong> หรือรอบหลัก ทำงาน 1 ครั้ง → ลูปในทำงานจนจบ</div>
+        </div>
+        <div class="concept-card inner">
+          <div class="cc-icon">🔁</div>
+          <div class="cc-title">Inner Loop (ลูปรอบใน)</div>
+          <div class="cc-desc">ควบคุมจำนวน<strong>คอลัมน์</strong> หรือรายละเอียด ทำงานซ้ำในแต่ละรอบของลูปนอก</div>
+        </div>
+        <div class="concept-card compare">
+          <div class="cc-icon">⏱️</div>
+          <div class="cc-title">จำนวนรอบรวม</div>
+          <div class="cc-desc">= รอบลูปนอก × รอบลูปใน<br>เช่น range(3) × range(5) = <strong>15 ครั้ง</strong></div>
+        </div>
+        <div class="concept-card perf">
+          <div class="cc-icon">📊</div>
+          <div class="cc-title">ความซับซ้อน O(n²)</div>
+          <div class="cc-desc">ถ้าทั้งสองลูปมี n รอบ จะเป็น O(n²) — ระวังเมื่อข้อมูลใหญ่</div>
+        </div>
+      </div>
+      <div class="callout info"><strong>โครงสร้างพื้นฐาน:</strong>
+<code>for i in range(3):      # ลูปนอก — i = 0, 1, 2
+    for j in range(5):  # ลูปใน — j = 0..4 ทุกรอบ
+        print(i, j)</code></div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">nested_basic.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="sec" id="compare">
+      <div class="sl">Part 1</div>
+      <h2>Single Loop vs Nested Loop</h2>
+      <div class="comp-row">
+        <div class="comp-box">
+          <div class="comp-box-hd single">✅ Single Loop — O(n)</div>
+          <div class="comp-box-body">
+            ทำงาน <strong>เชิงเส้น</strong> เหมาะกับข้อมูล 1 มิติ
+            <code>for i in range(5):
+    print(i)
+# ทำ 5 ครั้ง</code>
+            ใช้เมื่อ: วนแถว, ผลรวม, ค้นหาค่า
+          </div>
+        </div>
+        <div class="comp-box">
+          <div class="comp-box-hd nested">🔷 Nested Loop — O(n×m)</div>
+          <div class="comp-box-body">
+            ทำงาน <strong>แบบตาราง</strong> เหมาะกับข้อมูล 2 มิติ
+            <code>for i in range(5):
+    for j in range(5):
+        print(i, j)
+# ทำ 25 ครั้ง</code>
+            ใช้เมื่อ: ตาราง, Matrix, Pairwise
+          </div>
+        </div>
+      </div>
+      <div class="callout warn"><strong>⚠️ ข้อควรระวัง:</strong> Nested Loop อาจช้าเมื่อข้อมูลใหญ่ — ถ้าต้องการประสิทธิภาพสูงให้พิจารณาใช้ Dictionary, Sorting, หรือ Set แทน เพื่อลดจาก O(n²) เป็น O(n)</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">compare_loops.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- VISUALIZER -->
+    <div class="sec" id="viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 Nested Loop Visualizer</h2>
+      <p>กำหนดจำนวนรอบของลูปนอกและลูปใน แล้วดูการทำงานทีละ cell แบบ Animation</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title" style="color:var(--ac)">⚙️ LOOP VISUALIZER</span>
+          <span style="font-size:11px;color:var(--mu)" id="vizInfo">พร้อมใช้งาน</span>
+        </div>
+        <div class="viz-body">
+          <div class="viz-ctrl">
+            <span class="viz-label">ลูปนอก (i):</span>
+            <input class="viz-inp" id="outerN" type="number" value="4" min="1" max="8" style="width:60px">
+            <span class="viz-label">ลูปใน (j):</span>
+            <input class="viz-inp" id="innerN" type="number" value="5" min="1" max="8" style="width:60px">
+            <span class="viz-label">ความเร็ว:</span>
+            <input class="viz-inp" id="vizSpeed" type="number" value="300" min="50" max="1000" step="50" style="width:80px">
+            <span class="viz-label" style="font-size:10px">ms</span>
+            <button class="viz-btn run" id="vizRunBtn" onclick="startViz()">▶ เริ่ม Animation</button>
+            <button class="viz-btn rst" onclick="resetViz()">↺ Reset</button>
+          </div>
+          <div class="loop-grid-wrap">
+            <div class="loop-grid" id="loopGrid"></div>
+          </div>
+          <div class="loop-stats">
+            <div class="loop-stat"><div class="ls-label">i (ลูปนอก)</div><div class="ls-val outer-c" id="statI">—</div></div>
+            <div class="loop-stat"><div class="ls-label">j (ลูปใน)</div><div class="ls-val inner-c" id="statJ">—</div></div>
+            <div class="loop-stat"><div class="ls-label">รอบที่</div><div class="ls-val total-c" id="statStep">0</div></div>
+            <div class="loop-stat"><div class="ls-label">รวมทั้งหมด</div><div class="ls-val" id="statTotal" style="color:var(--mu)">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATTERNS -->
+    <div class="sec" id="patterns">
+      <div class="sl">Part 2</div>
+      <h2>การสร้าง Pattern</h2>
+      <p>Nested Loop ใช้สร้างรูปแบบต่างๆ โดยลูปนอกควบคุมแถว และลูปในควบคุมคอลัมน์ในแต่ละแถว</p>
+      <div class="callout info"><strong>หลักการ:</strong> ลูปนอก = จำนวนแถว | ลูปใน = จำนวนสัญลักษณ์ในแต่ละแถว | <code>print()</code> เปล่าขึ้นบรรทัดใหม่</div>
+      <h3>Pattern Generator</h3>
+      <div class="pattern-btns">
+        <button class="pat-btn active" onclick="showPattern('square')">⬛ สี่เหลี่ยม</button>
+        <button class="pat-btn" onclick="showPattern('stair-up')">📈 บันไดขึ้น</button>
+        <button class="pat-btn" onclick="showPattern('stair-down')">📉 บันไดลง</button>
+        <button class="pat-btn" onclick="showPattern('frame')">🖼️ กรอบ</button>
+        <button class="pat-btn" onclick="showPattern('diamond')">💎 เพชร</button>
+        <button class="pat-btn" onclick="showPattern('numbers')">🔢 เลข</button>
+      </div>
+      <div class="pattern-out" id="patOut"></div>
+    </div>
+
+    <!-- PATTERN EDITORS -->
+    <div class="sec" id="pat-square">
+      <h3>ตัวอย่างที่ 1: สี่เหลี่ยมและบันได</h3>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">pattern_shapes.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="pat-table">
+      <h3>ตัวอย่างที่ 2: ตารางคูณ</h3>
+      <p>ตารางคูณเป็นตัวอย่างคลาสสิกของ Nested Loop เพราะค่าในแต่ละ cell ขึ้นอยู่กับ <strong>ทั้งสองลูป</strong> (i × j)</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">multiplication_table.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- MATRIX -->
+    <div class="sec" id="matrix">
+      <div class="sl">Part 3</div>
+      <h2>Nested Loop กับ Matrix (2D List)</h2>
+      <p>Matrix คือ List ซ้อน List ใช้ index 2 ตัว <code>matrix[row][col]</code> เพื่อเข้าถึงค่าในตาราง</p>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">อ่าน</span>วน Loop ทุก Cell</div>
+          <div class="tc-desc">ใช้ <code>for row in matrix: for val in row:</code> อ่านค่าทุกช่องในตาราง</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">Index</span>matrix[i][j]</div>
+          <div class="tc-desc">ใช้ <code>range(len(matrix))</code> เพื่อเข้าถึงทั้ง index แถวและคอลัมน์</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">หาค่า</span>Max/Min/Sum</div>
+          <div class="tc-desc">วน Nested Loop เพื่อหาค่าสูงสุด/ต่ำสุด/ผลรวมใน Matrix</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge o">ใช้งาน</span>ตารางข้อมูลจริง</div>
+          <div class="tc-desc">ตารางสินค้า, แผนผัง, ตารางเวลา — ข้อมูลที่มีแถวและคอลัมน์</div>
+        </div>
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">matrix_operations.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- PAIRWISE -->
+    <div class="sec" id="pairwise">
+      <div class="sl">Part 4</div>
+      <h2>Pairwise Processing — เปรียบทุกคู่</h2>
+      <p>การตรวจสอบความสัมพันธ์ระหว่างทุกคู่ข้อมูล เช่น หาค่าซ้ำ, เปรียบเทียบทุกคู่, คำนวณระยะห่าง</p>
+      <div class="callout or"><strong>💡 เทคนิค:</strong> ใช้ <code>for j in range(i+1, len(data))</code> เพื่อเช็คแต่ละคู่เพียงครั้งเดียว ลด loop จาก O(n²) เป็น O(n²/2)</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">pairwise.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISE 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">1</div>
+          <div class="ex-info"><h3>พิมพ์สี่เหลี่ยม n × m</h3><p>รับค่า n และ m แล้วพิมพ์ * เป็นสี่เหลี่ยมขนาด n แถว m คอลัมน์</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">****
+****
+****</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">*****
+*****</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex1.py</span><button class="check-btn" onclick="checkEx(this,'EX1')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX1"></div>
+          </div>
+          <div class="verdict" id="VEX1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">2</div>
+          <div class="ex-info"><h3>บันไดขึ้น</h3><p>รับค่า n แล้วพิมพ์บันไดดาว แถวที่ i มี i ดาว (i เริ่มจาก 1)</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">*
+**
+***
+****</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">*
+**
+***
+****
+*****
+******</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex2.py</span><button class="check-btn" onclick="checkEx(this,'EX2')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX2"></div>
+          </div>
+          <div class="verdict" id="VEX2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">3</div>
+          <div class="ex-info"><h3>ตารางคูณ n × n</h3><p>รับค่า n แล้วพิมพ์ตารางคูณ คั่นด้วย Tab (\t) แต่ละแถวขึ้นบรรทัดใหม่</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1	2	3
+2	4	6
+3	6	9</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1	2	3	4
+2	4	6	8
+3	6	9	12
+4	8	12	16</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex3.py</span><button class="check-btn" onclick="checkEx(this,'EX3')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX3"></div>
+          </div>
+          <div class="verdict" id="VEX3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">4</div>
+          <div class="ex-info"><h3>กรอบสี่เหลี่ยม (ข้างในว่าง)</h3><p>รับค่า n แล้วพิมพ์กรอบ * ขนาด n×n โดยข้างในเว้นช่องว่าง</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">****
+*  *
+*  *
+****</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">*****
+*   *
+*   *
+*   *
+*****</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex4.py</span><button class="check-btn" onclick="checkEx(this,'EX4')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX4"></div>
+          </div>
+          <div class="verdict" id="VEX4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">5</div>
+          <div class="ex-info"><h3>Matrix Row Sum</h3><p>รับ Matrix n×m แล้วพิมพ์ผลรวมของแต่ละแถว บรรทัดละแถว</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 3
+1 2 3
+4 5 6
+7 8 9</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">6
+15
+24</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 4
+10 20 30 40
+5 5 5 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">100
+20</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex5.py</span><button class="check-btn" onclick="checkEx(this,'EX5')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX5"></div>
+          </div>
+          <div class="verdict" id="VEX5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">6</div>
+          <div class="ex-info"><h3>หาค่าซ้ำใน List</h3><p>รับจำนวนตัวเลขและตัวเลข แล้วพิมพ์เลขที่ซ้ำโดยเรียงจากน้อยไปมาก (ไม่ซ้ำในผลลัพธ์)</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6
+1 4 2 4 3 2</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">2
+4</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+5 5 5 5 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">5</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex6.py</span><button class="check-btn" onclick="checkEx(this,'EX6')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX6"></div>
+          </div>
+          <div class="verdict" id="VEX6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">7</div>
+          <div class="ex-info"><h3>Transpose Matrix</h3><p>รับ Matrix n×m แล้วพิมพ์ Transpose (สลับแถวกับคอลัมน์)</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2 3
+1 2 3
+4 5 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1 4
+2 5
+3 6</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 2
+7 8
+9 10
+11 12</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">7 9 11
+8 10 12</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex7.py</span><button class="check-btn" onclick="checkEx(this,'EX7')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX7"></div>
+          </div>
+          <div class="verdict" id="VEX7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — Expert</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num p">8</div>
+          <div class="ex-info"><h3>Number Triangle</h3><p>รับค่า n แล้วพิมพ์สามเหลี่ยมตัวเลข แถวที่ i แสดงตัวเลข 1 ถึง i</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1
+1 2
+1 2 3
+1 2 3 4</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1
+1 2
+1 2 3
+1 2 3 4
+1 2 3 4 5</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex8.py</span><button class="check-btn" onclick="checkEx(this,'EX8')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX8"></div>
+          </div>
+          <div class="verdict" id="VEX8"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- QUIZ -->
+    <div class="sec" id="quiz">
+      <div class="sl">แบบทดสอบ</div>
+      <h2>🧠 Quiz — Nested Loop 10 ข้อ</h2>
+      <p>ทดสอบความเข้าใจของคุณเกี่ยวกับ Nested Loop ทั้งทฤษฎีและโค้ด</p>
+      <div class="quiz-wrap">
+        <div class="quiz-hd">
+          <span class="quiz-title" id="quizTitle">ข้อที่ 1 จาก 10</span>
+          <span class="quiz-badge bp" id="quizScoreBadge">0 / 10</span>
+        </div>
+        <div class="quiz-body">
+          <div class="quiz-dots" id="quizDots"></div>
+          <div id="quizContent">
+            <div class="quiz-q" id="quizQ"></div>
+            <div class="quiz-opts" id="quizOpts"></div>
+            <div class="quiz-fb" id="quizFb"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+              <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">ยืนยันคำตอบ</button>
+              <span style="font-size:12px;color:var(--di)" id="quizHint"></span>
+            </div>
+            <div class="quiz-nav">
+              <span class="quiz-prog-text" id="quizProg">ข้อ 1 / 10</span>
+              <div class="quiz-nav-btns">
+                <button class="quiz-nav-btn" id="quizPrev" onclick="quizNav(-1)" disabled>← ก่อนหน้า</button>
+                <button class="quiz-nav-btn" id="quizNext" onclick="quizNav(1)" disabled>ถัดไป →</button>
+              </div>
+            </div>
+          </div>
+          <div class="quiz-score-wrap" id="quizScore">
+            <div class="quiz-score-num" id="scoreTxt"></div>
+            <div class="quiz-score-label" id="scoreLbl"></div>
+            <button class="quiz-retry" onclick="restartQuiz()">🔄 ทำใหม่อีกครั้ง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ════════════════════════════════
+//  MONACO + PYODIDE
+// ════════════════════════════════
+let pyodide = null, pyReady = false;
+const EDITORS = {}, EX_EDITORS = {};
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('dark9', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword',foreground:'c084fc',fontStyle:'bold'},
+      {token:'string',foreground:'86efac'},
+      {token:'comment',foreground:'4a5168',fontStyle:'italic'},
+      {token:'number',foreground:'fbbf24'},
+      {token:'delimiter',foreground:'7b82a0'},
+    ],
+    colors: { 'editor.background':'#0a0c10','editor.foreground':'#c5c9d8','editorLineNumber.foreground':'#2e3347','editor.lineHighlightBackground':'#13161e','editorCursor.foreground':'#e879f9' }
+  });
+  const opts = { theme:'dark9', language:'python', minimap:{enabled:false}, fontSize:13, lineHeight:22, fontFamily:"'JetBrains Mono',monospace", scrollBeyondLastLine:false, automaticLayout:true, tabSize:4, padding:{top:10,bottom:10} };
+
+  // Lesson editors
+  const LCODES = {
+    1: `# Nested Loop พื้นฐาน
+for i in range(3):       # ลูปนอก — i = 0, 1, 2
+    for j in range(5):   # ลูปใน — j = 0, 1, 2, 3, 4
+        print(i, j)
+# จำนวนรอบรวม = 3 × 5 = 15 ครั้ง`,
+    2: `# Single Loop vs Nested Loop
+print("=== Single Loop ===")
+for i in range(5):
+    print(i, end=' ')
+print()
+
+print("\\n=== Nested Loop ===")
+for i in range(3):
+    for j in range(3):
+        print(f"({i},{j})", end=' ')
+    print()  # ขึ้นบรรทัดใหม่หลังแต่ละแถว`,
+    3: `# Pattern 1: สี่เหลี่ยม 5x5
+print("สี่เหลี่ยม 5x5:")
+for i in range(5):
+    for j in range(5):
+        print("*", end="")
+    print()
+
+# Pattern 2: บันไดขึ้น
+print("\\nบันไดขึ้น:")
+for i in range(1, 6):
+    for j in range(i):
+        print("*", end="")
+    print()
+
+# Pattern 3: บันไดลง
+print("\\nบันไดลง:")
+for i in range(5, 0, -1):
+    for j in range(i):
+        print("*", end="")
+    print()`,
+    4: `# ตารางคูณ 5x5
+print("ตารางคูณ:")
+for i in range(1, 6):
+    for j in range(1, 6):
+        print(i * j, end="\\t")
+    print()
+
+# แบบแสดงสูตร
+print("\\nแสดงสูตร (3x3):")
+for i in range(1, 4):
+    for j in range(1, 4):
+        print(f"{i}x{j}={i*j}", end="  ")
+    print()`,
+    5: `# Matrix 2D List
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# อ่านค่าทุก cell
+print("อ่านทุก Cell:")
+for row in matrix:
+    for val in row:
+        print(val, end=" ")
+    print()
+
+# หาค่าสูงสุด
+max_val = matrix[0][0]
+for row in matrix:
+    for val in row:
+        if val > max_val:
+            max_val = val
+print("\\nค่าสูงสุด:", max_val)
+
+# ผลรวมทุกแถว
+print("\\nผลรวมแต่ละแถว:")
+for i, row in enumerate(matrix):
+    total = 0
+    for val in row:
+        total += val
+    print(f"แถว {i}: {total}")`,
+    6: `# Pairwise Processing
+data = [1, 4, 2, 4, 3, 2]
+
+# หาค่าซ้ำ
+print("หาค่าซ้ำ:")
+found = []
+for i in range(len(data)):
+    for j in range(i+1, len(data)):
+        if data[i] == data[j] and data[i] not in found:
+            print("Duplicate:", data[i])
+            found.append(data[i])
+
+# เปรียบทุกคู่
+names = ["Alice", "Bob", "Charlie"]
+print("\\nเปรียบทุกคู่:")
+for i in range(len(names)):
+    for j in range(i+1, len(names)):
+        print(f"{names[i]} & {names[j]}")`
+  };
+
+  for (let id = 1; id <= 6; id++) {
+    const el = document.getElementById('L' + id);
+    if (!el) continue;
+    EDITORS[id] = monaco.editor.create(el, { ...opts, value: LCODES[id] });
+  }
+
+  // Exercise editors
+  const EX_STARTERS = {
+    EX1: `n, m = map(int, input().split())
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX2: `n = int(input())
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX3: `n = int(input())
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX4: `n = int(input())
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX5: `n, m = map(int, input().split())
+# อ่าน matrix n แถว m คอลัมน์
+matrix = []
+for _ in range(n):
+    row = list(map(int, input().split()))
+    matrix.append(row)
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX6: `n = int(input())
+data = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX7: `n, m = map(int, input().split())
+matrix = []
+for _ in range(n):
+    row = list(map(int, input().split()))
+    matrix.append(row)
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX8: `n = int(input())
+# เขียนโค้ดของคุณที่นี่
+`
+  };
+
+  for (const [id, code] of Object.entries(EX_STARTERS)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    EX_EDITORS[id] = monaco.editor.create(el, { ...opts, value: code });
+  }
+});
+
+// Load Pyodide
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      dot('loading','กำลังโหลด Python...','var(--ac)');
+      pyodide = await window.loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+      pyReady = true;
+      dot('ready','Python พร้อมใช้งาน ✓','var(--ac3)');
+    } catch(e) {
+      dot('error','โหลด Python ไม่สำเร็จ — ลองรีเฟรช','var(--red)');
+    }
+  };
+  s.onerror = () => dot('error','โหลด Pyodide ไม่ได้','var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt; t.style.color = col;
+}
+
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try { pyodide.runPython(code); }
+  catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l,i) => i===lines.length-1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured+'\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) { out.textContent = e.message; out.className = 'out-txt err'; }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// Exercise definitions
+const EX = {
+  EX1: { tests: [
+    { inp:'3 4', exp:'****\n****\n****' },
+    { inp:'2 5', exp:'*****\n*****' },
+    { inp:'1 1', exp:'*' }
+  ]},
+  EX2: { tests: [
+    { inp:'4', exp:'*\n**\n***\n****' },
+    { inp:'6', exp:'*\n**\n***\n****\n*****\n******' },
+    { inp:'1', exp:'*' }
+  ]},
+  EX3: { tests: [
+    { inp:'3', exp:'1\t2\t3\n2\t4\t6\n3\t6\t9' },
+    { inp:'4', exp:'1\t2\t3\t4\n2\t4\t6\t8\n3\t6\t9\t12\n4\t8\t12\t16' }
+  ]},
+  EX4: { tests: [
+    { inp:'4', exp:'****\n*  *\n*  *\n****' },
+    { inp:'5', exp:'*****\n*   *\n*   *\n*   *\n*****' },
+    { inp:'2', exp:'**\n**' }
+  ]},
+  EX5: { tests: [
+    { inp:'3 3\n1 2 3\n4 5 6\n7 8 9', exp:'6\n15\n24' },
+    { inp:'2 4\n10 20 30 40\n5 5 5 5', exp:'100\n20' }
+  ]},
+  EX6: { tests: [
+    { inp:'6\n1 4 2 4 3 2', exp:'2\n4' },
+    { inp:'5\n5 5 5 5 5', exp:'5' },
+    { inp:'4\n1 2 3 4', exp:'' }
+  ]},
+  EX7: { tests: [
+    { inp:'2 3\n1 2 3\n4 5 6', exp:'1 4\n2 5\n3 6' },
+    { inp:'3 2\n7 8\n9 10\n11 12', exp:'7 9 11\n8 10 12' }
+  ]},
+  EX8: { tests: [
+    { inp:'4', exp:'1\n1 2\n1 2 3\n1 2 3 4' },
+    { inp:'5', exp:'1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5' }
+  ]}
+};
+
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById('V'+id);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) { got = e.message; pass = false; }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`<div class="vd-row"><span class="vd-icon">${pass?'✅':'❌'}</span><div class="vd-content"><div class="vd-title">Test Case ${i+1}</div><div class="vd-in">Input: ${inpDisplay}</div><div class="vd-row-inner"><div><div class="vd-label">ผลลัพธ์ที่ได้</div><div class="${pass?'vd-got':'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div></div>${!pass?`<div><div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div><div class="vd-expect">${esc(exp.trim())}</div></div>`:''}</div></div></div>`);
+  }
+  let passCount = rows.filter(r => r.includes('✅')).length;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!` : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) { btn.disabled = busy; btn.textContent = busy ? 'กำลังทำงาน...' : label; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ════════════════════════════════
+//  PATTERN GENERATOR
+// ════════════════════════════════
+const PATTERNS = {
+  square: () => { let s=''; for(let i=0;i<5;i++){for(let j=0;j<5;j++)s+='★ ';s+='\n'} return s; },
+  'stair-up': () => { let s=''; for(let i=1;i<=6;i++){for(let j=0;j<i;j++)s+='▲ ';s+='\n'} return s; },
+  'stair-down': () => { let s=''; for(let i=6;i>=1;i--){for(let j=0;j<i;j++)s+='▼ ';s+='\n'} return s; },
+  frame: () => { let s=''; const n=6; for(let i=0;i<n;i++){for(let j=0;j<n;j++)s+=(i===0||i===n-1||j===0||j===n-1)?'◆ ':'  ';s+='\n'} return s; },
+  diamond: () => {
+    let s=''; const n=5;
+    for(let i=1;i<=n;i++){for(let k=0;k<n-i;k++)s+='  ';for(let j=0;j<2*i-1;j++)s+='✦ ';s+='\n';}
+    for(let i=n-1;i>=1;i--){for(let k=0;k<n-i;k++)s+='  ';for(let j=0;j<2*i-1;j++)s+='✦ ';s+='\n';}
+    return s;
+  },
+  numbers: () => { let s=''; for(let i=1;i<=5;i++){for(let j=1;j<=i;j++)s+=j+' ';s+='\n'} return s; }
+};
+
+function showPattern(key) {
+  document.querySelectorAll('.pat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('patOut').textContent = PATTERNS[key]();
+}
+showPattern('square');
+
+// ════════════════════════════════
+//  LOOP VISUALIZER
+// ════════════════════════════════
+let vizTimer = null, vizRunning = false;
+
+function buildGrid() {
+  const outer = parseInt(document.getElementById('outerN').value) || 3;
+  const inner = parseInt(document.getElementById('innerN').value) || 4;
+  const grid = document.getElementById('loopGrid');
+  grid.style.gridTemplateColumns = `repeat(${inner}, 42px)`;
+  grid.innerHTML = '';
+  for (let i = 0; i < outer; i++) {
+    for (let j = 0; j < inner; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'lg-cell';
+      cell.id = `cell-${i}-${j}`;
+      cell.textContent = `${i},${j}`;
+      grid.appendChild(cell);
+    }
+  }
+  document.getElementById('statTotal').textContent = `${outer * inner}`;
+  document.getElementById('statI').textContent = '—';
+  document.getElementById('statJ').textContent = '—';
+  document.getElementById('statStep').textContent = '0';
+  document.getElementById('vizInfo').textContent = `${outer} × ${inner} = ${outer*inner} รอบ`;
+}
+buildGrid();
+document.getElementById('outerN').addEventListener('input', buildGrid);
+document.getElementById('innerN').addEventListener('input', buildGrid);
+
+function resetViz() {
+  if (vizTimer) clearTimeout(vizTimer);
+  vizRunning = false;
+  document.getElementById('vizRunBtn').disabled = false;
+  buildGrid();
+}
+
+function startViz() {
+  if (vizRunning) return;
+  resetViz();
+  vizRunning = true;
+  document.getElementById('vizRunBtn').disabled = true;
+  const outer = parseInt(document.getElementById('outerN').value) || 3;
+  const inner = parseInt(document.getElementById('innerN').value) || 4;
+  const speed = parseInt(document.getElementById('vizSpeed').value) || 300;
+  const sequence = [];
+  for (let i = 0; i < outer; i++)
+    for (let j = 0; j < inner; j++)
+      sequence.push([i, j]);
+  let step = 0;
+  function nextStep() {
+    if (step > 0) {
+      const [pi, pj] = sequence[step - 1];
+      const prev = document.getElementById(`cell-${pi}-${pj}`);
+      if (prev) { prev.classList.remove('active-inner'); prev.classList.add('done'); }
+    }
+    if (step >= sequence.length) {
+      document.querySelectorAll('.lg-cell').forEach(c => { c.classList.remove('active-outer','active-inner'); });
+      document.getElementById('vizInfo').textContent = '✅ เสร็จสิ้น!';
+      document.getElementById('vizRunBtn').disabled = false;
+      vizRunning = false; return;
+    }
+    const [ci, cj] = sequence[step];
+    document.querySelectorAll('.lg-cell').forEach(c => c.classList.remove('active-outer'));
+    for (let j2 = 0; j2 < inner; j2++) {
+      const rowCell = document.getElementById(`cell-${ci}-${j2}`);
+      if (rowCell && !rowCell.classList.contains('done')) rowCell.classList.add('active-outer');
+    }
+    const cur = document.getElementById(`cell-${ci}-${cj}`);
+    if (cur) { cur.classList.remove('active-outer'); cur.classList.add('active-inner'); }
+    document.getElementById('statI').textContent = ci;
+    document.getElementById('statJ').textContent = cj;
+    document.getElementById('statStep').textContent = step + 1;
+    document.getElementById('vizInfo').textContent = `i=${ci}, j=${cj} (รอบที่ ${step+1})`;
+    step++;
+    vizTimer = setTimeout(nextStep, speed);
+  }
+  nextStep();
+}
+
+// ════════════════════════════════
+//  QUIZ
+// ════════════════════════════════
+const QUIZ = [
+  {
+    q: "จำนวนรอบรวมของ Nested Loop ต่อไปนี้คือเท่าไร?\n\nfor i in range(4):\n    for j in range(3):\n        print(i, j)",
+    opts: ["7", "12", "16", "9"],
+    ans: 1,
+    fb: "รอบรวม = ลูปนอก × ลูปใน = 4 × 3 = 12 รอบ (i=0..3 แต่ละรอบ j=0..2 ทำ 3 ครั้ง)"
+  },
+  {
+    q: "Nested Loop มีความซับซ้อนเวลา (Time Complexity) เท่าไร ถ้าทั้งสองลูปวน n รอบ?",
+    opts: ["O(n)", "O(log n)", "O(n²)", "O(2n)"],
+    ans: 2,
+    fb: "เมื่อลูปนอก n รอบ และลูปใน n รอบ → รวม n × n = n² ครั้ง → O(n²)"
+  },
+  {
+    q: "โค้ดด้านล่างพิมพ์อะไร?\n\nfor i in range(3):\n    for j in range(i):\n        print(\"*\", end=\"\")\n    print()",
+    opts: ["***\n***\n***", "(บรรทัดว่าง)\n*\n**", "*\n**\n***", "***\n**\n*"],
+    ans: 1,
+    fb: "i=0 → range(0) = ว่าง, i=1 → 1 ดาว, i=2 → 2 ดาว → ได้ (ว่าง), *, ** พร้อมขึ้นบรรทัดใหม่แต่ละรอบ"
+  },
+  {
+    q: "ข้อใดเป็นข้อดีหลักของ Nested Loop เมื่อเทียบกับ Single Loop?",
+    opts: ["ทำงานเร็วกว่าเสมอ", "เหมาะกับข้อมูล 2 มิติ เช่น ตาราง Matrix", "ใช้ Memory น้อยกว่า", "เขียนโค้ดสั้นกว่า"],
+    ans: 1,
+    fb: "Nested Loop เหมาะกับงาน 2 มิติ (แถว × คอลัมน์) เช่น ตาราง, Matrix, Pairwise Processing"
+  },
+  {
+    q: "การเข้าถึง Matrix ด้วย matrix[row][col] ตรงกับข้อใด?",
+    opts: ["matrix[0] คือคอลัมน์แรก", "matrix[1][2] คือแถวที่ 2 คอลัมน์ที่ 3", "matrix[col][row] เป็นการเขียนที่ถูกต้อง", "matrix[-1] ทำให้เกิด Error"],
+    ans: 1,
+    fb: "matrix[row][col] — index แรกคือ แถว (row), index ที่สองคือ คอลัมน์ (col) ดังนั้น matrix[1][2] = แถว index 1, คอลัมน์ index 2"
+  },
+  {
+    q: "เพราะอะไร Pairwise Comparison จึงต้องใช้ for j in range(i+1, len(data)) แทน range(len(data))?",
+    opts: ["เพื่อให้ทำงานเร็วขึ้นเท่านั้น", "เพื่อหลีกเลี่ยงการเปรียบตัวเองและไม่เช็คคู่ซ้ำ 2 ครั้ง", "เพราะ range(len(data)) ผิด syntax", "ไม่มีความแตกต่าง"],
+    ans: 1,
+    fb: "range(i+1, ...) ทำให้ j > i เสมอ หลีกเลี่ยง (i,i) และไม่เช็คคู่ (i,j) และ (j,i) ซ้ำกัน"
+  },
+  {
+    q: "โค้ดนี้สร้าง output อะไร?\n\nfor i in range(1, 4):\n    for j in range(1, 4):\n        print(i * j, end=\"\\t\")\n    print()",
+    opts: ["ตารางคูณ 1x1 ถึง 3x3", "ตารางคูณ 1x1 ถึง 9x9", "พิมพ์ตัวเลข 1 ถึง 9 เรียงกัน", "พิมพ์ i และ j คั่นด้วย Tab"],
+    ans: 0,
+    fb: "i และ j วิ่งจาก 1 ถึง 3 และพิมพ์ i*j → ได้ตารางคูณ 3x3 (1×1=1, 1×2=2, ... 3×3=9)"
+  },
+  {
+    q: "ถ้าต้องการหาค่าซ้ำใน List ขนาดใหญ่มาก วิธีใดมีประสิทธิภาพดีกว่า Nested Loop?",
+    opts: ["ใช้ triple nested loop", "ใช้ Dictionary หรือ Counter เพื่อนับความถี่ O(n)", "ใช้ sorted() ก่อนแล้ว nested loop", "ไม่มีวิธีที่ดีกว่า"],
+    ans: 1,
+    fb: "Dictionary/Counter นับความถี่ได้ใน O(n) แทนที่จะเปรียบทุกคู่แบบ O(n²) ของ Nested Loop"
+  },
+  {
+    q: "ข้อใด ไม่ใช่ use case ที่เหมาะสมสำหรับ Nested Loop?",
+    opts: ["พิมพ์ตาราง 2D", "วิเคราะห์ Matrix", "ผลรวมของตัวเลขใน 1D List", "Pairwise Comparison"],
+    ans: 2,
+    fb: "ผลรวมของ 1D List ใช้ Single Loop เพียงพอ (O(n)) ไม่จำเป็นต้องใช้ Nested Loop"
+  },
+  {
+    q: "โค้ดด้านล่างพิมพ์กี่บรรทัด?\n\nfor i in range(5, 0, -1):\n    for j in range(i):\n        print(\"*\", end=\"\")\n    print()",
+    opts: ["5 บรรทัด (5,4,3,2,1 ดาว)", "4 บรรทัด", "15 บรรทัด", "25 บรรทัด"],
+    ans: 0,
+    fb: "i วิ่งจาก 5 ลงถึง 1 → พิมพ์ 5, 4, 3, 2, 1 ดาว = 5 บรรทัด (สามเหลี่ยมกลับหัว)"
+  }
+];
+
+let quizIdx = 0, quizAnswers = Array(10).fill(null), quizSubmitted = Array(10).fill(false);
+
+function buildQuizDots() {
+  const d = document.getElementById('quizDots');
+  d.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'quiz-dot' + (i === quizIdx ? ' current' : '') +
+      (quizSubmitted[i] ? (quizAnswers[i] === QUIZ[i].ans ? ' correct-d' : ' wrong-d') : (quizAnswers[i] !== null ? ' answered' : ''));
+    d.appendChild(dot);
+  }
+}
+
+function renderQuiz() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quizTitle').textContent = `ข้อที่ ${quizIdx+1} จาก 10`;
+  document.getElementById('quizProg').textContent = `ข้อ ${quizIdx+1} / 10`;
+  const answered = quizSubmitted.filter(Boolean).length;
+  const correct = quizAnswers.filter((a,i) => quizSubmitted[i] && a === QUIZ[i].ans).length;
+  document.getElementById('quizScoreBadge').textContent = `${correct} / 10`;
+  document.getElementById('quizQ').textContent = q.q;
+  const optsEl = document.getElementById('quizOpts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    let cls = 'quiz-opt';
+    if (quizSubmitted[quizIdx]) {
+      if (i === q.ans) cls += ' correct';
+      else if (i === quizAnswers[quizIdx] && i !== q.ans) cls += ' wrong';
+    } else if (quizAnswers[quizIdx] === i) cls += ' selected';
+    div.className = cls;
+    div.innerHTML = `<span class="quiz-opt-key">${String.fromCharCode(65+i)}</span>${opt}`;
+    if (!quizSubmitted[quizIdx]) div.onclick = () => selectOpt(i);
+    optsEl.appendChild(div);
+  });
+  const fb = document.getElementById('quizFb');
+  if (quizSubmitted[quizIdx]) {
+    fb.textContent = (quizAnswers[quizIdx] === q.ans ? '✅ ถูกต้อง! ' : '❌ ผิด! ') + q.fb;
+    fb.className = 'quiz-fb ' + (quizAnswers[quizIdx] === q.ans ? 'correct' : 'wrong');
+    fb.style.display = 'block';
+  } else { fb.style.display = 'none'; }
+  document.getElementById('quizSubmit').disabled = quizAnswers[quizIdx] === null || quizSubmitted[quizIdx];
+  document.getElementById('quizSubmit').textContent = quizSubmitted[quizIdx] ? 'ตอบแล้ว' : 'ยืนยันคำตอบ';
+  document.getElementById('quizPrev').disabled = quizIdx === 0;
+  document.getElementById('quizNext').disabled = quizIdx === 9;
+  buildQuizDots();
+}
+
+function selectOpt(i) {
+  if (quizSubmitted[quizIdx]) return;
+  quizAnswers[quizIdx] = i;
+  renderQuiz();
+}
+
+function submitQuiz() {
+  if (quizAnswers[quizIdx] === null || quizSubmitted[quizIdx]) return;
+  quizSubmitted[quizIdx] = true;
+  renderQuiz();
+  const allDone = quizSubmitted.every(Boolean);
+  if (allDone) {
+    setTimeout(showFinalScore, 600);
+  }
+}
+
+function quizNav(dir) {
+  quizIdx = Math.max(0, Math.min(9, quizIdx + dir));
+  renderQuiz();
+}
+
+function showFinalScore() {
+  const correct = quizAnswers.filter((a,i) => a === QUIZ[i].ans).length;
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizScore').style.display = 'block';
+  document.getElementById('scoreTxt').textContent = `${correct} / 10`;
+  const lbl = correct >= 9 ? '🏆 ยอดเยี่ยม! เข้าใจ Nested Loop อย่างลึกซึ้ง!' :
+              correct >= 7 ? '🎉 ดีมาก! เกือบสมบูรณ์แล้ว' :
+              correct >= 5 ? '👍 ผ่านแล้ว! ลองทบทวนส่วนที่ผิด' :
+              '💪 ยังต้องฝึกอีกนิด ลองอ่านเนื้อหาอีกครั้ง';
+  document.getElementById('scoreLbl').textContent = lbl;
+}
+
+function restartQuiz() {
+  quizIdx = 0; quizAnswers = Array(10).fill(null); quizSubmitted = Array(10).fill(false);
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizScore').style.display = 'none';
+  renderQuiz();
+}
+
+renderQuiz();
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

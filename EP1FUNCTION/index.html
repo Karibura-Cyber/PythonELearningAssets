@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python L1.6 — Build LEGO Blocks (Function)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;--or:#f97316;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+.bo{background:rgba(249,115,22,.15);color:var(--or)}
+
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+.callout.or{border-left-color:var(--or);background:rgba(249,115,22,.06)}
+
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px}
+.o1{color:var(--ac3);font-weight:700}
+.on{color:var(--red);font-weight:700}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.def{border-color:rgba(232,121,249,.3)}
+.concept-card.call{border-color:rgba(6,182,212,.3)}
+.concept-card.arg{border-color:rgba(16,185,129,.3)}
+.concept-card.ret{border-color:rgba(249,115,22,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.def::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.call::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.concept-card.arg::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.concept-card.ret::before{background:linear-gradient(90deg,var(--or),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.def .cc-title{color:var(--ac)}
+.concept-card.call .cc-title{color:var(--ac2)}
+.concept-card.arg .cc-title{color:var(--ac3)}
+.concept-card.ret .cc-title{color:var(--or)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+
+/* LEGO VISUALIZER */
+.lego-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.lego-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.lego-body{padding:20px}
+.lego-stage{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;min-height:120px;align-items:flex-end}
+.lego-block{border-radius:12px;padding:16px 22px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;border:2px solid;text-align:center;position:relative;user-select:none}
+.lego-block:hover{transform:translateY(-4px)}
+.lego-block.pink{background:rgba(232,121,249,.15);border-color:rgba(232,121,249,.5);color:var(--ac)}
+.lego-block.cyan{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.5);color:var(--ac2)}
+.lego-block.green{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.5);color:var(--ac3)}
+.lego-block.orange{background:rgba(249,115,22,.15);border-color:rgba(249,115,22,.5);color:var(--or)}
+.lego-block.active-block{transform:scale(1.08) translateY(-6px);box-shadow:0 8px 24px rgba(232,121,249,.25)}
+.lego-code{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8ff78;min-height:48px;white-space:pre-wrap;line-height:1.6}
+.lego-log{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--mu);min-height:20px}
+
+/* NAMING GRID */
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.name-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.name-card.ok{border-color:rgba(16,185,129,.3)}
+.name-card.bad{border-color:rgba(239,68,68,.25)}
+.name-card-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.name-card.ok .name-card-hd{color:var(--ac3)}
+.name-card.bad .name-card-hd{color:var(--red)}
+.name-item{font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:3px 0;display:flex;align-items:center;gap:7px}
+.name-item span{font-size:12px;color:var(--mu)}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-num.o{background:rgba(249,115,22,.15);color:var(--or)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* QUIZ */
+.quiz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.quiz-hd{background:var(--sf2);padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.quiz-title{font-size:14px;font-weight:700;color:var(--tx)}
+.quiz-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;color:var(--tx);font-weight:600;margin-bottom:14px;line-height:1.7;white-space:pre-wrap}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:#c5c9d8;background:var(--sf2);line-height:1.5}
+.quiz-opt:hover{border-color:var(--ac);color:var(--tx)}
+.quiz-opt.selected{border-color:var(--ac2);background:rgba(6,182,212,.08);color:var(--ac2)}
+.quiz-opt.correct{border-color:var(--ac3);background:rgba(16,185,129,.1);color:var(--ac3)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.08);color:var(--red)}
+.quiz-opt-key{width:22px;height:22px;border-radius:6px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;margin-top:1px}
+.quiz-fb{padding:12px 14px;border-radius:8px;font-size:13px;margin-top:8px;display:none;line-height:1.6}
+.quiz-fb.correct{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--ac3)}
+.quiz-fb.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.quiz-submit{background:var(--ac2);color:#fff;border:none;padding:7px 20px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-submit:hover{background:#38bdf8}
+.quiz-submit:disabled{background:var(--di);cursor:not-allowed}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.quiz-prog-text{font-size:11px;color:var(--mu)}
+.quiz-nav-btns{display:flex;gap:8px}
+.quiz-nav-btn{background:var(--sf2);border:1px solid var(--bd);color:var(--mu);padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-nav-btn:hover:not(:disabled){color:var(--tx);border-color:var(--ac)}
+.quiz-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.quiz-score-wrap{text-align:center;padding:30px 20px;display:none}
+.quiz-score-num{font-size:52px;font-weight:800;background:linear-gradient(135deg,var(--ac),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.quiz-score-label{font-size:14px;color:var(--mu);margin-bottom:20px}
+.quiz-retry{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3);padding:8px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s}
+.quiz-retry:hover{background:rgba(232,121,249,.25)}
+.quiz-dots{display:flex;gap:5px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.quiz-dot{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:all .3s}
+.quiz-dot.answered{background:var(--ac2)}
+.quiz-dot.current{background:var(--ac);transform:scale(1.3)}
+.quiz-dot.correct-d{background:var(--ac3)}
+.quiz-dot.wrong-d{background:var(--red)}
+
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-badge.o{background:rgba(249,115,22,.15);color:var(--or)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0;justify-content:center}
+.flow-box{padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:700;text-align:center;border:1px solid}
+.flow-box.define{background:rgba(232,121,249,.1);border-color:rgba(232,121,249,.4);color:var(--ac)}
+.flow-box.call{background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.4);color:var(--ac2)}
+.flow-box.exec{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.4);color:var(--ac3)}
+.flow-box.ret{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.4);color:var(--or)}
+.flow-arrow{font-size:18px;color:var(--di)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.tech-grid,.name-grid,.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python L1 · Week 6</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Function คืออะไร?</a>
+    <a class="na" href="#define">Part 1 — สร้างและเรียกใช้ Function</a>
+    <a class="na sub" href="#naming">· หลักการตั้งชื่อ</a>
+    <a class="na" href="#lego-viz">🧱 LEGO Visualizer</a>
+    <a class="na" href="#arguments">Part 2 — Arguments</a>
+    <a class="na sub" href="#default-arg">· Default Arguments</a>
+    <a class="na" href="#return">Part 3 — Return Value</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. Greeting Function <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. Calculator <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Temperature Converter <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Default Discount <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. Min Max Range <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6. Fibonacci <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex7">7. Count Vowels <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex8">8. Power Function <span class="badge bp">Expert</span></a>
+    <div class="nav-sec" style="margin-top:6px">แบบทดสอบ</div>
+    <a class="na" href="#quiz">🧠 Quiz 10 ข้อ</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python <span>›</span> Level 1 <span>›</span> Week 6 — Functions</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Level 1 · Week 6</div>
+      <div class="ht">Build LEGO Blocks<br>(Function)</div>
+      <div class="hs">สร้างบล็อกคำสั่ง — ใช้ซ้ำได้ทุกที่</div>
+      <div class="hm">เรียนรู้การสร้างและเรียกใช้ฟังก์ชั่น พร้อม Arguments, Default Values และ Return เพื่อเขียนโปรแกรมแบบ Reusable อย่างเป็นระบบ</div>
+      <div class="tags">
+        <span class="tag">def</span>
+        <span class="tag">Function</span>
+        <span class="tag">Arguments</span>
+        <span class="tag">Default Parameter</span>
+        <span class="tag">Return</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>Function คืออะไร?</h2>
+      <p><strong>Function</strong> คือ "กล่องคำสั่ง" ที่เราสร้างขึ้นเพื่อเก็บชุดคำสั่งที่ใช้บ่อยๆ เหมือน <strong>บล็อก LEGO</strong> ที่ต่อขึ้นมาเองแล้วสามารถนำมาใช้ซ้ำกี่ครั้งก็ได้โดยไม่ต้องต่อใหม่ทุกครั้ง</p>
+      <div class="concept-grid">
+        <div class="concept-card def">
+          <div class="cc-icon">🧱</div>
+          <div class="cc-title">def — นิยามฟังก์ชั่น</div>
+          <div class="cc-desc">ใช้คำสั่ง <code>def</code> เพื่อ "สร้าง" บล็อก LEGO ตั้งชื่อและกำหนดว่าทำอะไร</div>
+        </div>
+        <div class="concept-card call">
+          <div class="cc-icon">📞</div>
+          <div class="cc-title">เรียกใช้งาน</div>
+          <div class="cc-desc">พิมพ์ชื่อฟังก์ชั่นพร้อม <code>()</code> เพื่อ "เรียกใช้" บล็อก LEGO ได้กี่ครั้งก็ได้</div>
+        </div>
+        <div class="concept-card arg">
+          <div class="cc-icon">📦</div>
+          <div class="cc-title">Arguments — รับข้อมูล</div>
+          <div class="cc-desc">ส่งข้อมูลเข้าไปในฟังก์ชั่นเพื่อให้ทำงานกับค่าที่แตกต่างกันได้</div>
+        </div>
+        <div class="concept-card ret">
+          <div class="cc-icon">🎁</div>
+          <div class="cc-title">Return — ส่งผลลัพธ์กลับ</div>
+          <div class="cc-desc">ใช้ <code>return</code> เพื่อส่งผลลัพธ์ออกมาจากฟังก์ชั่นให้ใช้งานต่อได้</div>
+        </div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box define">① def function_name():</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box call">② เรียกใช้ function_name()</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box exec">③ ทำงานภายใน</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box ret">④ return ผลลัพธ์</div>
+      </div>
+    </div>
+
+    <!-- DEFINE -->
+    <div class="sec" id="define">
+      <div class="sl">Part 1</div>
+      <h2>สร้างและเรียกใช้ Function</h2>
+      <p>การสร้างฟังก์ชั่นต้องใช้คำสั่ง <code>def</code> ตามด้วยชื่อฟังก์ชั่นและวงเล็บ <code>()</code> จากนั้นเยื้องเนื้อหาเข้าไป 4 ช่องว่าง</p>
+      <div class="callout info"><strong>โครงสร้าง:</strong>
+<code style="display:block;background:none;padding:0;color:#c5c9d8;font-size:12px;">def [ชื่อฟังก์ชั่น]([arguments]):
+    [คำสั่ง]</code></div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">define_call.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- NAMING -->
+    <div class="sec" id="naming">
+      <h3>หลักการตั้งชื่อฟังก์ชั่นใน Python</h3>
+      <p>Python มีกฎในการตั้งชื่อฟังก์ชั่นเพื่อให้โปรแกรมทำงานถูกต้องและอ่านเข้าใจง่าย</p>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>กฎ</th><th>ตัวอย่าง</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>ขึ้นต้นด้วยตัวอักษรหรือ Underscore เท่านั้น</td><td><code>my_func()</code>, <code>_helper()</code></td></tr>
+          <tr><td>2</td><td>ประกอบด้วยตัวอักษร, ตัวเลข, Underscore</td><td><code>calc2()</code>, <code>PID_v3()</code></td></tr>
+          <tr><td>3</td><td>Case-sensitive — ต่างกันหมายถึงคนละฟังก์ชั่น</td><td><code>Greet()</code> ≠ <code>greet()</code></td></tr>
+          <tr><td>4</td><td>ต้องมีวงเล็บ <code>()</code> กำกับเสมอ</td><td><code>run()</code>, <code>compute(x)</code></td></tr>
+          <tr><td>5</td><td>ห้ามตรงกับ Python Keywords</td><td><span class="on">✗</span> <code>for()</code>, <code>class()</code>, <code>print!()</code></td></tr>
+        </tbody>
+      </table>
+      <div class="name-grid">
+        <div class="name-card ok">
+          <div class="name-card-hd">✅ ชื่อที่ถูกต้อง</div>
+          <div class="name-item" style="color:var(--ac3)">myFunction() <span>ตัวอักษรธรรมดา</span></div>
+          <div class="name-item" style="color:var(--ac3)">PID_calculation() <span>มี underscore</span></div>
+          <div class="name-item" style="color:var(--ac3)">moveForward() <span>camelCase</span></div>
+          <div class="name-item" style="color:var(--ac3)">test2() <span>มีตัวเลขด้านหลัง</span></div>
+          <div class="name-item" style="color:var(--ac3)">_private() <span>ขึ้นต้นด้วย _</span></div>
+        </div>
+        <div class="name-card bad">
+          <div class="name-card-hd">❌ ชื่อที่ไม่ถูกต้อง</div>
+          <div class="name-item" style="color:var(--red)">1function() <span>ขึ้นต้นด้วยตัวเลข</span></div>
+          <div class="name-item" style="color:var(--red)">my-function() <span>มี hyphen</span></div>
+          <div class="name-item" style="color:var(--red)">my function() <span>มีช่องว่าง</span></div>
+          <div class="name-item" style="color:var(--red)">for() <span>reserved keyword</span></div>
+          <div class="name-item" style="color:var(--red)">hello.world() <span>มีจุด</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGO VISUALIZER -->
+    <div class="sec" id="lego-viz">
+      <div class="sl">Interactive</div>
+      <h2>🧱 LEGO Block Visualizer</h2>
+      <p>กดบล็อก LEGO แต่ละอันเพื่อ "เรียกใช้" ฟังก์ชั่น และดูผลลัพธ์ที่เกิดขึ้น</p>
+      <div class="lego-wrap">
+        <div class="lego-hd">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)">🧱 FUNCTION BLOCKS</span>
+          <span style="font-size:11px;color:var(--mu)">กดบล็อกเพื่อเรียกใช้</span>
+        </div>
+        <div class="lego-body">
+          <div class="lego-stage">
+            <div class="lego-block pink" onclick="callBlock('greet')">👋 greet()</div>
+            <div class="lego-block cyan" onclick="callBlock('add')">➕ add(3, 5)</div>
+            <div class="lego-block green" onclick="callBlock('square')">🟦 square(4)</div>
+            <div class="lego-block orange" onclick="callBlock('hello')">🌍 helloWorld()</div>
+          </div>
+          <div style="font-size:11px;color:var(--mu);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Output</div>
+          <div class="lego-code" id="legoCode">— กดบล็อกด้านบนเพื่อเรียกใช้ฟังก์ชั่น —</div>
+          <div class="lego-log" id="legoLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARGUMENTS -->
+    <div class="sec" id="arguments">
+      <div class="sl">Part 2</div>
+      <h2>Arguments — รับค่าเข้าฟังก์ชั่น</h2>
+      <p>Arguments คือตัวแปรที่กำหนดไว้ในวงเล็บของฟังก์ชั่น เพื่อรับค่าที่ส่งเข้ามาและนำไปใช้ภายใน</p>
+      <div class="callout info"><strong>รูปแบบ:</strong> <code>def my_function(arg1, arg2):</code> — คั่นด้วยจุลภาค (,) เพิ่มได้ไม่จำกัด</div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Positional</span>ตามลำดับ</div>
+          <div class="tc-desc">ส่งค่าตามลำดับที่กำหนด <code>greet("Alice", 25)</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">Keyword</span>ระบุชื่อ</div>
+          <div class="tc-desc">ระบุชื่อ argument เพื่อกำหนดค่า <code>greet(name="Bob")</code></div>
+        </div>
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">arguments.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- DEFAULT ARG -->
+    <div class="sec" id="default-arg">
+      <h3>Default Arguments — ค่าเริ่มต้น</h3>
+      <p>กำหนดค่าเริ่มต้นให้ argument เพื่อไม่ต้องส่งค่าเดิมซ้ำๆ ทุกครั้งที่เรียกใช้</p>
+      <div class="callout warn"><strong>⚠️ กฎ:</strong> Default argument ต้องอยู่ <strong>หลัง</strong> argument ที่ไม่มีค่าเริ่มต้นเสมอ — <code>def f(a, b=5)</code> ✅ แต่ <code>def f(a=5, b)</code> ❌</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">default_args.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- RETURN -->
+    <div class="sec" id="return">
+      <div class="sl">Part 3</div>
+      <h2>Return — ส่งผลลัพธ์กลับ</h2>
+      <p>ใช้ <code>return</code> เพื่อส่งค่าออกจากฟังก์ชั่น ทำให้สามารถนำผลลัพธ์ไปใช้งานต่อหรือเก็บในตัวแปรได้</p>
+      <div class="callout ok"><strong>✅ ข้อดีของ return:</strong> ฟังก์ชั่นกลายเป็น "ค่า" ที่สามารถใส่ในนิพจน์, เก็บในตัวแปร, หรือส่งต่อเป็น argument ฟังก์ชั่นอื่นได้</div>
+      <div class="callout warn"><strong>⚠️ หมายเหตุ:</strong> หลังจาก <code>return</code> โปรแกรมออกจากฟังก์ชั่นทันที โค้ดที่อยู่หลัง return จะไม่ถูกรัน</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">return_value.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EX 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">1</div>
+          <div class="ex-info"><h3>Greeting Function</h3><p>สร้างฟังก์ชั่น <code>greet(name)</code> รับชื่อแล้วพิมพ์ "Hello, [name]!"</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">Alice</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">Hello, Alice!</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">Python</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">Hello, Python!</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex1.py</span><button class="check-btn" onclick="checkEx(this,'EX1')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX1"></div>
+          </div>
+          <div class="verdict" id="VEX1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">2</div>
+          <div class="ex-info"><h3>Calculator Function</h3><p>สร้างฟังก์ชั่น <code>add(a, b)</code>, <code>subtract(a, b)</code>, <code>multiply(a, b)</code> แล้วรับ 2 ตัวเลขจาก input พิมพ์ผลลัพธ์ทั้งสามบรรทัด</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">10 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">13
+7
+30</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7 4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">11
+3
+28</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex2.py</span><button class="check-btn" onclick="checkEx(this,'EX2')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX2"></div>
+          </div>
+          <div class="verdict" id="VEX2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">3</div>
+          <div class="ex-info"><h3>Temperature Converter</h3><p>สร้างฟังก์ชั่น <code>celsius_to_fahrenheit(c)</code> แปลงองศาเซลเซียส → ฟาเรนไฮต์ (F = C × 9/5 + 32) พิมพ์ผลลัพธ์ทศนิยม 2 ตำแหน่ง</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">0</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">32.00</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">100</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">212.00</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex3.py</span><button class="check-btn" onclick="checkEx(this,'EX3')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX3"></div>
+          </div>
+          <div class="verdict" id="VEX3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">4</div>
+          <div class="ex-info"><h3>Default Discount</h3><p>สร้างฟังก์ชั่น <code>final_price(price, discount=10)</code> คำนวณราคาหลังลด (%) พิมพ์ผลลัพธ์ทศนิยม 2 ตำแหน่ง</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">200 20</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">160.00</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">500</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">450.00</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex4.py</span><button class="check-btn" onclick="checkEx(this,'EX4')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX4"></div>
+          </div>
+          <div class="verdict" id="VEX4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">5</div>
+          <div class="ex-info"><h3>Min Max Range</h3><p>สร้างฟังก์ชั่น <code>stats(a, b, c)</code> รับ 3 ตัวเลข แล้ว return และพิมพ์ค่าต่ำสุด ค่าสูงสุด และ Range (max-min) แต่ละบรรทัด</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 8 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">3
+8
+5</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">10 2 7</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">2
+10
+8</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex5.py</span><button class="check-btn" onclick="checkEx(this,'EX5')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX5"></div>
+          </div>
+          <div class="verdict" id="VEX5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">6</div>
+          <div class="ex-info"><h3>Fibonacci Function</h3><p>สร้างฟังก์ชั่น <code>fibonacci(n)</code> คืนค่า Fibonacci ลำดับที่ n (เริ่ม fib(1)=1, fib(2)=1)</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">8</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">10</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">55</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex6.py</span><button class="check-btn" onclick="checkEx(this,'EX6')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX6"></div>
+          </div>
+          <div class="verdict" id="VEX6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">7</div>
+          <div class="ex-info"><h3>Count Vowels</h3><p>สร้างฟังก์ชั่น <code>count_vowels(text)</code> นับจำนวนสระ (a,e,i,o,u) ทั้งตัวพิมพ์เล็กและใหญ่</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">Hello World</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">3</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">Python Programming</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">4</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex7.py</span><button class="check-btn" onclick="checkEx(this,'EX7')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX7"></div>
+          </div>
+          <div class="verdict" id="VEX7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — Expert</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num p">8</div>
+          <div class="ex-info"><h3>Power Function</h3><p>สร้างฟังก์ชั่น <code>power(base, exp=2)</code> คำนวณ base^exp โดยใช้ loop (ห้ามใช้ ** หรือ pow())</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3 4</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">81</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">25</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex8.py</span><button class="check-btn" onclick="checkEx(this,'EX8')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX8"></div>
+          </div>
+          <div class="verdict" id="VEX8"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- QUIZ -->
+    <div class="sec" id="quiz">
+      <div class="sl">แบบทดสอบ</div>
+      <h2>🧠 Quiz — Functions 10 ข้อ</h2>
+      <p>ทดสอบความเข้าใจเกี่ยวกับ Function, Arguments, Default Values และ Return</p>
+      <div class="quiz-wrap">
+        <div class="quiz-hd">
+          <span class="quiz-title" id="quizTitle">ข้อที่ 1 จาก 10</span>
+          <span class="quiz-badge bp" id="quizScoreBadge">0 / 10</span>
+        </div>
+        <div class="quiz-body">
+          <div class="quiz-dots" id="quizDots"></div>
+          <div id="quizContent">
+            <div class="quiz-q" id="quizQ"></div>
+            <div class="quiz-opts" id="quizOpts"></div>
+            <div class="quiz-fb" id="quizFb"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+              <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">ยืนยันคำตอบ</button>
+            </div>
+            <div class="quiz-nav">
+              <span class="quiz-prog-text" id="quizProg">ข้อ 1 / 10</span>
+              <div class="quiz-nav-btns">
+                <button class="quiz-nav-btn" id="quizPrev" onclick="quizNav(-1)" disabled>← ก่อนหน้า</button>
+                <button class="quiz-nav-btn" id="quizNext" onclick="quizNav(1)" disabled>ถัดไป →</button>
+              </div>
+            </div>
+          </div>
+          <div class="quiz-score-wrap" id="quizScore">
+            <div class="quiz-score-num" id="scoreTxt"></div>
+            <div class="quiz-score-label" id="scoreLbl"></div>
+            <button class="quiz-retry" onclick="restartQuiz()">🔄 ทำใหม่อีกครั้ง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════
+//  MONACO + PYODIDE
+// ═══════════════════════════
+let pyodide = null, pyReady = false;
+const EDITORS = {}, EX_EDITORS = {};
+
+require.config({ paths:{ vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('dark9', {
+    base:'vs-dark', inherit:true,
+    rules:[
+      {token:'keyword',foreground:'c084fc',fontStyle:'bold'},
+      {token:'string',foreground:'86efac'},
+      {token:'comment',foreground:'4a5168',fontStyle:'italic'},
+      {token:'number',foreground:'fbbf24'},
+    ],
+    colors:{ 'editor.background':'#0a0c10','editor.foreground':'#c5c9d8','editorLineNumber.foreground':'#2e3347','editor.lineHighlightBackground':'#13161e','editorCursor.foreground':'#e879f9' }
+  });
+  const opts = { theme:'dark9', language:'python', minimap:{enabled:false}, fontSize:13, lineHeight:22, fontFamily:"'JetBrains Mono',monospace", scrollBeyondLastLine:false, automaticLayout:true, tabSize:4, padding:{top:10,bottom:10} };
+
+  const LCODES = {
+    1:`# การสร้างและเรียกใช้ฟังก์ชั่น
+def helloWorld():
+    print("Hello World!")
+
+def showLine():
+    print("=" * 30)
+
+# เรียกใช้ฟังก์ชั่น
+helloWorld()
+showLine()
+helloWorld()   # เรียกซ้ำได้เลย
+helloWorld()
+showLine()`,
+    2:`# Arguments — รับค่าเข้าฟังก์ชั่น
+def greet(name):
+    print("Hello, " + name + "!")
+
+def introduce(name, age):
+    print(f"My name is {name}, I am {age} years old.")
+
+# เรียกใช้
+greet("Alice")
+greet("Bob")
+introduce("Charlie", 20)
+introduce("Diana", 25)`,
+    3:`# Default Arguments
+def country(name="Thailand"):
+    print("Country:", name)
+
+def add(number1, number2=7):
+    result = number1 + number2
+    print(result)
+
+# ทดสอบ
+country("Norway")   # ส่งค่า
+country()           # ใช้ค่าเริ่มต้น
+print()
+add(1, 5)   # 1+5 = 6
+add(1)      # 1+7 = 8 (ใช้ default)`,
+    4:`# Return — ส่งผลลัพธ์กลับ
+def add_numbers(a, b):
+    result = a + b
+    return result
+
+def multiply(a, b):
+    return a * b
+
+def is_even(n):
+    return n % 2 == 0
+
+# ใช้งาน return
+sum_val = add_numbers(5, 8)
+print(sum_val)              # 13
+print(add_numbers(30, 5))   # 35
+print(multiply(4, 6))       # 24
+
+# ใช้ใน expression
+total = add_numbers(3, 4) + multiply(2, 5)
+print("Total:", total)      # 17
+
+print(is_even(10))  # True
+print(is_even(7))   # False`
+  };
+
+  for (let id = 1; id <= 4; id++) {
+    const el = document.getElementById('L' + id);
+    if (!el) continue;
+    EDITORS[id] = monaco.editor.create(el, { ...opts, value: LCODES[id] });
+  }
+
+  const EX_STARTERS = {
+    EX1:`name = input()
+# สร้างฟังก์ชั่น greet(name) แล้วเรียกใช้
+`,
+    EX2:`a, b = map(int, input().split())
+# สร้างฟังก์ชั่น add, subtract, multiply แล้วพิมพ์ผลลัพธ์
+`,
+    EX3:`c = float(input())
+# สร้างฟังก์ชั่น celsius_to_fahrenheit(c) แล้วพิมพ์
+`,
+    EX4:`line = input().split()
+price = float(line[0])
+discount = float(line[1]) if len(line) > 1 else 10
+# สร้างฟังก์ชั่น final_price(price, discount=10) แล้วพิมพ์
+`,
+    EX5:`a, b, c = map(int, input().split())
+# สร้างฟังก์ชั่น stats(a,b,c) return min, max, range แล้วพิมพ์
+`,
+    EX6:`n = int(input())
+# สร้างฟังก์ชั่น fibonacci(n) แล้วพิมพ์ผลลัพธ์
+`,
+    EX7:`text = input()
+# สร้างฟังก์ชั่น count_vowels(text) แล้วพิมพ์จำนวนสระ
+`,
+    EX8:`line = input().split()
+base = int(line[0])
+exp = int(line[1]) if len(line) > 1 else 2
+# สร้างฟังก์ชั่น power(base, exp=2) โดยใช้ loop แล้วพิมพ์
+`
+  };
+
+  for (const [id, code] of Object.entries(EX_STARTERS)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    EX_EDITORS[id] = monaco.editor.create(el, { ...opts, value: code });
+  }
+});
+
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      dot('loading','กำลังโหลด Python...','var(--ac)');
+      pyodide = await window.loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+      pyReady = true;
+      dot('ready','Python พร้อมใช้งาน ✓','var(--ac3)');
+    } catch(e) { dot('error','โหลด Python ไม่สำเร็จ','var(--red)'); }
+  };
+  s.onerror = () => dot('error','โหลด Pyodide ไม่ได้','var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt; t.style.color = col;
+}
+
+async function runPy(code, stdin='') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try { pyodide.runPython(code); }
+  catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l,i) => i===lines.length-1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured+'\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const r = await runPy(ed.getValue());
+    out.textContent = r || '(ไม่มี output)'; out.className = 'out-txt ok';
+  } catch(e) { out.textContent = e.message; out.className = 'out-txt err'; }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+const EX = {
+  EX1:{ tests:[
+    {inp:'Alice',  exp:'Hello, Alice!'},
+    {inp:'Python', exp:'Hello, Python!'},
+    {inp:'World',  exp:'Hello, World!'}
+  ]},
+  EX2:{ tests:[
+    {inp:'10 3', exp:'13\n7\n30'},
+    {inp:'7 4',  exp:'11\n3\n28'},
+    {inp:'1 1',  exp:'2\n0\n1'}
+  ]},
+  EX3:{ tests:[
+    {inp:'0',   exp:'32.00'},
+    {inp:'100', exp:'212.00'},
+    {inp:'37',  exp:'98.60'}
+  ]},
+  EX4:{ tests:[
+    {inp:'200 20', exp:'160.00'},
+    {inp:'500',    exp:'450.00'},
+    {inp:'1000 50',exp:'500.00'}
+  ]},
+  EX5:{ tests:[
+    {inp:'3 8 5',  exp:'3\n8\n5'},
+    {inp:'10 2 7', exp:'2\n10\n8'},
+    {inp:'5 5 5',  exp:'5\n5\n0'}
+  ]},
+  EX6:{ tests:[
+    {inp:'1',  exp:'1'},
+    {inp:'6',  exp:'8'},
+    {inp:'10', exp:'55'}
+  ]},
+  EX7:{ tests:[
+    {inp:'Hello World',        exp:'3'},
+    {inp:'Python Programming', exp:'4'},
+    {inp:'aeiou',              exp:'5'}
+  ]},
+  EX8:{ tests:[
+    {inp:'3 4', exp:'81'},
+    {inp:'5',   exp:'25'},
+    {inp:'2 10',exp:'1024'}
+  ]}
+};
+
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById('V'+id);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got='', pass=false;
+    try { got = await runPy(code, inp); pass = got.trim()===exp.trim(); }
+    catch(e) { got = e.message; pass = false; }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`<div class="vd-row"><span class="vd-icon">${pass?'✅':'❌'}</span><div class="vd-content"><div class="vd-title">Test Case ${i+1}</div><div class="vd-in">Input: ${inpDisplay}</div><div class="vd-row-inner"><div><div class="vd-label">ผลลัพธ์ที่ได้</div><div class="${pass?'vd-got':'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div></div>${!pass?`<div><div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div><div class="vd-expect">${esc(exp.trim())}</div></div>`:''}</div></div></div>`);
+  }
+  const passCount = rows.filter(r => r.includes('✅')).length;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!` : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) { btn.disabled = busy; btn.textContent = busy ? 'กำลังทำงาน...' : label; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ═══════════════════════════
+//  LEGO VISUALIZER
+// ═══════════════════════════
+const BLOCKS = {
+  greet:  { code:'def greet():\n    print("สวัสดี! ยินดีที่ได้รู้จัก")\n\ngreet()', out:'สวัสดี! ยินดีที่ได้รู้จัก' },
+  add:    { code:'def add(a, b):\n    return a + b\n\nresult = add(3, 5)\nprint("3 + 5 =", result)', out:'3 + 5 = 8' },
+  square: { code:'def square(n):\n    return n * n\n\nresult = square(4)\nprint("4² =", result)', out:'4² = 16' },
+  hello:  { code:'def helloWorld():\n    print("Hello, World!")\n\nhelloWorld()', out:'Hello, World!' }
+};
+
+let legoTimeout = null;
+function callBlock(key) {
+  if (legoTimeout) clearTimeout(legoTimeout);
+  document.querySelectorAll('.lego-block').forEach(b => b.classList.remove('active-block'));
+  const btn = event.currentTarget;
+  btn.classList.add('active-block');
+  const bl = BLOCKS[key];
+  document.getElementById('legoCode').textContent = bl.out;
+  document.getElementById('legoLog').textContent = `▶ ${key}() → ${bl.code.split('\n')[0]}`;
+  legoTimeout = setTimeout(() => btn.classList.remove('active-block'), 600);
+}
+
+// ═══════════════════════════
+//  QUIZ
+// ═══════════════════════════
+const QUIZ = [
+  {
+    q:'คำสั่งใดใช้สำหรับ "สร้าง" (นิยาม) ฟังก์ชั่นใน Python?',
+    opts:['function','create','def','make'],
+    ans:2,
+    fb:'ใช้ def (Define) ในการนิยามฟังก์ชั่น เช่น def myFunc(): ...'
+  },
+  {
+    q:'ข้อใดเป็นการตั้งชื่อฟังก์ชั่นที่ถูกต้องตามกฎของ Python?',
+    opts:['1function()','my-func()','my_function()','my function()'],
+    ans:2,
+    fb:'ชื่อฟังก์ชั่นต้องขึ้นต้นด้วยตัวอักษรหรือ _ และมีเฉพาะตัวอักษร ตัวเลข _ เท่านั้น — my_function() ถูกต้อง'
+  },
+  {
+    q:'โค้ดด้านล่างพิมพ์อะไร?\n\ndef add(a, b=5):\n    print(a + b)\n\nadd(3)',
+    opts:['3','5','8','Error'],
+    ans:2,
+    fb:'a=3, b ไม่ได้ส่งมาจึงใช้ค่าเริ่มต้น b=5 → 3+5 = 8'
+  },
+  {
+    q:'ข้อใดคือความหมายของ return ในฟังก์ชั่น?',
+    opts:['พิมพ์ค่าออกทางหน้าจอ','ส่งค่าออกจากฟังก์ชั่นกลับไปยังผู้เรียก','หยุดโปรแกรมทั้งหมด','เริ่มฟังก์ชั่นใหม่'],
+    ans:1,
+    fb:'return ส่งค่ากลับไปยังจุดที่เรียกใช้ฟังก์ชั่น ทำให้สามารถนำผลลัพธ์ไปใช้ต่อได้'
+  },
+  {
+    q:'Default Argument ควรอยู่ที่ตำแหน่งใดในฟังก์ชั่น?',
+    opts:['ด้านหน้า argument ที่ไม่มีค่าเริ่มต้น','ด้านหลัง argument ที่ไม่มีค่าเริ่มต้น','ตำแหน่งใดก็ได้','ห้ามใช้ร่วมกับ argument ปกติ'],
+    ans:1,
+    fb:'Default argument ต้องอยู่หลัง argument ที่ไม่มีค่าเริ่มต้นเสมอ เช่น def f(a, b=5) ✅ ไม่ใช่ def f(a=5, b) ❌'
+  },
+  {
+    q:'ฟังก์ชั่นที่ไม่มี return statement จะคืนค่าอะไรกลับมา?',
+    opts:['0','""','None','Error'],
+    ans:2,
+    fb:'ฟังก์ชั่นที่ไม่มี return จะคืนค่า None โดยอัตโนมัติ'
+  },
+  {
+    q:'โค้ดต่อไปนี้มีข้อผิดพลาดหรือไม่?\n\ndef greet(name):\n    print("Hello, " + name)\n\ngreet("Alice")\ngreet()',
+    opts:['ไม่มีข้อผิดพลาด ทำงานได้ปกติ','มีข้อผิดพลาด — greet() ไม่ส่ง argument ที่จำเป็น','มีข้อผิดพลาด — ชื่อฟังก์ชั่นผิด','มีข้อผิดพลาด — print ใช้ + ไม่ได้'],
+    ans:1,
+    fb:'name เป็น required argument ไม่มีค่าเริ่มต้น การเรียก greet() โดยไม่ส่ง name จะเกิด TypeError'
+  },
+  {
+    q:'ข้อใด ไม่ใช่ ข้อดีของการใช้ Function?',
+    opts:['ใช้โค้ดซ้ำได้โดยไม่ต้องพิมพ์ใหม่','ทำให้โปรแกรมทำงานเร็วขึ้นเสมอ','ทำให้โค้ดอ่านและดูแลง่ายขึ้น','ช่วยจัดระเบียบโค้ดเป็นส่วนๆ'],
+    ans:1,
+    fb:'Function ช่วยเรื่อง code reuse, readability, และการจัดระเบียบ — แต่ไม่ได้รับประกันว่าโปรแกรมจะเร็วขึ้นเสมอ'
+  },
+  {
+    q:'โค้ดนี้พิมพ์อะไร?\n\ndef double(n):\n    return n * 2\n\nresult = double(double(3))\nprint(result)',
+    opts:['6','9','12','Error'],
+    ans:2,
+    fb:'double(3) = 6 แล้ว double(6) = 12 — สามารถนำผลลัพธ์จาก return ไปใช้เป็น argument ได้'
+  },
+  {
+    q:'Python Keywords ที่ห้ามตั้งเป็นชื่อฟังก์ชั่น ตัวอย่างเช่น?',
+    opts:['compute, calculate, run','for, class, return, if','myFunc, helper, process','test, check, validate'],
+    ans:1,
+    fb:'Python Keywords เช่น for, class, return, if, while, def เป็นคำสงวนของภาษา ห้ามใช้เป็นชื่อฟังก์ชั่น'
+  }
+];
+
+let quizIdx = 0, quizAnswers = Array(10).fill(null), quizSubmitted = Array(10).fill(false);
+
+function buildQuizDots() {
+  const d = document.getElementById('quizDots');
+  d.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'quiz-dot' + (i===quizIdx?' current':'') +
+      (quizSubmitted[i] ? (quizAnswers[i]===QUIZ[i].ans?' correct-d':' wrong-d') : (quizAnswers[i]!==null?' answered':''));
+    d.appendChild(dot);
+  }
+}
+
+function renderQuiz() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quizTitle').textContent = `ข้อที่ ${quizIdx+1} จาก 10`;
+  document.getElementById('quizProg').textContent = `ข้อ ${quizIdx+1} / 10`;
+  const correct = quizAnswers.filter((a,i) => quizSubmitted[i] && a===QUIZ[i].ans).length;
+  document.getElementById('quizScoreBadge').textContent = `${correct} / 10`;
+  document.getElementById('quizQ').textContent = q.q;
+  const optsEl = document.getElementById('quizOpts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    let cls = 'quiz-opt';
+    if (quizSubmitted[quizIdx]) {
+      if (i===q.ans) cls += ' correct';
+      else if (i===quizAnswers[quizIdx] && i!==q.ans) cls += ' wrong';
+    } else if (quizAnswers[quizIdx]===i) cls += ' selected';
+    div.className = cls;
+    div.innerHTML = `<span class="quiz-opt-key">${String.fromCharCode(65+i)}</span>${opt}`;
+    if (!quizSubmitted[quizIdx]) div.onclick = () => selectOpt(i);
+    optsEl.appendChild(div);
+  });
+  const fb = document.getElementById('quizFb');
+  if (quizSubmitted[quizIdx]) {
+    fb.textContent = (quizAnswers[quizIdx]===q.ans ? '✅ ถูกต้อง! ' : '❌ ผิด! ') + q.fb;
+    fb.className = 'quiz-fb ' + (quizAnswers[quizIdx]===q.ans ? 'correct' : 'wrong');
+    fb.style.display = 'block';
+  } else { fb.style.display = 'none'; }
+  document.getElementById('quizSubmit').disabled = quizAnswers[quizIdx]===null || quizSubmitted[quizIdx];
+  document.getElementById('quizSubmit').textContent = quizSubmitted[quizIdx] ? 'ตอบแล้ว' : 'ยืนยันคำตอบ';
+  document.getElementById('quizPrev').disabled = quizIdx===0;
+  document.getElementById('quizNext').disabled = quizIdx===9;
+  buildQuizDots();
+}
+
+function selectOpt(i) {
+  if (quizSubmitted[quizIdx]) return;
+  quizAnswers[quizIdx] = i;
+  renderQuiz();
+}
+
+function submitQuiz() {
+  if (quizAnswers[quizIdx]===null || quizSubmitted[quizIdx]) return;
+  quizSubmitted[quizIdx] = true;
+  renderQuiz();
+  if (quizSubmitted.every(Boolean)) setTimeout(showFinalScore, 600);
+}
+
+function quizNav(dir) {
+  quizIdx = Math.max(0, Math.min(9, quizIdx+dir));
+  renderQuiz();
+}
+
+function showFinalScore() {
+  const correct = quizAnswers.filter((a,i) => a===QUIZ[i].ans).length;
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizScore').style.display = 'block';
+  document.getElementById('scoreTxt').textContent = `${correct} / 10`;
+  document.getElementById('scoreLbl').textContent = correct>=9 ? '🏆 ยอดเยี่ยม! เข้าใจ Function อย่างลึกซึ้ง!' :
+    correct>=7 ? '🎉 ดีมาก! เกือบสมบูรณ์แล้ว' :
+    correct>=5 ? '👍 ผ่านแล้ว! ทบทวนส่วนที่ผิดได้เลย' : '💪 ลองอ่านเนื้อหาอีกครั้งแล้วทำใหม่';
+}
+
+function restartQuiz() {
+  quizIdx = 0; quizAnswers = Array(10).fill(null); quizSubmitted = Array(10).fill(false);
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizScore').style.display = 'none';
+  renderQuiz();
+}
+
+renderQuiz();
+
+// ═══════════════════════════
+//  SIDEBAR ACTIVE
+// ═══════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
