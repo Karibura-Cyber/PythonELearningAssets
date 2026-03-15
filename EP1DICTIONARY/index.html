@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python L1.10 — Dictionary: คลังข้อมูล Key-Value</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px}
+.o1{color:var(--ac3);font-weight:700;font-family:'JetBrains Mono',monospace}
+.on{color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.list{border-color:rgba(232,121,249,.3)}
+.concept-card.feat{border-color:rgba(6,182,212,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.list::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.feat::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.list .cc-title{color:var(--ac)}
+.concept-card.feat .cc-title{color:var(--ac2)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+.cc-eg{margin-top:10px;font-size:12px;color:var(--di);font-style:italic}
+
+/* KV VISUALIZER */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.viz-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;width:120px;font-family:'JetBrains Mono',monospace;outline:none}
+.viz-inp:focus{border-color:var(--ac)}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.app{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.viz-btn.app:hover{background:rgba(16,185,129,.25)}
+.viz-btn.rem{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.viz-btn.rem:hover{background:rgba(239,68,68,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn.upd{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.viz-btn.upd:hover{background:rgba(6,182,212,.25)}
+
+/* KV STAGE */
+.kv-stage{min-height:100px;display:flex;align-items:flex-start;gap:8px;padding:14px;background:#0a0c10;border-radius:8px;border:1px solid var(--bd);flex-wrap:wrap;position:relative}
+.kv-pair{display:flex;flex-direction:column;align-items:center;animation:itemIn .25s ease;flex-shrink:0}
+.kv-key{padding:6px 12px;border-radius:6px 6px 0 0;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3);border-bottom:none;min-width:80px;text-align:center}
+.kv-arrow{font-size:10px;color:var(--di);line-height:1;padding:2px 0;background:#0a0c10;width:100%;text-align:center;border-left:1px solid rgba(6,182,212,.3);border-right:1px solid rgba(6,182,212,.3)}
+.kv-val{padding:6px 12px;border-radius:0 0 6px 6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;background:rgba(232,121,249,.12);color:var(--ac);border:1px solid rgba(232,121,249,.35);border-top:none;min-width:80px;text-align:center}
+.kv-pair.hi .kv-key{background:rgba(6,182,212,.3);border-color:var(--ac2)}
+.kv-pair.hi .kv-val{background:rgba(232,121,249,.28);border-color:var(--ac)}
+.viz-empty{color:var(--di);font-size:12px;font-style:italic;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.viz-log{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--mu);min-height:22px}
+@keyframes itemIn{from{transform:scale(0.6) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+
+/* ACCESS COMPARISON */
+.access-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.access-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.access-card.safe{border-color:rgba(16,185,129,.3)}
+.access-card.unsafe{border-color:rgba(239,68,68,.3)}
+.ac-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.access-card.safe .ac-label{color:var(--ac3)}
+.access-card.unsafe .ac-label{color:var(--red)}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h460{height:460px}.h500{height:500px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* TECHNIQUE CARD */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.tech-grid,.access-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python L1 · Week 10</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Dictionary คืออะไร?</a>
+    <a class="na" href="#declare">Part 1 — โครงสร้างและการสร้าง</a>
+    <a class="na sub" href="#access">· การเข้าถึงข้อมูล</a>
+    <a class="na sub" href="#safe-access">· Safe Access วิธีต่างๆ</a>
+    <a class="na" href="#modify">Part 2 — เพิ่ม แก้ไข ลบ</a>
+    <a class="na sub" href="#methods">· Dictionary Methods</a>
+    <a class="na" href="#dict-viz">🎮 Dict Visualizer</a>
+    <a class="na" href="#loop">Part 3 — วนซ้ำกับ Dictionary</a>
+    <a class="na sub" href="#loop-keys">· Loop Keys / Values / Items</a>
+    <a class="na sub" href="#nested-dict">· Nested Dictionary</a>
+    <a class="na" href="#techniques">เทคนิคขั้นสูง</a>
+    <a class="na sub" href="#dict-comp">· Dict Comprehension</a>
+    <a class="na sub" href="#real-world">· Real-World Patterns</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. Student Profile <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. Word Counter <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Grade Summary <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Inventory Manager <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. Phone Book <span class="badge br">Harder</span></a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python <span>›</span> Level 1 <span>›</span> Week 10 — Dictionary</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Level 1 · Week 10</div>
+      <div class="ht">คลังข้อมูล Key-Value</div>
+      <div class="hs">Dictionary — จัดเก็บข้อมูลแบบพจนานุกรม</div>
+      <p class="hm">Dictionary เป็นโครงสร้างข้อมูลที่ทรงพลังที่สุดใน Python — ค้นหาข้อมูลด้วย <strong>key</strong> แทนที่จะใช้ตำแหน่ง index เหมือน List เหมาะสำหรับเก็บข้อมูลนักเรียน, สินค้า, สมาชิก และทุกอย่างที่มีชื่อ</p>
+      <div class="tags">
+        <span class="tag">⏱ 2 ชั่วโมง</span>
+        <span class="tag">📦 key-value pairs</span>
+        <span class="tag">🔍 dict methods</span>
+        <span class="tag">🔄 loop patterns</span>
+        <span class="tag">🏗 nested dict</span>
+        <span class="tag">⚡ comprehension</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>Dictionary คืออะไร?</h2>
+      <p>ลองนึกถึง <strong>พจนานุกรมภาษาอังกฤษ</strong> — คุณค้นหาคำ (key) แล้วเจอความหมาย (value) นั่นคือหลักการของ Dictionary ใน Python</p>
+      <p>Dictionary ต่างจาก List ตรงที่ List ใช้ตำแหน่ง <code>[0], [1], [2]</code> แต่ Dictionary ใช้ <strong>ชื่อที่มีความหมาย</strong> เช่น <code>["name"], ["age"], ["score"]</code></p>
+
+      <div class="concept-grid">
+        <div class="concept-card list">
+          <div class="cc-icon">📋</div>
+          <div class="cc-title">List — ใช้ตำแหน่ง</div>
+          <div class="cc-desc">เข้าถึงด้วย index เช่น <code>student[0]</code> ไม่รู้ว่าคือข้อมูลอะไร</div>
+          <div class="cc-eg">student = ["Alice", 15, "A"]<br>student[0] → "Alice"</div>
+        </div>
+        <div class="concept-card feat">
+          <div class="cc-icon">🗂</div>
+          <div class="cc-title">Dictionary — ใช้ key</div>
+          <div class="cc-desc">เข้าถึงด้วยชื่อ เช่น <code>student["name"]</code> อ่านง่าย เข้าใจทันที</div>
+          <div class="cc-eg">student = {"name":"Alice"}<br>student["name"] → "Alice"</div>
+        </div>
+      </div>
+
+      <h3>คุณสมบัติสำคัญของ Dictionary</h3>
+      <table class="tbl">
+        <tr><th>คุณสมบัติ</th><th>รายละเอียด</th><th>ตัวอย่าง</th></tr>
+        <tr><td>key-value pair</td><td>ทุกข้อมูลมี key และ value คู่กัน</td><td><code>"name": "Alice"</code></td></tr>
+        <tr><td>Key ห้ามซ้ำ</td><td>key แต่ละตัวต้องไม่เหมือนกัน (ถ้าซ้ำจะทับกัน)</td><td><span class="on">❌</span> <code>"age":15, "age":20</code></td></tr>
+        <tr><td>Key ต้อง immutable</td><td>key ต้องเป็น string, int, tuple (ไม่ใช่ list)</td><td><span class="o1">✓</span> <code>"name", 1, (1,2)</code></td></tr>
+        <tr><td>Value ใดก็ได้</td><td>value เป็นอะไรก็ได้ รวมถึง list, dict ซ้อน</td><td><code>"scores": [90, 85, 95]</code></td></tr>
+        <tr><td>ค้นหาเร็ว O(1)</td><td>ไม่ว่ามีข้อมูลกี่ล้าน ค้นหาได้เร็วเท่ากัน</td><td>hash table ภายใน</td></tr>
+        <tr><td>Python 3.7+ เรียงลำดับ</td><td>รักษาลำดับการเพิ่มข้อมูล (insertion order)</td><td>วนซ้ำได้ตามลำดับ</td></tr>
+      </table>
+    </div>
+
+    <!-- DECLARE -->
+    <div class="sec" id="declare">
+      <div class="sl">Part 1</div>
+      <h2>โครงสร้างและการสร้าง Dictionary</h2>
+      <p>Dictionary ใช้วงเล็บปีกกา <code>{}</code> โดย key และ value คั่นด้วย <code>:</code> และแต่ละคู่คั่นด้วย <code>,</code></p>
+
+      <div class="callout info">
+        <strong>รูปแบบ:</strong> <code>dictName = { key1: value1, key2: value2, ... }</code><br>
+        Key มักเป็น <strong>string</strong> แต่ก็เป็น int หรือ tuple ได้
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_basics.py</span></div><button class="run-btn" onclick="runLesson(this,'L0','LO0')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L0"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO0">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- ACCESS -->
+    <div class="sec" id="access">
+      <h3>การเข้าถึงข้อมูล (Access)</h3>
+      <p>มี 2 วิธีหลักในการดึงค่าจาก Dictionary โดยแต่ละวิธีมีพฤติกรรมต่างกันเมื่อ key ไม่มีอยู่</p>
+
+      <div class="access-grid">
+        <div class="access-card unsafe">
+          <div class="ac-label">⚠️ วิธีที่ 1 — Bracket [ ]</div>
+          <p style="font-size:13px;margin-bottom:8px">ถ้า key ไม่มี → เกิด <strong style="color:var(--red)">KeyError</strong> โปรแกรมหยุด!</p>
+          <code style="display:block;font-size:12px;line-height:1.8">person["name"]  # ✓ ปกติ<br>person["height"]  # ❌ KeyError</code>
+        </div>
+        <div class="access-card safe">
+          <div class="ac-label">✅ วิธีที่ 2 — .get(key, default)</div>
+          <p style="font-size:13px;margin-bottom:8px">ถ้า key ไม่มี → คืนค่า default (ไม่ error) แนะนำใช้วิธีนี้</p>
+          <code style="display:block;font-size:12px;line-height:1.8">person.get("name")  # ✓ คืนค่า<br>person.get("height", 0)  # ✓ คืน 0</code>
+        </div>
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_access.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h380" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- SAFE ACCESS -->
+    <div class="sec" id="safe-access">
+      <h3>Safe Access วิธีต่างๆ</h3>
+      <p>มีหลายเทคนิคในการ access ข้อมูลอย่างปลอดภัย ขึ้นอยู่กับสถานการณ์</p>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head">in operator <span class="tc-badge q">ตรวจสอบ</span></div>
+          <div class="tc-desc">เช็คว่า key มีอยู่หรือไม่ก่อนดึงค่า<br><code>"name" in person  # True/False</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">try / except <span class="tc-badge s">จัดการ error</span></div>
+          <div class="tc-desc">พยายามดึงค่า ถ้า error ก็จัดการแทน<br><code>try: x = d["k"]<br>except KeyError: x = 0</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">setdefault() <span class="tc-badge b">เพิ่มถ้าไม่มี</span></div>
+          <div class="tc-desc">ถ้า key ไม่มี → สร้างให้พร้อมค่า default<br><code>d.setdefault("items", [])</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">Nested .get() <span class="tc-badge q">dict ซ้อน</span></div>
+          <div class="tc-desc">เข้าถึง dict ซ้อนอย่างปลอดภัย<br><code>d.get("person",{}).get("name")</code></div>
+        </div>
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">safe_access.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h420" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- MODIFY -->
+    <div class="sec" id="modify">
+      <div class="sl">Part 2</div>
+      <h2>การเพิ่ม แก้ไข และลบข้อมูล</h2>
+      <p>Dictionary ใน Python เป็น <strong>mutable</strong> คือแก้ไขได้ตลอดเวลา หลักการง่ายๆ คือ ถ้า key ยังไม่มี = เพิ่มใหม่, ถ้ามีแล้ว = แก้ไข (ทับค่าเก่า)</p>
+
+      <table class="tbl">
+        <tr><th>การดำเนินการ</th><th>วิธีใช้</th><th>หมายเหตุ</th></tr>
+        <tr><td>เพิ่ม key ใหม่</td><td><code>d["new_key"] = value</code></td><td>ถ้า key ไม่มีจะสร้างให้ทันที</td></tr>
+        <tr><td>แก้ไขค่าเดิม</td><td><code>d["existing"] = new_val</code></td><td>ทับค่าเก่า ไม่มี error</td></tr>
+        <tr><td>เพิ่ม/แก้หลายคู่</td><td><code>d.update({...})</code></td><td>เพิ่มและแก้ไขพร้อมกัน</td></tr>
+        <tr><td>ลบด้วย del</td><td><code>del d["key"]</code></td><td>ถ้าไม่มี key → KeyError</td></tr>
+        <tr><td>ลบและรับค่ากลับ</td><td><code>d.pop("key")</code></td><td>คืนค่า value ออกมา</td></tr>
+        <tr><td>ลบแบบปลอดภัย</td><td><code>d.pop("key", default)</code></td><td>ถ้าไม่มีจะคืน default แทน</td></tr>
+        <tr><td>ลบรายการสุดท้าย</td><td><code>d.popitem()</code></td><td>Python 3.7+ ลบคู่ล่าสุด</td></tr>
+        <tr><td>ล้างทั้งหมด</td><td><code>d.clear()</code></td><td>dictionary กลายเป็น {}</td></tr>
+      </table>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_modify.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h380" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- METHODS -->
+    <div class="sec" id="methods">
+      <h3>Dictionary Methods ทั้งหมด</h3>
+      <p>Python มี built-in methods สำหรับ Dictionary ที่ช่วยให้จัดการข้อมูลได้สะดวก</p>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_methods.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h420" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <div class="callout warn">
+        <strong>⚠️ ข้อควรระวัง:</strong> <code>.copy()</code> คือ shallow copy — ถ้า value เป็น list/dict ซ้อน การแก้ไข value ใน copy จะกระทบต้นฉบับด้วย! ใช้ <code>import copy; copy.deepcopy(d)</code> เพื่อ copy แบบสมบูรณ์
+      </div>
+    </div>
+
+    <!-- VISUALIZER -->
+    <div class="sec" id="dict-viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 Dictionary Visualizer</h2>
+      <p>ทดลองเพิ่ม แก้ไข และลบข้อมูลใน Dictionary แบบ real-time เพื่อเข้าใจการทำงานของ key-value pairs</p>
+
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title">📦 Dictionary Explorer</span>
+          <span style="font-size:11px;color:var(--di)" id="vizDictInfo">size: 0</span>
+        </div>
+        <div class="viz-body">
+          <div class="viz-ctrl">
+            <input class="viz-inp" id="vizKey" placeholder="key (เช่น name)" />
+            <input class="viz-inp" id="vizVal2" placeholder="value (เช่น Alice)" />
+            <button class="viz-btn app" onclick="vizSet()">➕ Set / Update</button>
+            <button class="viz-btn rem" onclick="vizDel()">🗑 Delete key</button>
+            <button class="viz-btn rst" onclick="vizDictReset()">↺ Reset</button>
+          </div>
+          <div class="viz-ctrl" style="margin-bottom:0">
+            <button class="viz-btn upd" onclick="vizLoad('student')">▶ โหลด student</button>
+            <button class="viz-btn upd" onclick="vizLoad('product')">▶ โหลด product</button>
+          </div>
+          <div style="height:12px"></div>
+          <div class="kv-stage" id="kvStage">
+            <div class="viz-empty" id="kvEmpty">Dictionary ว่างเปล่า — กด Set เพื่อเพิ่มข้อมูล</div>
+          </div>
+          <div class="viz-log" id="vizDictLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOOP -->
+    <div class="sec" id="loop">
+      <div class="sl">Part 3</div>
+      <h2>การวนซ้ำกับ Dictionary</h2>
+      <p>Dictionary มี 3 วิธีหลักในการ loop ขึ้นอยู่กับว่าต้องการ key, value, หรือทั้งคู่</p>
+    </div>
+
+    <div class="sec" id="loop-keys">
+      <h3>Loop Keys, Values และ Items</h3>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_loop.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h420" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <div class="callout ok">
+        <strong>💡 เทคนิค:</strong> ในทางปฏิบัติ ใช้ <code>.items()</code> บ่อยที่สุด เพราะได้ทั้ง key และ value พร้อมกัน ทำให้โค้ดอ่านง่ายและไม่ต้องเรียก <code>dict[key]</code> ซ้ำซ้อน
+      </div>
+    </div>
+
+    <div class="sec" id="nested-dict">
+      <h3>Nested Dictionary (Dictionary ซ้อนกัน)</h3>
+      <p>Dictionary สามารถมี Dictionary เป็น value ได้ เหมาะสำหรับเก็บข้อมูลที่ซับซ้อน เช่น นักเรียนหลายคน แต่ละคนมีข้อมูลหลายอย่าง</p>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">nested_dict.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h460" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="sec" id="techniques">
+      <div class="sl">เทคนิคขั้นสูง</div>
+      <h2>เทคนิคที่ควรรู้</h2>
+    </div>
+
+    <div class="sec" id="dict-comp">
+      <h3>Dict Comprehension — สร้าง Dictionary แบบกระชับ</h3>
+      <p>คล้ายกับ List Comprehension แต่สร้าง Dictionary ใช้รูปแบบ <code>{ key: value for item in iterable }</code></p>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">dict_comprehension.py</span></div><button class="run-btn" onclick="runLesson(this,'L7','LO7')">▶ รันโค้ด</button></div>
+        <div class="mc h380" id="L7"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO7">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="real-world">
+      <h3>Real-World Patterns — ตัวอย่างการใช้งานจริง</h3>
+      <p>รวม pattern ที่พบบ่อยในการเขียนโปรแกรมจริง ซึ่งนักเรียนควรฝึกให้ชำนาญ</p>
+
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">real_world.py</span></div><button class="run-btn" onclick="runLesson(this,'L8','LO8')">▶ รันโค้ด</button></div>
+        <div class="mc h500" id="L8"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO8">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head">Counting Pattern <span class="tc-badge b">บ่อยมาก</span></div>
+          <div class="tc-desc">นับความถี่ของสิ่งต่างๆ เช่น นับตัวอักษร นับคำ<br><code>count[x] = count.get(x,0)+1</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">Grouping Pattern <span class="tc-badge q">จัดกลุ่ม</span></div>
+          <div class="tc-desc">แบ่งข้อมูลเป็นกลุ่มตาม key<br><code>groups.setdefault(key,[]).append(v)</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">Lookup Table <span class="tc-badge s">แทน if-elif</span></div>
+          <div class="tc-desc">ใช้ dict แทน if-elif chain ยาวๆ<br><code>grade = {"A":4,"B":3,"C":2}[g]</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head">Invert Dict <span class="tc-badge q">สลับ key-value</span></div>
+          <div class="tc-desc">สร้าง dict กลับ key↔value<br><code>{v:k for k,v in d.items()}</code></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISES -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">1</div><div class="ex-info"><h3>Student Profile</h3><p>รับข้อมูลนักเรียน (ชื่อ, อายุ, คะแนน) แยกบรรทัด แล้วเก็บใน Dictionary และพิมพ์ข้อมูลพร้อม label</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">Alice
+15
+92</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Name: Alice
+Age: 15
+Score: 92
+Grade: A</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> เก็บข้อมูลใน dict แล้วกำหนด grade ด้วย: A=90+, B=80+, C=70+, D=60+, F=ต่ำกว่า</div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div><button class="check-btn" onclick="checkEx(this,1)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E1"></div>
+          </div>
+          <div class="verdict" id="V1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">2</div><div class="ex-info"><h3>Word Counter</h3><p>รับประโยคภาษาอังกฤษ 1 บรรทัด จงนับจำนวนครั้งที่แต่ละคำปรากฏ แล้วพิมพ์เรียงตามตัวอักษร (a-z)</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">the cat sat on the mat the cat</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">cat: 2
+mat: 1
+on: 1
+sat: 1
+the: 3</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> ใช้ <code>count[word] = count.get(word, 0) + 1</code> แล้ว loop <code>sorted(count.items())</code></div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div><button class="check-btn" onclick="checkEx(this,2)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E2"></div>
+          </div>
+          <div class="verdict" id="V2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">3</div><div class="ex-info"><h3>Grade Summary</h3><p>รับข้อมูลนักเรียน N คน แต่ละบรรทัดคือ "ชื่อ คะแนน" จงพิมพ์คะแนนเฉลี่ย คะแนนสูงสุด และชื่อนักเรียนที่ได้คะแนนสูงสุด</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+Alice 85
+Bob 92
+Carol 78</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">Average: 85.00
+Top: Bob (92)</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div><button class="check-btn" onclick="checkEx(this,3)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E3"></div>
+          </div>
+          <div class="verdict" id="V3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">4</div><div class="ex-info"><h3>Inventory Manager</h3><p>รับรายการสินค้าและจำนวน N รายการ จากนั้นรับคำสั่ง M บรรทัด (BUY item qty / SELL item qty) อัปเดต inventory แล้วพิมพ์ stock คงเหลือเรียง a-z</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+apple 10
+banana 5
+cherry 8
+2
+BUY apple 3
+SELL banana 2</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">apple: 13
+banana: 3
+cherry: 8</div></div>
+          </div>
+          <div class="callout info" style="margin-bottom:10px;font-size:13px"><strong>แนวคิด:</strong> BUY = เพิ่ม stock, SELL = ลด stock ใช้ <code>inventory[item] += qty</code></div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div><button class="check-btn" onclick="checkEx(this,4)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E4"></div>
+          </div>
+          <div class="verdict" id="V4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">5</div><div class="ex-info"><h3>Phone Book</h3><p>สร้างสมุดโทรศัพท์ รับคำสั่ง ADD name number / FIND name / DELETE name และพิมพ์ผลลัพธ์แต่ละคำสั่ง (FIND พิมพ์เบอร์ ถ้าไม่มีพิมพ์ "Not found", DELETE พิมพ์ "Deleted" หรือ "Not found")</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+ADD Alice 0812345678
+ADD Bob 0898765432
+FIND Alice
+FIND Charlie
+DELETE Bob</div></div>
+            <div class="io-box"><div class="io-lbl out">Expected Output</div><div class="io-txt">0812345678
+Not found
+Deleted</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div><button class="check-btn" onclick="checkEx(this,5)">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="E5"></div>
+          </div>
+          <div class="verdict" id="V5"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main><!-- /main -->
+
+<script>
+// ════════════════════════════════
+//  LESSON CODE SAMPLES
+// ════════════════════════════════
+const LC = [
+  /* L0 dict_basics.py */
+`# การสร้าง Dictionary
+student = {
+    "name": "Somchai",
+    "age": 15,
+    "grade": "9",
+    "score": 87.5
+}
+print("ข้อมูลนักเรียน:", student)
+print("Type:", type(student))
+
+# Dictionary ที่ value เป็นหลายชนิด
+person = {
+    "name": "Ali",
+    "height": 175,
+    "hobbies": ["reading", "coding"],  # value เป็น list ได้!
+    "is_active": True
+}
+print()
+print("ชื่อ:", person["name"])
+print("งานอดิเรก:", person["hobbies"])
+
+# สร้างจาก dict() function
+config = dict(host="localhost", port=8080, debug=True)
+print()
+print("Config:", config)
+
+# Empty dictionary
+empty = {}
+print("ว่าง:", empty, "| Type:", type(empty))`,
+
+  /* L1 dict_access.py */
+`person = {
+    "name": "Alice",
+    "age": 20,
+    "city": "Bangkok"
+}
+
+# วิธีที่ 1: Bracket [] — ตรงไปตรงมา
+print("=== Bracket Access ===")
+print(person["name"])   # Alice
+print(person["age"])    # 20
+# print(person["height"])  # ❌ KeyError ถ้า uncomment
+
+# วิธีที่ 2: .get() — ปลอดภัย
+print()
+print("=== .get() Access ===")
+print(person.get("name"))          # Alice
+print(person.get("height"))        # None
+print(person.get("height", 170))   # 170 (default)
+
+# ดึงข้อมูลหลายค่าในครั้งเดียว
+print()
+print("=== ดึงหลายค่า ===")
+keys   = list(person.keys())
+values = list(person.values())
+items  = list(person.items())
+print("keys  :", keys)
+print("values:", values)
+print("items :", items)`,
+
+  /* L2 safe_access.py */
+`profile = {"person": {"name": "Ann", "age": 20}}
+inventory = {"apple": 5, "banana": 3}
+word_count = {}
+
+# 1. in operator — เช็คก่อนเข้าถึง
+print("=== in operator ===")
+if "height" in profile["person"]:
+    print(profile["person"]["height"])
+else:
+    print("ไม่มีข้อมูลส่วนสูง")
+
+# 2. try / except — จัดการ error
+print()
+print("=== try / except ===")
+try:
+    score = profile["person"]["score"]
+except KeyError as e:
+    score = "ไม่ระบุ"
+print("score:", score)
+
+# 3. setdefault — เพิ่มถ้าไม่มี
+print()
+print("=== setdefault ===")
+items = word_count.setdefault("python", 0)
+word_count["python"] += 1
+word_count["python"] += 1
+print("python count:", word_count["python"])
+
+# 4. Nested .get() chain
+print()
+print("=== Nested get ===")
+name = profile.get("person", {}).get("name", "ไม่ระบุ")
+job  = profile.get("person", {}).get("job",  "ไม่ระบุ")
+print("name:", name)
+print("job :", job)`,
+
+  /* L3 dict_modify.py */
+`student = {"name": "Bob", "age": 14}
+print("เริ่มต้น:", student)
+
+# เพิ่มข้อมูลใหม่
+student["grade"] = "A"
+student["score"] = 95
+print("หลังเพิ่ม:", student)
+
+# แก้ไขข้อมูลเดิม (ทับค่า)
+student["age"] = 15
+print("หลังแก้ไขอายุ:", student)
+
+# update() — เพิ่ม/แก้ไขหลายคู่พร้อมกัน
+student.update({"score": 98, "city": "Chiang Mai"})
+print("หลัง update:", student)
+
+# ลบด้วย pop — ได้ค่ากลับมา
+old_grade = student.pop("grade")
+print(f"ลบ grade: '{old_grade}' | เหลือ: {student}")
+
+# ลบแบบปลอดภัย — ไม่ error ถ้าไม่มี key
+result = student.pop("height", "ไม่มีข้อมูล")
+print("ลบ height:", result)
+
+# del — ลบตรงๆ
+del student["city"]
+print("หลัง del city:", student)
+
+# popitem — ลบคู่สุดท้าย
+last = student.popitem()
+print("popitem:", last, "| เหลือ:", student)`,
+
+  /* L4 dict_methods.py */
+`person = {"name": "Bob", "age": 18, "city": "Bangkok"}
+
+# .keys() — ดึง key ทั้งหมด
+print("keys :", list(person.keys()))
+
+# .values() — ดึง value ทั้งหมด
+print("values:", list(person.values()))
+
+# .items() — ดึงเป็นคู่ tuple
+print("items :", list(person.items()))
+
+# .get() — ดึงค่าแบบปลอดภัย
+print()
+print("get name :", person.get("name"))
+print("get height:", person.get("height", "N/A"))
+
+# .update() — อัปเดตหลายค่า
+person.update({"age": 20, "job": "student"})
+print("after update:", person)
+
+# .copy() — คัดลอก
+backup = person.copy()
+backup["name"] = "Changed"
+print("original name:", person["name"])  # ยังเป็น Bob
+print("backup name  :", backup["name"])   # Changed
+
+# .setdefault()
+d = {}
+d.setdefault("scores", []).append(95)
+d.setdefault("scores", []).append(87)
+print("scores:", d["scores"])
+
+# .clear()
+temp = {"x": 1, "y": 2}
+temp.clear()
+print("after clear:", temp)`,
+
+  /* L5 dict_loop.py */
+`student = {"name": "Alice", "age": 15, "score": 90, "city": "BKK"}
+
+# 1. วนเฉพาะ key (default)
+print("=== Keys ===")
+for key in student:
+    print(key)
+
+# 2. วนเฉพาะ value
+print()
+print("=== Values ===")
+for val in student.values():
+    print(val)
+
+# 3. วนทั้ง key-value (แนะนำ!)
+print()
+print("=== Items ===")
+for key, val in student.items():
+    print(f"{key}: {val}")
+
+# 4. คำนวณจาก value
+products = {"pen": 10, "book": 50, "bag": 120}
+total = sum(products.values())
+print()
+print("ราคารวม:", total)
+
+# 5. หาสินค้าราคาสูงสุด
+max_price = max(products.values())
+for name, price in products.items():
+    if price == max_price:
+        print(f"แพงสุด: {name} = {max_price} บาท")
+
+# 6. กรองข้อมูล
+expensive = {k: v for k, v in products.items() if v > 20}
+print("ราคา > 20:", expensive)`,
+
+  /* L6 nested_dict.py */
+`# Nested Dictionary — ข้อมูลนักเรียนหลายคน
+students = {
+    "001": {
+        "name": "Ann",
+        "scores": {"math": 90, "english": 85, "science": 92}
+    },
+    "002": {
+        "name": "Bob",
+        "scores": {"math": 75, "english": 80, "science": 70}
+    },
+    "003": {
+        "name": "Carol",
+        "scores": {"math": 95, "english": 90, "science": 88}
+    }
+}
+
+# เข้าถึง nested data
+print("ชื่อ 001:", students["001"]["name"])
+print("คะแนน math 002:", students["002"]["scores"]["math"])
+
+# วน loop nested
+print()
+print("=== สรุปผลคะแนน ===")
+for sid, info in students.items():
+    name   = info["name"]
+    scores = info["scores"]
+    avg    = sum(scores.values()) / len(scores)
+    print(f"[{sid}] {name} — เฉลี่ย: {avg:.1f}")
+
+# หานักเรียนที่ได้คะแนน math สูงสุด
+best_id   = max(students, key=lambda s: students[s]["scores"]["math"])
+best_name = students[best_id]["name"]
+best_score= students[best_id]["scores"]["math"]
+print()
+print(f"คณิตศาสตร์ดีที่สุด: {best_name} ({best_score} คะแนน)")`,
+
+  /* L7 dict_comprehension.py */
+`# Dict Comprehension รูปแบบ: {k: v for item in iterable}
+
+# 1. สร้าง dict กำลังสอง
+squares = {n: n**2 for n in range(1, 6)}
+print("squares:", squares)
+
+# 2. สร้างจาก 2 list ด้วย zip
+names  = ["Alice", "Bob", "Carol"]
+scores = [85, 92, 78]
+grade_book = {name: score for name, score in zip(names, scores)}
+print("grade_book:", grade_book)
+
+# 3. กรองเฉพาะบางเงื่อนไข (score >= 80)
+high_scores = {k: v for k, v in grade_book.items() if v >= 80}
+print("score >= 80:", high_scores)
+
+# 4. แปลงค่าทุกตัว (score เป็น %)
+normalized = {k: f"{v}%" for k, v in grade_book.items()}
+print("normalized:", normalized)
+
+# 5. Invert Dictionary (สลับ key ↔ value)
+original = {"a": 1, "b": 2, "c": 3}
+inverted = {v: k for k, v in original.items()}
+print("inverted:", inverted)
+
+# 6. รวม 2 dict (Python 3.9+: d1 | d2)
+d1 = {"x": 1, "y": 2}
+d2 = {"y": 99, "z": 3}
+merged = {**d1, **d2}  # d2 ทับ d1 ถ้า key ซ้ำ
+print("merged:", merged)`,
+
+  /* L8 real_world.py */
+`# Real-World Patterns
+
+# Pattern 1: Counting (นับความถี่)
+sentence = "the cat sat on the mat the cat"
+words = sentence.split()
+count = {}
+for word in words:
+    count[word] = count.get(word, 0) + 1
+print("=== Word Count ===")
+for word, freq in sorted(count.items(), key=lambda x: -x[1]):
+    print(f"  {word}: {'█'*freq} ({freq})")
+
+# Pattern 2: Grouping (จัดกลุ่ม)
+students = [("Alice","A"),("Bob","B"),("Carol","A"),("Dave","B"),("Eve","C")]
+groups = {}
+for name, grade in students:
+    groups.setdefault(grade, []).append(name)
+print()
+print("=== Grouped by Grade ===")
+for grade in sorted(groups):
+    print(f"  {grade}: {', '.join(groups[grade])}")
+
+# Pattern 3: Lookup Table (แทน if-elif)
+grade_points = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "F": 0.0}
+my_grade = "B"
+gpa = grade_points.get(my_grade, 0.0)
+print()
+print(f"=== GPA Lookup ===")
+print(f"  Grade {my_grade} → GPA {gpa}")
+
+# Pattern 4: ระบบสินค้า (find max)
+shop = {"pen": 12, "book": 45, "bag": 120, "ruler": 18}
+most_expensive = max(shop, key=shop.get)
+print()
+print("=== Shop ===")
+print(f"  สินค้าแพงสุด: {most_expensive} ({shop[most_expensive]} บาท)")
+print(f"  ราคารวม: {sum(shop.values())} บาท")`,
+];
+
+// ════════════════════════════════
+//  EXERCISE DEFINITIONS
+// ════════════════════════════════
+const EX = {
+  1: { start:
+`name  = input()
+age   = int(input())
+score = int(input())
+
+# สร้าง dict และกำหนด grade (A=90+, B=80+, C=70+, D=60+, F=ต่ำกว่า)
+student = {}
+`,
+    tests: [
+      {inp:"Alice\n15\n92",  exp:"Name: Alice\nAge: 15\nScore: 92\nGrade: A"},
+      {inp:"Bob\n16\n75",    exp:"Name: Bob\nAge: 16\nScore: 75\nGrade: C"},
+      {inp:"Carol\n14\n55",  exp:"Name: Carol\nAge: 14\nScore: 55\nGrade: F"},
+      {inp:"Dave\n17\n80",   exp:"Name: Dave\nAge: 17\nScore: 80\nGrade: B"},
+    ]},
+
+  2: { start:
+`sentence = input()
+# นับคำและพิมพ์เรียงตามตัวอักษร
+count = {}
+`,
+    tests: [
+      {inp:"the cat sat on the mat the cat", exp:"cat: 2\nmat: 1\non: 1\nsat: 1\nthe: 3"},
+      {inp:"hello world hello",              exp:"hello: 2\nworld: 1"},
+      {inp:"python",                         exp:"python: 1"},
+      {inp:"a b a b a",                      exp:"a: 3\nb: 2"},
+    ]},
+
+  3: { start:
+`import sys
+lines = sys.stdin.read().strip().split('\\n')
+n = int(lines[0])
+scores = {}
+# อ่านชื่อและคะแนน จากนั้นพิมพ์ Average และ Top
+`,
+    tests: [
+      {inp:"3\nAlice 85\nBob 92\nCarol 78",        exp:"Average: 85.00\nTop: Bob (92)"},
+      {inp:"1\nOnly 100",                           exp:"Average: 100.00\nTop: Only (100)"},
+      {inp:"2\nAnn 70\nBen 70",                     exp:"Average: 70.00\nTop: Ann (70)"},
+      {inp:"4\nA 60\nB 80\nC 90\nD 70",            exp:"Average: 75.00\nTop: C (90)"},
+    ]},
+
+  4: { start:
+`import sys
+lines = sys.stdin.read().strip().split('\\n')
+n = int(lines[0])
+inventory = {}
+# อ่าน inventory เริ่มต้น
+for i in range(1, n+1):
+    item, qty = lines[i].split()
+    inventory[item] = int(qty)
+
+m = int(lines[n+1])
+# อ่านคำสั่ง BUY / SELL แล้วพิมพ์ผล
+`,
+    tests: [
+      {inp:"3\napple 10\nbanana 5\ncherry 8\n2\nBUY apple 3\nSELL banana 2", exp:"apple: 13\nbanana: 3\ncherry: 8"},
+      {inp:"2\npen 10\nbook 5\n1\nBUY book 10",                               exp:"book: 15\npen: 10"},
+      {inp:"1\nitem 100\n2\nSELL item 30\nBUY item 5",                        exp:"item: 75"},
+    ]},
+
+  5: { start:
+`import sys
+lines = sys.stdin.read().strip().split('\\n')
+n = int(lines[0])
+phonebook = {}
+# ประมวลผลคำสั่ง ADD, FIND, DELETE
+for i in range(1, n+1):
+    parts = lines[i].split()
+    cmd = parts[0]
+`,
+    tests: [
+      {inp:"5\nADD Alice 0812345678\nADD Bob 0898765432\nFIND Alice\nFIND Charlie\nDELETE Bob",
+       exp:"0812345678\nNot found\nDeleted"},
+      {inp:"3\nADD Test 111\nDELETE Test\nFIND Test",
+       exp:"Deleted\nNot found"},
+      {inp:"4\nFIND nobody\nADD x 999\nFIND x\nDELETE nobody",
+       exp:"Not found\n999\nNot found"},
+      {inp:"2\nADD Sam 555\nFIND Sam",
+       exp:"555"},
+    ]},
+};
+
+// ════════════════════════════════
+//  DICT VISUALIZER
+// ════════════════════════════════
+let dictData = {};
+const PRESETS = {
+  student: {name:"Somchai", age:"15", grade:"A", score:"87"},
+  product: {pen:"12", book:"45", bag:"120", ruler:"18"}
+};
+
+function kvRender() {
+  const stage = document.getElementById('kvStage');
+  const empty = document.getElementById('kvEmpty');
+  const info  = document.getElementById('vizDictInfo');
+  const keys  = Object.keys(dictData);
+  stage.innerHTML = '';
+  info.textContent = `size: ${keys.length}`;
+  if (!keys.length) { stage.appendChild(empty); return; }
+  keys.forEach(k => {
+    const pair = document.createElement('div');
+    pair.className = 'kv-pair';
+    pair.innerHTML = `<div class="kv-key">${esc(k)}</div><div class="kv-arrow">↓</div><div class="kv-val">${esc(String(dictData[k]))}</div>`;
+    stage.appendChild(pair);
+  });
+}
+function kvLog(msg){ document.getElementById('vizDictLog').textContent = msg; }
+
+function vizSet(){
+  const k = document.getElementById('vizKey').value.trim();
+  const v = document.getElementById('vizVal2').value.trim();
+  if (!k) return;
+  const isNew = !(k in dictData);
+  dictData[k] = v;
+  kvRender();
+  kvLog(isNew ? `เพิ่ม key "${k}" = "${v}"` : `อัปเดต key "${k}" → "${v}"`);
+}
+function vizDel(){
+  const k = document.getElementById('vizKey').value.trim();
+  if (!k) return;
+  if (!(k in dictData)){ kvLog(`⚠️ ไม่พบ key "${k}"`); return; }
+  delete dictData[k];
+  kvRender();
+  kvLog(`ลบ key "${k}" แล้ว`);
+}
+function vizDictReset(){ dictData={}; kvRender(); kvLog(''); }
+function vizLoad(preset){
+  dictData = {...PRESETS[preset]};
+  kvRender();
+  kvLog(`โหลด preset "${preset}" แล้ว`);
+}
+
+// ════════════════════════════════
+//  MONACO INIT
+// ════════════════════════════════
+const EDITORS    = {};
+const EX_EDITORS = {};
+let pyodide = null, pyReady = false;
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('gdd', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword', foreground:'c678dd', fontStyle:'bold'},
+      {token:'string',  foreground:'98c379'},
+      {token:'comment', foreground:'5c6370', fontStyle:'italic'},
+      {token:'number',  foreground:'d19a66'},
+    ],
+    colors: {
+      'editor.background':               '#0d0f14',
+      'editor.foreground':               '#abb2bf',
+      'editorLineNumber.foreground':     '#3a3f52',
+      'editorLineNumber.activeForeground':'#7b82a0',
+      'editor.lineHighlightBackground':  '#1a1e2a',
+      'editorCursor.foreground':         '#e879f9',
+      'editor.selectionBackground':      '#3b4261',
+    }
+  });
+
+  const BASE = {
+    language:'python', theme:'gdd',
+    fontSize:13, fontFamily:"'JetBrains Mono', monospace",
+    minimap:{enabled:false}, scrollBeyondLastLine:false,
+    automaticLayout:true, tabSize:4, insertSpaces:true,
+    wordWrap:'on', padding:{top:10,bottom:10},
+    scrollbar:{verticalScrollbarSize:4,horizontalScrollbarSize:4},
+    lineNumbers:'on', renderLineHighlight:'line',
+  };
+
+  LC.forEach((code, i) => {
+    const el = document.getElementById(`L${i}`);
+    if (el) EDITORS[i] = monaco.editor.create(el, {...BASE, value: code});
+  });
+
+  Object.keys(EX).forEach(id => {
+    const el = document.getElementById(`E${id}`);
+    if (el) EX_EDITORS[id] = monaco.editor.create(el, {...BASE, value: EX[id].start});
+  });
+});
+
+// ════════════════════════════════
+//  PYODIDE LOADER
+// ════════════════════════════════
+(function loadPyodideCDN() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      dot('loading', 'กำลังโหลด Python...', 'var(--ac)');
+      pyodide = await window.loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+      });
+      pyReady = true;
+      dot('ready', 'Python พร้อมใช้งาน ✓', 'var(--ac3)');
+    } catch(e) {
+      dot('error', 'โหลด Python ไม่สำเร็จ — ลองรีเฟรช', 'var(--red)');
+    }
+  };
+  s.onerror = () => dot('error', 'โหลด Pyodide ไม่ได้ — ตรวจสอบ Internet', 'var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt; t.style.color = col;
+}
+
+// ════════════════════════════════
+//  PYTHON RUNNER
+// ════════════════════════════════
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่แล้วลองใหม่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try {
+    pyodide.runPython(code);
+  } catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l,i) => i===lines.length-1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured+'\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+// ════════════════════════════════
+//  LESSON RUN
+// ════════════════════════════════
+async function runLesson(btn, edId, outId) {
+  const idx = parseInt(edId.replace('L',''));
+  const ed  = EDITORS[idx];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) {
+    out.textContent = e.message;
+    out.className = 'out-txt err';
+  }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// ════════════════════════════════
+//  EXERCISE CHECKER
+// ════════════════════════════════
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById(`V${id}`);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) {
+      got  = e.message; pass = false;
+    }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`
+<div class="vd-row">
+  <span class="vd-icon">${pass ? '✅' : '❌'}</span>
+  <div class="vd-content">
+    <div class="vd-title">Test Case ${i+1}</div>
+    <div class="vd-in">Input: ${inpDisplay}</div>
+    <div class="vd-row-inner">
+      <div>
+        <div class="vd-label">ผลลัพธ์ที่ได้</div>
+        <div class="${pass ? 'vd-got' : 'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div>
+      </div>
+      ${!pass ? `<div>
+        <div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div>
+        <div class="vd-expect">${esc(exp.trim())}</div>
+      </div>` : ''}
+    </div>
+  </div>
+</div>`);
+  }
+  let passCount = rows.filter(r => r.includes('✅')).length;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass
+    ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!`
+    : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.textContent = busy ? 'กำลังทำงาน...' : label;
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
