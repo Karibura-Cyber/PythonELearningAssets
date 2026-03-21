@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 7 — Function &amp; Recursive Function</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:860px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.fnc{border-color:rgba(232,121,249,.3)}
+.concept-card.rec{border-color:rgba(6,182,212,.3)}
+.concept-card.scope{border-color:rgba(16,185,129,.3)}
+.concept-card.global{border-color:rgba(245,158,11,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.fnc::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.rec::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.concept-card.scope::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.concept-card.global::before{background:linear-gradient(90deg,var(--warn),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.fnc .cc-title{color:var(--ac)}
+.concept-card.rec .cc-title{color:var(--ac2)}
+.concept-card.scope .cc-title{color:var(--ac3)}
+.concept-card.global .cc-title{color:var(--warn)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+.cc-eg{margin-top:10px;font-size:12px;color:var(--di);font-style:italic}
+
+/* COMPLEXITY / INFO CARDS */
+.cx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.cx-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.cx-card.fast{border-color:rgba(16,185,129,.3)}.cx-card.slow{border-color:rgba(239,68,68,.2)}.cx-card.mid{border-color:rgba(6,182,212,.3)}
+.cx-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.cx-val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.cx-card.fast .cx-val{color:var(--ac3)}.cx-card.slow .cx-val{color:var(--red)}.cx-card.mid .cx-val{color:var(--ac2)}
+.cx-desc{font-size:11.5px;color:var(--mu)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx)}
+
+/* VIZ WRAP */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-title.func-t{color:var(--ac)}
+.viz-title.rec-t{color:var(--ac2)}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.play{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.viz-btn.play:hover{background:rgba(232,121,249,.25)}
+.viz-btn.step{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.viz-btn.step:hover{background:rgba(6,182,212,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* FUNCTION MACHINE VISUAL */
+.fn-machine{display:flex;align-items:center;gap:0;margin:20px 0;background:#0a0c10;border:1px solid var(--bd);border-radius:12px;padding:24px;overflow:hidden}
+.fn-box{flex:1;text-align:center}
+.fn-arrow{color:var(--di);font-size:24px;padding:0 8px;flex-shrink:0}
+.fn-in{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:8px;padding:12px;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.fn-proc{background:rgba(232,121,249,.1);border:1px solid rgba(232,121,249,.3);border-radius:8px;padding:12px;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.fn-out{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.fn-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);margin-bottom:4px}
+.fn-val{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;transition:all .3s}
+.fn-in .fn-val{color:var(--ac2)}
+.fn-proc .fn-val{color:var(--ac)}
+.fn-out .fn-val{color:var(--ac3);font-size:20px}
+.fn-desc{font-size:10.5px;color:var(--di)}
+
+/* SCOPE VISUALIZER */
+.scope-viz{background:#0a0c10;border:1px solid var(--bd);border-radius:10px;padding:18px;margin:16px 0;position:relative}
+.scope-zone{border:2px dashed var(--bd);border-radius:8px;padding:14px 16px;margin-bottom:10px;position:relative;transition:all .4s}
+.scope-zone.global-z{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.03)}
+.scope-zone.local-z{border-color:rgba(6,182,212,.4);background:rgba(6,182,212,.03);margin-left:24px}
+.scope-zone.dead{opacity:.35;filter:grayscale(.5)}
+.scope-badge{position:absolute;top:-9px;left:12px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:1px 8px;border-radius:10px}
+.scope-zone.global-z .scope-badge{background:rgba(245,158,11,.15);color:var(--warn)}
+.scope-zone.local-z .scope-badge{background:rgba(6,182,212,.15);color:var(--ac2)}
+.var-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.var-chip{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 10px;transition:all .4s}
+.var-chip.alive{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.4);color:var(--ac3)}
+.var-chip.dead{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:var(--red);text-decoration:line-through;opacity:.5}
+.scope-msg{font-size:12.5px;color:var(--mu);margin-top:10px;font-family:'JetBrains Mono',monospace;min-height:20px}
+
+/* RECURSION STACK VISUALIZER */
+.stack-wrap{background:#0a0c10;border:1px solid var(--bd);border-radius:10px;padding:18px;margin:16px 0;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;position:relative;overflow:hidden}
+.stack-base{position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--bd)}
+.stack-frame{width:90%;max-width:340px;border-radius:6px 6px 0 0;padding:10px 14px;border:1px solid;margin-top:2px;transition:all .35s;position:relative;opacity:0;transform:translateY(20px)}
+.stack-frame.visible{opacity:1;transform:translateY(0)}
+.stack-frame.active{border-color:rgba(232,121,249,.5);background:rgba(232,121,249,.1)}
+.stack-frame.pending{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.05)}
+.stack-frame.returned{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.1)}
+.sf-title{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.sf-detail{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mu)}
+.sf-result{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ac3);font-weight:700}
+.stack-status{font-size:13px;color:var(--mu);text-align:center;padding:8px;font-family:'JetBrains Mono',monospace;min-height:30px;margin-bottom:4px}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h460{height:460px}.h500{height:500px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* TECHNIQUE CARD */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-badge.w{background:rgba(245,158,11,.15);color:var(--warn)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+/* HINT */
+.hint-toggle{background:none;border:1px solid var(--bd);color:var(--mu);font-size:12px;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s;margin-top:8px}
+.hint-toggle:hover{border-color:var(--warn);color:var(--warn)}
+.hint-box{display:none;margin-top:8px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#c5c9d8;line-height:1.7}
+.hint-box code{font-size:11.5px}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.cx-grid,.concept-grid,.tech-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">GDD CODING SCHOOL</div>
+    <div class="sb-title">Python EP2 · Week 7</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — ทำไมต้องใช้ Function?</a>
+    <a class="na" href="#anatomy">Part 1 — ส่วนประกอบของ Function</a>
+    <a class="na sub" href="#fn-machine">🎬 Function Machine Visualizer</a>
+    <a class="na" href="#scope">Part 2 — Scope &amp; Life Cycle</a>
+    <a class="na sub" href="#scope-viz">🔭 Scope Visualizer</a>
+    <a class="na" href="#recursion">Part 3 — Recursion คืออะไร</a>
+    <a class="na sub" href="#stack-viz">📚 Call Stack Visualizer</a>
+    <a class="na" href="#rec-examples">ตัวอย่าง Recursive Functions</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. เครื่องแปลงอุณหภูมิ <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. ตรวจสอบจำนวนเฉพาะ <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. หาผลรวมตัวประกอบ <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Helper Function: Combination <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. การคูณด้วย Recursion <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex6">6. หา ห.ร.ม. ด้วย Euclidean <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex7">7. Reverse String <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex8">8. Tower of Hanoi <span class="badge br">Hard</span></a>
+    <a class="na sub" href="#ex9">9. Fibonacci Sequence <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex10">10. Power Function <span class="badge br">Hard</span></a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>›</span> Week 7 <span>›</span> Function &amp; Recursive Function</div>
+    <div class="py-st"><div class="dot" id="pyDot"></div><span id="pyStatus">กำลังโหลด Pyodide...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Week 7 · Python EP2</div>
+      <div class="ht">Function &amp; Recursive Function</div>
+      <div class="hs">ปลดล็อกพลังแห่ง Modularity</div>
+      <div class="hm">เรียนรู้การเขียนโปรแกรมแบบแยกส่วน แก้ไขง่าย ใช้งานซ้ำได้ พร้อมเจาะลึกฟังก์ชันเรียกตัวเอง (Recursion) แบบเห็นภาพจริง</div>
+      <div class="tags">
+        <span class="tag">def &amp; return</span>
+        <span class="tag">Parameters</span>
+        <span class="tag">Scope &amp; Lifetime</span>
+        <span class="tag">Recursion</span>
+        <span class="tag">Base Case</span>
+        <span class="tag">Call Stack</span>
+        <span class="tag">Helper Functions</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">Introduction</div>
+      <h2>ทำไมต้องใช้ Function?</h2>
+      <p>โจทย์ 1 ข้อ มักประกอบด้วยปัญหาย่อยหลายส่วน การเขียนทุกอย่างใน if-else ก้อนเดียว = <strong>หายนะ</strong> (Debug ยากมาก)</p>
+
+      <div class="concept-grid">
+        <div class="concept-card fnc">
+          <div class="cc-icon">🔁</div>
+          <div class="cc-title">Loop</div>
+          <div class="cc-desc">ใช้ทำซ้ำงานง่ายๆ ที่จบในตัว ไม่ซับซ้อน ไม่ต้องเรียกใช้จากที่อื่น</div>
+          <div class="cc-eg">for i in range(10): print(i)</div>
+        </div>
+        <div class="concept-card rec">
+          <div class="cc-icon">📦</div>
+          <div class="cc-title">Function</div>
+          <div class="cc-desc">ใช้ห่อหุ้ม Logic ที่ซับซ้อน เช่น <code>check_prime(n)</code>, <code>find_gcd(a, b)</code> เพื่อเรียกใช้ซ้ำๆ</div>
+          <div class="cc-eg">แก้จุดเดียว เปลี่ยนทั้งโปรแกรม</div>
+        </div>
+      </div>
+
+      <div class="callout ok">
+        <strong>ข้อดีของ Function (Modularity)</strong><br>
+        1. <strong>Reusability</strong> — เขียนครั้งเดียว เรียกใช้ได้หลายที่<br>
+        2. <strong>Maintainability</strong> — แก้บั๊กที่เดียว แก้ทั้งโปรแกรม<br>
+        3. <strong>Readability</strong> — โค้ดอ่านง่าย แต่ละฟังก์ชันทำงานเดียว
+      </div>
+    </div>
+
+    <!-- ANATOMY -->
+    <div class="sec" id="anatomy">
+      <div class="sl">Part 1</div>
+      <h2>ส่วนประกอบของ Function</h2>
+
+      <div class="cx-grid">
+        <div class="cx-card mid">
+          <div class="cx-type">Header</div>
+          <div class="cx-val">def</div>
+          <div class="cx-desc">ประกาศชื่อฟังก์ชัน + Parameters</div>
+        </div>
+        <div class="cx-card">
+          <div class="cx-type">Body</div>
+          <div class="cx-val">logic</div>
+          <div class="cx-desc">โค้ดที่จะทำงานเมื่อถูกเรียก</div>
+        </div>
+        <div class="cx-card fast">
+          <div class="cx-type">Output</div>
+          <div class="cx-val">return</div>
+          <div class="cx-desc">ส่งค่ากลับไปยังผู้เรียกใช้</div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>กฎเหล็ก!</strong> ห้ามใช้ <code>print</code> ภายในฟังก์ชันคำนวณ (ยกเว้นโจทย์สั่งให้ print) ต้องใช้ <code>return</code> เพื่อส่งค่ากลับไปคำนวณต่อเสมอ
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">function_basics.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h340" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- FUNCTION MACHINE VISUALIZER -->
+    <div class="sec" id="fn-machine">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title func-t">🎬 Function Machine — เห็นภาพการทำงานของฟังก์ชัน</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:14px">ฟังก์ชันเหมือน "เครื่องจักร" — รับ Input → Process → คืน Output เลือกฟังก์ชันเพื่อดูตัวอย่าง</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="viz-btn step" onclick="showFnDemo('c_to_f')">c_to_f(celsius)</button>
+            <button class="viz-btn step" onclick="showFnDemo('is_prime')">is_prime(n)</button>
+            <button class="viz-btn step" onclick="showFnDemo('my_name')">my_name(gender,fname,lname)</button>
+            <button class="viz-btn step" onclick="showFnDemo('factorial')">factorial(n)</button>
+          </div>
+          <div class="fn-machine" id="fnMachineDemo">
+            <div class="fn-box">
+              <div class="fn-in">
+                <div class="fn-label">Input (Parameters)</div>
+                <div class="fn-val" id="fnInVal">celsius = 100</div>
+                <div class="fn-desc" id="fnInDesc">ค่าองศาเซลเซียส</div>
+              </div>
+            </div>
+            <div class="fn-arrow">→</div>
+            <div class="fn-box">
+              <div class="fn-proc">
+                <div class="fn-label">Process (Body)</div>
+                <div class="fn-val" id="fnProcVal" style="font-size:12px">(C × 9/5) + 32</div>
+                <div class="fn-desc" id="fnProcDesc">สูตรแปลงหน่วย</div>
+              </div>
+            </div>
+            <div class="fn-arrow">→</div>
+            <div class="fn-box">
+              <div class="fn-out">
+                <div class="fn-label">Output (Return)</div>
+                <div class="fn-val" id="fnOutVal">212.0 °F</div>
+                <div class="fn-desc" id="fnOutDesc">ค่าองศาฟาเรนไฮต์</div>
+              </div>
+            </div>
+          </div>
+          <!-- Interactive slider -->
+          <div id="fnSliderArea" style="margin-top:12px">
+            <div style="font-size:12px;color:var(--mu);margin-bottom:6px">ลองเปลี่ยนค่า Input: <strong id="sliderLabel" style="color:var(--ac2)">Celsius = 100°C</strong></div>
+            <input type="range" id="fnSlider" min="0" max="100" value="100" style="width:100%;accent-color:var(--ac2)" oninput="updateFnDemo(this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCOPE -->
+    <div class="sec" id="scope">
+      <div class="sl">Part 2</div>
+      <h2>Scope &amp; Life Cycle — ตัวแปรอยู่ได้แค่ไหน?</h2>
+      <p>ตัวแปรที่สร้างในฟังก์ชัน <strong>ไม่ได้อยู่ตลอดไป</strong> — มันมีขอบเขตและอายุขัยของมันเอง</p>
+
+      <div class="concept-grid">
+        <div class="concept-card scope">
+          <div class="cc-icon">🌍</div>
+          <div class="cc-title">Global Scope</div>
+          <div class="cc-desc">ตัวแปรหลักของโปรแกรม ประกาศนอกฟังก์ชัน อยู่ได้ตลอด ทุกส่วนของโปรแกรมเข้าถึงได้</div>
+        </div>
+        <div class="concept-card global">
+          <div class="cc-icon">📍</div>
+          <div class="cc-title">Local Scope</div>
+          <div class="cc-desc">ตัวแปรที่ประกาศในฟังก์ชัน <strong>"ตาย"</strong> ทันทีที่ฟังก์ชันจบ เข้าถึงจากข้างนอกไม่ได้</div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>สิ่งที่มักเกิดขึ้น (Pitfalls):</strong><br>
+        • <strong>Shadowing</strong> — เผลอใช้ชื่อตัวแปรซ้ำกันระหว่าง local และ global<br>
+        • พยายามแก้ค่า global variable โดยไม่ประกาศ <code>global</code><br>
+        • <strong>วิธีแก้</strong> — ส่งค่าผ่าน Parameter เสมอ หลีกเลี่ยงการใช้ Global ถ้าไม่จำเป็น
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">scope_demo.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h280" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- SCOPE VISUALIZER -->
+    <div class="sec" id="scope-viz">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title func-t">🔭 Scope Visualizer — ดู Scope ทำงานยังไง</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:14px">กด Step เพื่อดูว่าตัวแปรแต่ละตัวมีชีวิตอยู่ได้แค่ไหน</p>
+          <div class="scope-viz" id="scopeVizArea">
+            <div class="scope-zone global-z">
+              <div class="scope-badge">🌍 Global Scope</div>
+              <div style="font-size:12px;color:var(--mu);margin-top:6px">ตัวแปร Global:</div>
+              <div class="var-row" id="globalVars"></div>
+              <div class="scope-zone local-z" id="localZone" style="margin-top:12px;display:none">
+                <div class="scope-badge">📍 Local Scope: <span id="localFnName">fn()</span></div>
+                <div style="font-size:12px;color:var(--mu);margin-top:6px">ตัวแปร Local:</div>
+                <div class="var-row" id="localVars"></div>
+              </div>
+            </div>
+          </div>
+          <div class="scope-msg" id="scopeMsg">กด "Step" เพื่อเริ่ม</div>
+          <div class="viz-ctrl">
+            <button class="viz-btn step" id="scopeStepBtn" onclick="scopeStep()">⏭ Step</button>
+            <button class="viz-btn rst" onclick="scopeReset()">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECURSION -->
+    <div class="sec" id="recursion">
+      <div class="sl">Part 3</div>
+      <h2>Recursion — ฟังก์ชันเรียกตัวเอง</h2>
+      <p><strong>Recursion</strong> คือ ฟังก์ชันที่เรียกใช้งานตัวเอง เพื่อแก้ปัญหาที่เล็กกว่าเดิม</p>
+
+      <div class="cx-grid">
+        <div class="cx-card mid">
+          <div class="cx-type">องค์ประกอบที่ 1</div>
+          <div class="cx-val" style="font-size:15px">Base Case</div>
+          <div class="cx-desc">จุดหยุด — เงื่อนไขที่ทำให้ฟังก์ชันจบงาน ถ้าลืม = Stack Overflow!</div>
+        </div>
+        <div class="cx-card fast">
+          <div class="cx-type">องค์ประกอบที่ 2</div>
+          <div class="cx-val" style="font-size:15px">Recursive</div>
+          <div class="cx-desc">Case เรียกตัวเองด้วยโจทย์ที่เล็กลง เข้าใกล้ Base Case ทุกครั้ง</div>
+        </div>
+        <div class="cx-card slow">
+          <div class="cx-type">ถ้าไม่มี Base Case</div>
+          <div class="cx-val" style="font-size:13px">Overflow!</div>
+          <div class="cx-desc">วนลูปไม่รู้จบ → Stack Overflow Error</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>กฎของ Recursion</strong> — ต้องมีทางออกเสมอ (Base Case) ไม่งั้นจะวนลูปไม่รู้จบ
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">factorial_recursion.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h300" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- CALL STACK VISUALIZER -->
+    <div class="sec" id="stack-viz">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title rec-t">📚 Call Stack Visualizer — ดู factorial(4) ทำงานยังไง</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:10px">กด Step เพื่อดู Stack Frame ที่ถูกเพิ่ม/ลบ ในแต่ละขั้นของ Recursion</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="viz-btn step" onclick="setStackInput(4)">factorial(4)</button>
+            <button class="viz-btn step" onclick="setStackInput(5)">factorial(5)</button>
+            <button class="viz-btn step" onclick="setStackInput(3)">factorial(3)</button>
+          </div>
+          <div class="stack-status" id="stackStatus">กด "Step" เพื่อเริ่ม</div>
+          <div class="stack-wrap" id="stackWrap">
+            <div class="stack-base"></div>
+          </div>
+          <div class="viz-ctrl">
+            <button class="viz-btn play" id="stackPlayBtn" onclick="stackPlay()">▶ Auto Play</button>
+            <button class="viz-btn step" id="stackStepBtn" onclick="stackStep()">⏭ Step</button>
+            <button class="viz-btn rst" onclick="stackReset()">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECURSION EXAMPLES -->
+    <div class="sec" id="rec-examples">
+      <div class="sl">ตัวอย่างเพิ่มเติม</div>
+      <h2>Recursive Functions คลาสสิก</h2>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">Classic</span>Factorial</div>
+          <div class="tc-desc"><code>n! = n × (n-1)!</code> — Base Case: <code>0! = 1</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">Classic</span>Fibonacci</div>
+          <div class="tc-desc"><code>fib(n) = fib(n-1) + fib(n-2)</code> — Base: <code>fib(0)=0, fib(1)=1</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">Algorithm</span>GCD (Euclidean)</div>
+          <div class="tc-desc"><code>gcd(a,b) = gcd(b, a%b)</code> — Base: <code>b==0 → return a</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge w">Hard</span>Tower of Hanoi</div>
+          <div class="tc-desc">ย้ายจาน N ใบ: move(n-1) → ย้ายใบใหญ่ → move(n-1) back</div>
+        </div>
+      </div>
+
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">recursion_examples.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h420" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- ═══════════════════════ EXERCISES ═══════════════════════ -->
+
+    <!-- EX 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 · Basic</div>
+      <h2>เครื่องแปลงอุณหภูมิ</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">1</div>
+          <div class="ex-info">
+            <h3>c_to_f(celsius) — แปลงเซลเซียส → ฟาเรนไฮต์</h3>
+            <p>เขียนฟังก์ชัน <code>c_to_f(celsius)</code> รับค่าองศาเซลเซียส แล้ว <code>return</code> ค่าเป็นองศาฟาเรนไฮต์ · สูตร: <code>(C × 9/5) + 32</code></p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">c_to_f(0)
+c_to_f(100)
+c_to_f(37)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">32.0
+212.0
+98.6</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div>
+              <button class="check-btn" onclick="checkEx(1)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX1"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(1)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT1">สูตรตรงๆ เลย: <code>return (celsius * 9/5) + 32</code></div>
+          <div class="verdict" id="VD1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 · Basic</div>
+      <h2>ตรวจสอบจำนวนเฉพาะ</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">2</div>
+          <div class="ex-info">
+            <h3>is_prime(n) — นักตรวจสอบจำนวนเฉพาะ</h3>
+            <p>เขียนฟังก์ชัน <code>is_prime(n)</code> รับค่าจำนวนเต็ม n Return <code>True</code> ถ้าเป็นจำนวนเฉพาะ, Return <code>False</code> ถ้าไม่ใช่</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">is_prime(7)
+is_prime(10)
+is_prime(2)
+is_prime(1)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">True
+False
+True
+False</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div>
+              <button class="check-btn" onclick="checkEx(2)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX2"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(2)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT2">ตรวจ: ถ้า n &lt; 2 → False. วนลูป i ตั้งแต่ 2 ถึง n-1 ถ้า <code>n % i == 0</code> → False. ถ้าผ่านทุกตัว → True<br><br>เคล็ดลับเร็วกว่า: วนถึง <code>int(n**0.5) + 1</code> ก็พอ</div>
+          <div class="verdict" id="VD2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 · Mid</div>
+      <h2>หาผลรวมของตัวประกอบ</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">3</div>
+          <div class="ex-info">
+            <h3>sum_divisors(n) — หาผลรวมตัวประกอบทั้งหมด</h3>
+            <p>หาตัวที่หาร n ลงตัวทั้งหมด แล้ว return ผลรวม เช่น n=10 → ตัวประกอบ 1,2,5,10 → return 18</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">sum_divisors(10)
+sum_divisors(12)
+sum_divisors(7)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">18
+28
+8</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div>
+              <button class="check-btn" onclick="checkEx(3)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX3"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(3)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT3">สร้างตัวแปร <code>total = 0</code> แล้ววน <code>for i in range(1, n+1)</code> ถ้า <code>n % i == 0</code> ก็บวก i เข้า total แล้ว return total</div>
+          <div class="verdict" id="VD3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 · Mid · Challenge</div>
+      <h2>Helper Function — หาค่า Combination</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">4</div>
+          <div class="ex-info">
+            <h3>combination(n, r) โดยใช้ factorial() เป็น Helper</h3>
+            <p>สร้างฟังก์ชันลูก <code>factorial(num)</code> แล้วสร้างฟังก์ชันแม่ <code>combination(n, r)</code> โดยเรียกใช้ factorial · สูตร: n! / (r! × (n-r)!)</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">combination(5, 2)
+combination(10, 3)
+combination(6, 6)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">10
+120
+1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div>
+              <button class="check-btn" onclick="checkEx(4)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX4"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(4)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT4">ก่อนอื่น เขียน <code>factorial(num)</code> ก่อน (วนลูปคูณตั้งแต่ 1 ถึง num)<br>แล้วใน <code>combination(n, r)</code> ให้ return <code>factorial(n) // (factorial(r) * factorial(n-r))</code></div>
+          <div class="verdict" id="VD4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 · Basic · Recursion</div>
+      <h2>การคูณแบบบวกซ้ำ (Hello Recursion)</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">5</div>
+          <div class="ex-info">
+            <h3>multiply(a, b) — คูณโดยไม่ใช้เครื่องหมาย *</h3>
+            <p>เขียนฟังก์ชัน <code>multiply(a, b)</code> หาผลคูณ a×b โดยใช้การบวกซ้ำด้วย Recursion · แนวคิด: <code>a * b = a + (a * (b-1))</code> · Base Case: ถ้า b == 0 → return 0</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">multiply(3, 4)
+multiply(5, 0)
+multiply(7, 1)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">12
+0
+7</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div>
+              <button class="check-btn" onclick="checkEx(5)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX5"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(5)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT5"><code>def multiply(a, b):</code><br>&nbsp;&nbsp;<code>if b == 0: return 0</code><br>&nbsp;&nbsp;<code>return a + multiply(a, b - 1)</code></div>
+          <div class="verdict" id="VD5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 · Mid · Recursion</div>
+      <h2>หา ห.ร.ม. ด้วย Euclidean Algorithm</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">6</div>
+          <div class="ex-info">
+            <h3>gcd(a, b) — หาตัวหารร่วมมากด้วย Recursion</h3>
+            <p>Recursive Case: <code>gcd(a, b) = gcd(b, a % b)</code> · Base Case: ถ้า b == 0 → return a</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">gcd(48, 18)
+gcd(100, 75)
+gcd(7, 3)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">6
+25
+1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex6.py</span></div>
+              <button class="check-btn" onclick="checkEx(6)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX6"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(6)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT6"><code>def gcd(a, b):</code><br>&nbsp;&nbsp;<code>if b == 0: return a</code><br>&nbsp;&nbsp;<code>return gcd(b, a % b)</code></div>
+          <div class="verdict" id="VD6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 · Mid · Recursion</div>
+      <h2>กลับด้านข้อความ (Reverse String)</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">7</div>
+          <div class="ex-info">
+            <h3>reverse(s) — กลับสตริงด้วย Recursion</h3>
+            <p>แนวคิด: เอาตัวสุดท้ายมาตั้ง + reverse(ตัวที่เหลือ) · Base Case: ถ้าสตริงว่าง หรือมีตัวเดียว → return s</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">reverse("HELLO")
+reverse("Python")
+reverse("A")</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">OLLEH
+nohtyP
+A</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex7.py</span></div>
+              <button class="check-btn" onclick="checkEx(7)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX7"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(7)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT7"><code>def reverse(s):</code><br>&nbsp;&nbsp;<code>if len(s) &lt;= 1: return s</code><br>&nbsp;&nbsp;<code>return s[-1] + reverse(s[:-1])</code></div>
+          <div class="verdict" id="VD7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 · Hard · Recursion</div>
+      <h2>Tower of Hanoi — หอคอยฮานอย</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">8</div>
+          <div class="ex-info">
+            <h3>move(n, start, end, temp) — บอกขั้นตอนการย้ายจาน</h3>
+            <p>มีเสา 3 ต้น จาน N ใบ · Logic: (a) ย้าย N-1 ใบ ไปเสา temp (b) ย้ายใบใหญ่สุดไปเสา end (c) ย้าย N-1 ใบ จาก temp ไป end</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">move(2, 'A', 'C', 'B')</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">A → B
+A → C
+B → C</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex8.py</span></div>
+              <button class="check-btn" onclick="checkEx(8)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX8"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(8)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT8"><code>def move(n, start, end, temp):</code><br>&nbsp;&nbsp;<code>if n == 1:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>print(start, "→", end)</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>return</code><br>&nbsp;&nbsp;<code>move(n-1, start, temp, end)</code><br>&nbsp;&nbsp;<code>print(start, "→", end)</code><br>&nbsp;&nbsp;<code>move(n-1, temp, end, start)</code></div>
+          <div class="verdict" id="VD8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 9 -->
+    <div class="sec" id="ex9">
+      <div class="sl">โจทย์ที่ 9 · Mid · Recursion</div>
+      <h2>Fibonacci Sequence</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">9</div>
+          <div class="ex-info">
+            <h3>fib(n) — หาลำดับ Fibonacci ด้วย Recursion</h3>
+            <p>Base Case: <code>fib(0) = 0</code>, <code>fib(1) = 1</code> · Recursive: <code>fib(n) = fib(n-1) + fib(n-2)</code></p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">fib(0)
+fib(1)
+fib(6)
+fib(10)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">0
+1
+8
+55</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex9.py</span></div>
+              <button class="check-btn" onclick="checkEx(9)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX9"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(9)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT9"><code>def fib(n):</code><br>&nbsp;&nbsp;<code>if n == 0: return 0</code><br>&nbsp;&nbsp;<code>if n == 1: return 1</code><br>&nbsp;&nbsp;<code>return fib(n-1) + fib(n-2)</code></div>
+          <div class="verdict" id="VD9"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 10 -->
+    <div class="sec" id="ex10">
+      <div class="sl">โจทย์ที่ 10 · Hard · Recursion</div>
+      <h2>Power Function — ยกกำลัง</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">10</div>
+          <div class="ex-info">
+            <h3>power(base, exp) — คำนวณ base^exp ด้วย Recursion (ห้ามใช้ **)</h3>
+            <p>คำนวณ base ยกกำลัง exp โดยใช้ Recursion ห้ามใช้ <code>**</code> หรือ <code>pow()</code> · แนวคิด: <code>base^exp = base × base^(exp-1)</code> · Base Case: exp == 0 → return 1</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">power(2, 10)
+power(3, 4)
+power(5, 0)
+power(7, 1)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">1024
+81
+1
+7</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex10.py</span></div>
+              <button class="check-btn" onclick="checkEx(10)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX10"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(10)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT10"><code>def power(base, exp):</code><br>&nbsp;&nbsp;<code>if exp == 0: return 1</code><br>&nbsp;&nbsp;<code>return base * power(base, exp - 1)</code></div>
+          <div class="verdict" id="VD10"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .content -->
+</div><!-- end .main -->
+
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+// ════════════════════════════════
+//  PYODIDE INIT
+// ════════════════════════════════
+let pyodide = null;
+let pyReady = false;
+
+async function initPyodide() {
+  const dot = document.getElementById('pyDot');
+  const st  = document.getElementById('pyStatus');
+  dot.className = 'dot loading';
+  st.textContent = 'กำลังโหลด Pyodide...';
+  try {
+    pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/" });
+    pyReady = true;
+    dot.className = 'dot ready';
+    st.textContent = 'Pyodide พร้อมแล้ว ✓';
+    setTimeout(()=>{ st.textContent='Python พร้อม'; }, 2000);
+  } catch(e) {
+    dot.className = 'dot error';
+    st.textContent = 'โหลด Pyodide ไม่สำเร็จ';
+    console.error(e);
+  }
+}
+
+// Load Pyodide from CDN
+const pyScript = document.createElement('script');
+pyScript.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+pyScript.onload = initPyodide;
+document.head.appendChild(pyScript);
+
+// ════════════════════════════════
+//  MONACO INIT
+// ════════════════════════════════
+const monacoEditors = {};
+
+const LESSON_CODE = {
+  L1: `# ส่วนประกอบของ Function
+# Header: def ชื่อฟังก์ชัน(parameters):
+# Body:   # ... logic ...
+# Output: return ผลลัพธ์
+
+def my_name(gender, fname, lname):
+    if gender == "m":
+        name = "Mr." + fname + " " + lname
+    elif gender == "f":
+        name = "Ms." + fname + " " + lname
+    else:
+        name = fname + " " + lname
+    return name   # ← ส่งค่ากลับ ไม่ใช้ print!
+
+# เรียกใช้ฟังก์ชัน
+result1 = my_name("m", "Somsak", "Jaidee")
+result2 = my_name("f", "Malee", "Saengchot")
+print(result1)
+print(result2)
+
+# ตัวอย่างฟังก์ชันคำนวณ
+def area_of_circle(r):
+    pi = 3.14159
+    return pi * r * r
+
+print(f"พื้นที่วงกลม radius=5: {area_of_circle(5):.2f}")
+print(f"พื้นที่วงกลม radius=10: {area_of_circle(10):.2f}")
+`,
+  L2: `# Scope & Life Cycle Demo
+
+x = 10   # Global variable
+
+def add_numbers(a, b):
+    result = a + b    # Local variable — จะหายไปเมื่อฟังก์ชันจบ
+    return result
+
+def show_scope_problem():
+    x = 999           # ← นี่คือ Local x คนละตัวกับ Global x!
+    print(f"ใน function: x = {x}")
+
+show_scope_problem()
+print(f"นอก function: x = {x}")  # ← Global x ยังเป็น 10
+
+# ตัวอย่าง: ส่งค่าผ่าน parameter ดีกว่า Global
+def sum_two(a, b):
+    return a + b
+
+s = sum_two(x, 5)
+print(f"sum_two({x}, 5) = {s}")
+`,
+  L3: `# Recursive Function — ฟังก์ชันเรียกตัวเอง
+
+def factorial(n):
+    # Base Case — จุดหยุด
+    if n == 0:
+        return 1
+    # Recursive Case — เรียกตัวเองด้วยโจทย์เล็กกว่า
+    return n * factorial(n - 1)
+
+# ดูการทำงาน
+print("factorial(0) =", factorial(0))
+print("factorial(1) =", factorial(1))
+print("factorial(4) =", factorial(4))
+print("factorial(5) =", factorial(5))
+
+# สังเกต: 4! = 4 × 3! = 4 × 3 × 2! = 4 × 3 × 2 × 1! = 4 × 3 × 2 × 1 × 0!
+print()
+print("แสดงขั้นตอน 4! =", 4*3*2*1*1)
+`,
+  L4: `# Recursion Examples — ตัวอย่างฟังก์ชัน Recursive คลาสสิก
+
+# 1. Fibonacci
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+
+print("Fibonacci: ", [fib(i) for i in range(10)])
+
+# 2. GCD — Euclidean Algorithm
+def gcd(a, b):
+    if b == 0:
+        return a
+    return gcd(b, a % b)
+
+print(f"gcd(48, 18) = {gcd(48, 18)}")
+print(f"gcd(100, 75) = {gcd(100, 75)}")
+
+# 3. Power
+def power(base, exp):
+    if exp == 0:
+        return 1
+    return base * power(base, exp - 1)
+
+print(f"2^10 = {power(2, 10)}")
+
+# 4. Reverse String
+def reverse(s):
+    if len(s) <= 1:
+        return s
+    return s[-1] + reverse(s[:-1])
+
+print(f"reverse('HELLO') = {reverse('HELLO')}")
+`
+};
+
+const EXERCISE_STARTERS = {
+  1: `def c_to_f(celsius):
+    # เขียนโค้ดของคุณที่นี่
+    pass
+
+# ทดสอบ
+print(c_to_f(0))
+print(c_to_f(100))
+print(c_to_f(37))`,
+  2: `def is_prime(n):
+    # เขียนโค้ดของคุณที่นี่
+    pass
+
+# ทดสอบ
+print(is_prime(7))
+print(is_prime(10))
+print(is_prime(2))`,
+  3: `def sum_divisors(n):
+    # เขียนโค้ดของคุณที่นี่
+    pass
+
+# ทดสอบ
+print(sum_divisors(10))
+print(sum_divisors(12))
+print(sum_divisors(7))`,
+  4: `def factorial(num):
+    # เขียน helper function ก่อน
+    pass
+
+def combination(n, r):
+    # เรียกใช้ factorial ที่สร้างไว้
+    pass
+
+# ทดสอบ
+print(combination(5, 2))
+print(combination(10, 3))
+print(combination(6, 6))`,
+  5: `def multiply(a, b):
+    # ใช้ Recursion (ห้ามใช้ *)
+    pass
+
+# ทดสอบ
+print(multiply(3, 4))
+print(multiply(5, 0))
+print(multiply(7, 1))`,
+  6: `def gcd(a, b):
+    # Euclidean Algorithm ด้วย Recursion
+    pass
+
+# ทดสอบ
+print(gcd(48, 18))
+print(gcd(100, 75))
+print(gcd(7, 3))`,
+  7: `def reverse(s):
+    # กลับสตริงด้วย Recursion
+    pass
+
+# ทดสอบ
+print(reverse("HELLO"))
+print(reverse("Python"))
+print(reverse("A"))`,
+  8: `def move(n, start, end, temp):
+    # Tower of Hanoi
+    pass
+
+# ทดสอบ
+move(2, 'A', 'C', 'B')`,
+  9: `def fib(n):
+    # Fibonacci ด้วย Recursion
+    pass
+
+# ทดสอบ
+print(fib(0))
+print(fib(1))
+print(fib(6))
+print(fib(10))`,
+  10: `def power(base, exp):
+    # ยกกำลังด้วย Recursion (ห้ามใช้ ** หรือ pow())
+    pass
+
+# ทดสอบ
+print(power(2, 10))
+print(power(3, 4))
+print(power(5, 0))
+print(power(7, 1))`
+};
+
+const EXERCISE_TESTS = {
+  1: [
+    {call: 'c_to_f(0)',   expected: '32.0',  desc: 'c_to_f(0)'},
+    {call: 'c_to_f(100)', expected: '212.0', desc: 'c_to_f(100)'},
+    {call: 'c_to_f(37)',  expected: '98.6',  desc: 'c_to_f(37)'},
+    {call: 'c_to_f(-40)', expected: '-40.0', desc: 'c_to_f(-40)'},
+  ],
+  2: [
+    {call: 'is_prime(7)',  expected: 'True',  desc: 'is_prime(7)'},
+    {call: 'is_prime(10)', expected: 'False', desc: 'is_prime(10)'},
+    {call: 'is_prime(2)',  expected: 'True',  desc: 'is_prime(2)'},
+    {call: 'is_prime(1)',  expected: 'False', desc: 'is_prime(1)'},
+    {call: 'is_prime(13)', expected: 'True',  desc: 'is_prime(13)'},
+  ],
+  3: [
+    {call: 'sum_divisors(10)', expected: '18', desc: 'sum_divisors(10)'},
+    {call: 'sum_divisors(12)', expected: '28', desc: 'sum_divisors(12)'},
+    {call: 'sum_divisors(7)',  expected: '8',  desc: 'sum_divisors(7)'},
+    {call: 'sum_divisors(1)',  expected: '1',  desc: 'sum_divisors(1)'},
+  ],
+  4: [
+    {call: 'combination(5,2)',  expected: '10',  desc: 'combination(5,2)'},
+    {call: 'combination(10,3)', expected: '120', desc: 'combination(10,3)'},
+    {call: 'combination(6,6)',  expected: '1',   desc: 'combination(6,6)'},
+    {call: 'combination(5,0)',  expected: '1',   desc: 'combination(5,0)'},
+  ],
+  5: [
+    {call: 'multiply(3,4)', expected: '12', desc: 'multiply(3,4)'},
+    {call: 'multiply(5,0)', expected: '0',  desc: 'multiply(5,0)'},
+    {call: 'multiply(7,1)', expected: '7',  desc: 'multiply(7,1)'},
+    {call: 'multiply(6,6)', expected: '36', desc: 'multiply(6,6)'},
+  ],
+  6: [
+    {call: 'gcd(48,18)',  expected: '6',  desc: 'gcd(48,18)'},
+    {call: 'gcd(100,75)', expected: '25', desc: 'gcd(100,75)'},
+    {call: 'gcd(7,3)',    expected: '1',  desc: 'gcd(7,3)'},
+    {call: 'gcd(12,4)',   expected: '4',  desc: 'gcd(12,4)'},
+  ],
+  7: [
+    {call: 'reverse("HELLO")',  expected: 'OLLEH',  desc: 'reverse("HELLO")'},
+    {call: 'reverse("Python")', expected: 'nohtyP', desc: 'reverse("Python")'},
+    {call: 'reverse("A")',      expected: 'A',      desc: 'reverse("A")'},
+    {call: 'reverse("ab")',     expected: 'ba',     desc: 'reverse("ab")'},
+  ],
+  8: [
+    {call: `_moves=[];_orig=print;print=lambda *a,**k:_moves.append(' '.join(str(x) for x in a));move(2,'A','C','B');print=_orig;'\\n'.join(_moves)`, expected: "A → B\nA → C\nB → C", desc: 'move(2,"A","C","B")'},
+  ],
+  9: [
+    {call: 'fib(0)',  expected: '0',  desc: 'fib(0)'},
+    {call: 'fib(1)',  expected: '1',  desc: 'fib(1)'},
+    {call: 'fib(6)',  expected: '8',  desc: 'fib(6)'},
+    {call: 'fib(10)', expected: '55', desc: 'fib(10)'},
+  ],
+  10: [
+    {call: 'power(2,10)', expected: '1024', desc: 'power(2,10)'},
+    {call: 'power(3,4)',  expected: '81',   desc: 'power(3,4)'},
+    {call: 'power(5,0)',  expected: '1',    desc: 'power(5,0)'},
+    {call: 'power(7,1)',  expected: '7',    desc: 'power(7,1)'},
+  ],
+};
+
+require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('gdd-dark', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword', foreground:'e879f9', fontStyle:'bold'},
+      {token:'comment', foreground:'4a5168', fontStyle:'italic'},
+      {token:'string',  foreground:'a8ff78'},
+      {token:'number',  foreground:'06b6d4'},
+      {token:'identifier', foreground:'e8eaf0'},
+    ],
+    colors: {
+      'editor.background': '#0a0c10',
+      'editor.foreground': '#e8eaf0',
+      'editorLineNumber.foreground': '#4a5168',
+      'editor.lineHighlightBackground': '#13161e',
+      'editorCursor.foreground': '#e879f9',
+      'editor.selectionBackground': '#242836',
+    }
+  });
+
+  const cfg = {theme:'gdd-dark',language:'python',minimap:{enabled:false},scrollBeyondLastLine:false,fontSize:13,fontFamily:"'JetBrains Mono',monospace",lineNumbers:'on',wordWrap:'on',automaticLayout:true};
+
+  // Lesson editors
+  Object.entries(LESSON_CODE).forEach(([id, code]) => {
+    const el = document.getElementById(id);
+    if (el) monacoEditors[id] = monaco.editor.create(el, {...cfg, value: code});
+  });
+
+  // Exercise editors
+  Object.entries(EXERCISE_STARTERS).forEach(([num, code]) => {
+    const id = 'EX' + num;
+    const el = document.getElementById(id);
+    if (el) monacoEditors[id] = monaco.editor.create(el, {...cfg, value: code, lineNumbers:'off'});
+  });
+});
+
+// ════════════════════════════════
+//  RUN LESSON CODE
+// ════════════════════════════════
+async function runLesson(btn, edId, outId) {
+  if (!pyReady) { alert('Pyodide ยังโหลดไม่เสร็จ กรุณารอสักครู่'); return; }
+  const code = monacoEditors[edId]?.getValue() || '';
+  const out  = document.getElementById(outId);
+  btn.disabled = true; btn.textContent = '⏳ กำลังรัน...';
+  out.className = 'out-txt';
+  out.textContent = '';
+  try {
+    let captured = '';
+    pyodide.globals.set('__print_buf', (s) => { captured += s + '\n'; });
+    await pyodide.runPythonAsync(`
+import sys, io
+_old = sys.stdout
+sys.stdout = io.StringIO()
+try:
+${code.split('\n').map(l => '    ' + l).join('\n')}
+except Exception as e:
+    print(f"Error: {e}")
+finally:
+    __print_buf(sys.stdout.getvalue())
+    sys.stdout = _old
+`);
+    out.className = 'out-txt ok';
+    out.textContent = captured.trim() || '(ไม่มี output)';
+  } catch(e) {
+    out.className = 'out-txt err';
+    out.textContent = String(e);
+  }
+  btn.disabled = false; btn.textContent = '▶ รันโค้ด';
+}
+
+// ════════════════════════════════
+//  CHECK EXERCISE
+// ════════════════════════════════
+async function checkEx(num) {
+  if (!pyReady) { alert('Pyodide ยังโหลดไม่เสร็จ'); return; }
+  const edId = 'EX' + num;
+  const code = monacoEditors[edId]?.getValue() || '';
+  const tests = EXERCISE_TESTS[num] || [];
+  const vd = document.getElementById('VD' + num);
+  const btn = vd.previousElementSibling;
+  vd.style.display = 'block';
+  vd.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ...</div>`;
+
+  const results = [];
+  for (const t of tests) {
+    try {
+      const fullCode = code + `\n__result__ = str(${t.call})`;
+      await pyodide.runPythonAsync(fullCode);
+      const got = pyodide.globals.get('__result__');
+      results.push({ ...t, got: String(got), pass: String(got).trim() === t.expected.trim() });
+    } catch(e) {
+      results.push({ ...t, got: 'Error: ' + e, pass: false });
+    }
+  }
+
+  const allPass = results.every(r => r.pass);
+  const passCount = results.filter(r => r.pass).length;
+
+  let html = `<div class="vd-hd ${allPass ? 'pass' : 'fail'}">${allPass ? '🎉 ผ่านทุก Testcase!' : `❌ ผ่าน ${passCount}/${results.length} Testcase`}</div><div class="vd-body">`;
+  for (const r of results) {
+    html += `<div class="vd-row">
+      <div class="vd-icon">${r.pass ? '✅' : '❌'}</div>
+      <div class="vd-content">
+        <div class="vd-title">${r.desc}</div>
+        <div class="vd-row-inner">
+          <div><div class="vd-label">ได้</div><div class="vd-got ${r.pass ? '' : 'wrong'}">${r.got}</div></div>
+          <div><div class="vd-label">คาดหวัง</div><div class="vd-expect">${r.expected}</div></div>
+        </div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  vd.innerHTML = html;
+}
+
+// ════════════════════════════════
+//  FUNCTION MACHINE DEMO
+// ════════════════════════════════
+let currentFnDemo = 'c_to_f';
+const fnDemos = {
+  c_to_f: {
+    inLabel: 'Parameter',
+    inDesc: 'ค่าองศาเซลเซียส',
+    procDesc: 'สูตรแปลงหน่วย',
+    proc: v => `(${v} × 9/5) + 32`,
+    compute: v => ((v * 9/5) + 32).toFixed(1) + ' °F',
+    slider: {min:0, max:200, val:100, label: v => `Celsius = ${v}°C`}
+  },
+  is_prime: {
+    inLabel: 'Parameter',
+    inDesc: 'ตัวเลขที่ต้องการตรวจ',
+    procDesc: 'ตรวจหารตั้งแต่ 2 ถึง √n',
+    proc: v => `วนตรวจ 2..√${v}`,
+    compute: v => {
+      if (v < 2) return 'False';
+      for (let i = 2; i <= Math.sqrt(v); i++) if (v % i === 0) return 'False';
+      return 'True';
+    },
+    slider: {min:2, max:50, val:17, label: v => `n = ${v}`}
+  },
+  my_name: {
+    inLabel: 'Parameters',
+    inDesc: 'gender, fname, lname',
+    procDesc: 'เลือก prefix ตาม gender',
+    proc: () => `if gender=="m": "Mr."...`,
+    compute: () => 'Mr.Somsak Jaidee',
+    slider: null
+  },
+  factorial: {
+    inLabel: 'Parameter',
+    inDesc: 'จำนวนเต็มบวก',
+    procDesc: 'n × factorial(n-1)',
+    proc: v => `${v}! = ${Array.from({length:v}, (_,i)=>i+1).join('×')}`,
+    compute: v => {
+      let r = 1; for (let i = 2; i <= v; i++) r *= i;
+      return r;
+    },
+    slider: {min:0, max:10, val:4, label: v => `n = ${v}`}
+  }
+};
+
+function showFnDemo(name) {
+  currentFnDemo = name;
+  const d = fnDemos[name];
+  const slArea = document.getElementById('fnSliderArea');
+  if (d.slider) {
+    const sl = document.getElementById('fnSlider');
+    sl.min = d.slider.min; sl.max = d.slider.max; sl.value = d.slider.val;
+    slArea.style.display = 'block';
+    updateFnDemo(d.slider.val);
+  } else {
+    slArea.style.display = 'none';
+    document.getElementById('fnInVal').textContent = 'gender="m", fname="Somsak", lname="Jaidee"';
+    document.getElementById('fnInDesc').textContent = d.inDesc;
+    document.getElementById('fnProcVal').textContent = d.proc();
+    document.getElementById('fnProcDesc').textContent = d.procDesc;
+    document.getElementById('fnOutVal').textContent = d.compute();
+    document.getElementById('fnOutDesc').textContent = 'ชื่อเต็มพร้อม prefix';
+  }
+}
+
+function updateFnDemo(val) {
+  val = parseInt(val);
+  const d = fnDemos[currentFnDemo];
+  if (!d) return;
+  document.getElementById('sliderLabel').textContent = d.slider.label(val);
+  document.getElementById('fnInVal').textContent = `${currentFnDemo === 'c_to_f' ? 'celsius' : 'n'} = ${val}`;
+  document.getElementById('fnInDesc').textContent = d.inDesc;
+  document.getElementById('fnProcVal').textContent = d.proc(val);
+  document.getElementById('fnProcDesc').textContent = d.procDesc;
+  document.getElementById('fnOutVal').textContent = d.compute(val);
+}
+
+window.addEventListener('load', () => showFnDemo('c_to_f'));
+
+// ════════════════════════════════
+//  SCOPE VISUALIZER
+// ════════════════════════════════
+const scopeSteps = [
+  {msg: '📝 เริ่มโปรแกรม — Global Scope ถูกสร้าง', global: [], local: null},
+  {msg: '🌍 ประกาศ x = 5 ใน Global Scope', global: [{name:'x', val:'5'}], local: null},
+  {msg: '🌍 ประกาศ y = 10 ใน Global Scope', global: [{name:'x',val:'5'},{name:'y',val:'10'}], local: null},
+  {msg: '📞 เรียก sum(x, y) → เข้าสู่ Function Scope', global: [{name:'x',val:'5'},{name:'y',val:'10'}], local: {fn:'sum(a=5, b=10)', vars:[]}},
+  {msg: '📍 Local: a = 5, b = 10 (รับค่าจาก argument)', global: [{name:'x',val:'5'},{name:'y',val:'10'}], local: {fn:'sum(a=5, b=10)', vars:[{name:'a',val:'5'},{name:'b',val:'10'}]}},
+  {msg: '📍 Local: result = 15 (สร้างตัวแปรใหม่ใน Local)', global: [{name:'x',val:'5'},{name:'y',val:'10'}], local: {fn:'sum(a=5, b=10)', vars:[{name:'a',val:'5'},{name:'b',val:'10'},{name:'result',val:'15'}]}},
+  {msg: '🔙 return 15 → ฟังก์ชันจบ Local Scope ถูกทำลาย!', global: [{name:'x',val:'5'},{name:'y',val:'10'},{name:'s',val:'15'}], local: {fn:'sum(a=5, b=10)', vars:[{name:'a',dead:true},{name:'b',dead:true},{name:'result',dead:true}], dying:true}},
+  {msg: '💀 Local variables (a, b, result) ถูกทำลายแล้ว — เข้าถึงไม่ได้จากนอก', global: [{name:'x',val:'5'},{name:'y',val:'10'},{name:'s',val:'15'}], local: null},
+];
+
+let scopeCursor = 0;
+
+function scopeReset() {
+  scopeCursor = 0;
+  renderScopeStep(scopeSteps[0]);
+}
+
+function scopeStep() {
+  if (scopeCursor >= scopeSteps.length - 1) { scopeReset(); return; }
+  renderScopeStep(scopeSteps[++scopeCursor]);
+}
+
+function renderScopeStep(step) {
+  const globalVars = document.getElementById('globalVars');
+  const localZone  = document.getElementById('localZone');
+  const localVars  = document.getElementById('localVars');
+  const localFnName = document.getElementById('localFnName');
+  const msg = document.getElementById('scopeMsg');
+
+  globalVars.innerHTML = step.global.map(v =>
+    `<div class="var-chip alive">${v.name} = ${v.val}</div>`
+  ).join('') || '<span style="font-size:12px;color:var(--di)">ยังไม่มีตัวแปร</span>';
+
+  if (step.local) {
+    localZone.style.display = 'block';
+    localFnName.textContent = step.local.fn;
+    if (step.local.dying) {
+      localZone.classList.add('dead');
+    } else {
+      localZone.classList.remove('dead');
+    }
+    localVars.innerHTML = step.local.vars.map(v =>
+      `<div class="var-chip ${v.dead ? 'dead' : 'alive'}">${v.name}${v.val ? ' = ' + v.val : ''}</div>`
+    ).join('') || '<span style="font-size:12px;color:var(--di)">ยังไม่มีตัวแปร</span>';
+  } else {
+    localZone.style.display = 'none';
+  }
+  msg.textContent = step.msg;
+}
+
+window.addEventListener('load', () => renderScopeStep(scopeSteps[0]));
+
+// ════════════════════════════════
+//  CALL STACK VISUALIZER
+// ════════════════════════════════
+let stackN = 4;
+let stackSteps = [];
+let stackCursor = 0;
+let stackPlayTimer = null;
+
+function genStackSteps(n) {
+  const steps = [];
+  // Build-up phase
+  for (let i = n; i >= 0; i--) {
+    steps.push({
+      type: 'push',
+      frames: Array.from({length: n-i+1}, (_, k) => ({
+        call: `factorial(${n-k})`,
+        detail: n-k === 0 ? 'Base Case!' : `return ${n-k} × factorial(${n-k-1})`,
+        state: k === 0 ? 'active' : 'pending',
+        result: n-k === 0 ? '→ return 1' : null
+      })),
+      msg: i === 0 ? `🎯 Base Case! factorial(0) = 1 — เริ่ม return กลับ` : `📞 เรียก factorial(${n-i}) — push frame เข้า stack`
+    });
+  }
+  // Unwind phase
+  let product = 1;
+  for (let i = 1; i <= n; i++) {
+    product *= i;
+    const remaining = n - i;
+    steps.push({
+      type: 'pop',
+      frames: Array.from({length: remaining+1}, (_, k) => ({
+        call: `factorial(${remaining-k})`,
+        detail: remaining-k === 0 ? 'Base Case!' : `return ${remaining-k} × factorial(${remaining-k-1})`,
+        state: k === 0 ? 'returned' : 'pending',
+        result: k === 0 ? `→ ${product}` : null
+      })),
+      msg: `🔙 factorial(${i}) = ${i} × ${product/i} = ${product} — pop frame ออก`
+    });
+  }
+  steps.push({type:'done', frames:[], msg:`🎉 factorial(${n}) = ${product} — Stack ว่างแล้ว!`});
+  return steps;
+}
+
+function setStackInput(n) {
+  stackN = n; stackReset();
+}
+
+function stackReset() {
+  if (stackPlayTimer) { clearInterval(stackPlayTimer); stackPlayTimer = null; document.getElementById('stackPlayBtn').textContent = '▶ Auto Play'; }
+  stackSteps = genStackSteps(stackN);
+  stackCursor = 0;
+  document.getElementById('stackStatus').textContent = `factorial(${stackN}) — กด Step หรือ Auto Play`;
+  document.getElementById('stackWrap').innerHTML = '<div class="stack-base"></div>';
+  document.getElementById('stackStepBtn').disabled = false;
+}
+
+function renderStackStep(step) {
+  const wrap = document.getElementById('stackWrap');
+  const status = document.getElementById('stackStatus');
+  if (step.type === 'done') {
+    wrap.innerHTML = '<div class="stack-base"></div>';
+    status.textContent = step.msg;
+    return;
+  }
+  // Render frames bottom-to-top (frames[0] is top = current call)
+  const frameHTML = [...step.frames].reverse().map(f =>
+    `<div class="stack-frame ${f.state} visible">
+      <div class="sf-title">${f.call}</div>
+      <div class="sf-detail">${f.detail}</div>
+      ${f.result ? `<div class="sf-result">${f.result}</div>` : ''}
+    </div>`
+  ).join('');
+  wrap.innerHTML = frameHTML + '<div class="stack-base"></div>';
+  status.textContent = step.msg;
+}
+
+function stackStep() {
+  if (!stackSteps.length) stackSteps = genStackSteps(stackN);
+  if (stackCursor >= stackSteps.length) { stackReset(); return; }
+  renderStackStep(stackSteps[stackCursor++]);
+}
+
+function stackPlay() {
+  if (stackPlayTimer) {
+    clearInterval(stackPlayTimer); stackPlayTimer = null;
+    document.getElementById('stackPlayBtn').textContent = '▶ Auto Play';
+    return;
+  }
+  if (!stackSteps.length) stackSteps = genStackSteps(stackN);
+  document.getElementById('stackPlayBtn').textContent = '⏸ Pause';
+  stackPlayTimer = setInterval(() => {
+    if (stackCursor >= stackSteps.length) {
+      clearInterval(stackPlayTimer); stackPlayTimer = null;
+      document.getElementById('stackPlayBtn').textContent = '↺ Play Again';
+      return;
+    }
+    renderStackStep(stackSteps[stackCursor++]);
+  }, 700);
+}
+
+window.addEventListener('load', () => {
+  stackSteps = genStackSteps(stackN);
+});
+
+// ════════════════════════════════
+//  HINT TOGGLE
+// ════════════════════════════════
+function toggleHint(num) {
+  const h = document.getElementById('HINT' + num);
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+}
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
