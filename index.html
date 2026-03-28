@@ -3,290 +3,273 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Course Menu</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <title>Course Navigator</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
     :root {
-      --bg: #f7f6f2;
-      --surface: #ffffff;
-      --border: #e4e2dc;
-      --border-hover: #b8b4a8;
-      --accent: #1a1a1a;
-      --text: #1a1a1a;
-      --muted: #9a9690;
-      --tag: #ede9e0;
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #e6e8ec;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 2rem;
+      padding: 2rem;
     }
 
-    .wrapper {
-      width: 100%;
-      max-width: 560px;
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    /* Header */
-    .header {
-      margin-bottom: 3rem;
-      opacity: 0;
-      animation: appear 0.5s ease 0.1s forwards;
+    header {
+      margin-bottom: 2rem;
     }
 
-    .eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 400;
-      letter-spacing: 0.18em;
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    header p {
       color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
     }
 
-    h1 {
-      font-family: 'DM Sans', sans-serif;
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
-      font-weight: 300;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      color: var(--text);
+    .section {
+      margin-bottom: 2rem;
     }
 
-    h1 strong {
-      font-weight: 500;
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--muted);
     }
 
-    /* Divider */
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: appear 0.4s ease 0.2s forwards;
-    }
-
-    /* Grid */
     .grid {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
     }
 
     .card {
-      display: grid;
-      grid-template-columns: 2.5rem 1fr auto;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
       text-decoration: none;
-      color: var(--text);
-      transition: border-color 0.18s, background 0.18s;
-      opacity: 0;
-      animation: slideUp 0.4s ease forwards;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
     }
-
-    .card:first-child { border-radius: 8px 8px 0 0; }
-    .card:last-child  { border-radius: 0 0 8px 8px; }
-    .card:only-child  { border-radius: 8px; }
-
-    /* stack adjacent borders */
-    .card + .card { margin-top: -1px; }
 
     .card:hover {
-      background: #fdfcf9;
-      border-color: var(--border-hover);
-      z-index: 1;
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
     }
 
-    .card:hover .arrow { opacity: 1; transform: translateX(0); }
-    .card:hover .num   { color: var(--accent); }
-
-    /* staggered delays */
-    .card:nth-child(1)  { animation-delay: 0.18s; }
-    .card:nth-child(2)  { animation-delay: 0.22s; }
-    .card:nth-child(3)  { animation-delay: 0.26s; }
-    .card:nth-child(4)  { animation-delay: 0.30s; }
-    .card:nth-child(5)  { animation-delay: 0.34s; }
-    .card:nth-child(6)  { animation-delay: 0.38s; }
-    .card:nth-child(7)  { animation-delay: 0.42s; }
-    .card:nth-child(8)  { animation-delay: 0.46s; }
-    .card:nth-child(9)  { animation-delay: 0.50s; }
-    .card:nth-child(10) { animation-delay: 0.54s; }
-    .card:nth-child(11) { animation-delay: 0.58s; }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
 
     .num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 300;
+      font-size: 0.7rem;
       color: var(--muted);
-      transition: color 0.18s;
-      text-align: right;
-    }
-
-    .name {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 400;
-      letter-spacing: 0.04em;
-      color: var(--text);
+      font-weight: 500;
     }
 
     .arrow {
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       color: var(--muted);
-      opacity: 0;
-      transform: translateX(-6px);
-      transition: opacity 0.18s, transform 0.18s;
     }
 
-    /* Footer */
-    .footer {
+    .title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    footer {
       margin-top: 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      opacity: 0;
-      animation: appear 0.4s ease 0.7s forwards;
+      font-size: 0.8rem;
+      color: var(--muted);
     }
 
-    .footer-note {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .count-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      background: var(--tag);
-      padding: 0.2em 0.6em;
+    .badge {
+      background: #eef2ff;
+      color: var(--accent);
+      padding: 0.25rem 0.6rem;
       border-radius: 999px;
-      letter-spacing: 0.05em;
+      font-weight: 500;
     }
 
-    @keyframes appear {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 420px) {
-      body { padding: 2rem 1rem; }
+    @media (max-width: 500px) {
+      body { padding: 1rem; }
+      header h1 { font-size: 1.4rem; }
     }
   </style>
 </head>
+
 <body>
-  <div class="wrapper">
+  <div class="container">
 
-    <div class="header">
-      <p class="eyebrow">Course Navigator</p>
-      <h1>Select a <strong>Module</strong></h1>
+    <header>
+      <h1>Course Modules</h1>
+      <p>Select a module to continue learning</p>
+    </header>
+
+    <!-- EP1 SECTION -->
+    <div class="section">
+      <div class="section-title">EP1 — Fundamentals</div>
+      <div class="grid">
+
+        <a class="card" href="EP1LIST">
+          <div class="card-top">
+            <span class="num">01</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">List</div>
+        </a>
+
+        <a class="card" href="EP1NESTEDLOOP/">
+          <div class="card-top">
+            <span class="num">02</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Nested Loop</div>
+        </a>
+
+        <a class="card" href="EP1FUNCTION/">
+          <div class="card-top">
+            <span class="num">03</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Function</div>
+        </a>
+
+        <a class="card" href="EP1DICTIONARY">
+          <div class="card-top">
+            <span class="num">04</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Dictionary</div>
+        </a>
+
+      </div>
     </div>
 
-    <div class="divider"></div>
+    <!-- EP2 SECTION -->
+    <div class="section">
+      <div class="section-title">EP2 — Weekly Modules</div>
+      <div class="grid">
 
-    <div class="grid">
-      <a class="card" href="EP1LIST">
-        <span class="num">01</span>
-        <span class="name">EP1LIST</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP1NESTEDLOOP/">
-        <span class="num">02</span>
-        <span class="name">EP1NESTEDLOOP</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP1FUNCTION/">
-        <span class="num">03</span>
-        <span class="name">EP1FUNCTION</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP1DICTIONARY">
-        <span class="num">04</span>
-        <span class="name">EP1DICTIONARY</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK2">
-        <span class="num">05</span>
-        <span class="name">EP2WEEK2</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK3">
-        <span class="num">06</span>
-        <span class="name">EP2WEEK3</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK4">
-        <span class="num">07</span>
-        <span class="name">EP2WEEK4</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK5">
-        <span class="num">08</span>
-        <span class="name">EP2WEEK5</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK6">
-        <span class="num">09</span>
-        <span class="name">EP2WEEK6</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK7">
-        <span class="num">10</span>
-        <span class="name">EP2WEEK7</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK8">
-        <span class="num">11</span>
-        <span class="name">EP2WEEK8</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK9">
-        <span class="num">12</span>
-        <span class="name">EP2WEEK9</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK10">
-        <span class="num">13</span>
-        <span class="name">EP2WEEK10</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="card" href="EP2WEEK1112/">
-        <span class="num">14</span>
-        <span class="name">EP2WEEK11-12</span>
-        <span class="arrow">→</span>
-      </a>
-      <!-- <a class="card" href="PythonOOP">
-        <span class="num">12</span>
-        <span class="name">PythonOOP</span>
-        <span class="arrow">→</span>
-      </a> -->
+        <a class="card" href="EP2WEEK2">
+          <div class="card-top">
+            <span class="num">05</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 2</div>
+        </a>
+
+        <a class="card" href="EP2WEEK3">
+          <div class="card-top">
+            <span class="num">06</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 3</div>
+        </a>
+
+        <a class="card" href="EP2WEEK4">
+          <div class="card-top">
+            <span class="num">07</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 4</div>
+        </a>
+
+        <a class="card" href="EP2WEEK5">
+          <div class="card-top">
+            <span class="num">08</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 5</div>
+        </a>
+
+        <a class="card" href="EP2WEEK6">
+          <div class="card-top">
+            <span class="num">09</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 6</div>
+        </a>
+
+        <a class="card" href="EP2WEEK7">
+          <div class="card-top">
+            <span class="num">10</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 7</div>
+        </a>
+
+        <a class="card" href="EP2WEEK8">
+          <div class="card-top">
+            <span class="num">11</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 8</div>
+        </a>
+
+        <a class="card" href="EP2WEEK9">
+          <div class="card-top">
+            <span class="num">12</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 9</div>
+        </a>
+
+        <a class="card" href="EP2WEEK10">
+          <div class="card-top">
+            <span class="num">13</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 10</div>
+        </a>
+
+        <a class="card" href="EP2WEEK1112/">
+          <div class="card-top">
+            <span class="num">14</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="title">Week 11–12</div>
+        </a>
+
+      </div>
     </div>
 
-    <div class="footer">
-      <span class="footer-note">Click to open module</span>
-      <span class="count-badge">11 modules</span>
-    </div>
+    <footer>
+      <span>Click a module to open</span>
+      <span class="badge">14 Modules</span>
+    </footer>
 
   </div>
 </body>
