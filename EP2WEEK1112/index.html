@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 11-12 — Create Game with Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;--ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;--tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}.bb{background:rgba(6,182,212,.15);color:var(--ac2)}.br{background:rgba(239,68,68,.15);color:var(--red)}.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.content{max-width:860px;margin:0 auto;padding:44px 36px 100px}
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--warn);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+/* COMPONENT CARDS */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.comp-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.comp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.comp-card.c1::before{background:linear-gradient(90deg,#06b6d4,transparent)}.comp-card.c1{border-color:rgba(6,182,212,.3)}
+.comp-card.c2::before{background:linear-gradient(90deg,#e879f9,transparent)}.comp-card.c2{border-color:rgba(232,121,249,.3)}
+.comp-card.c3::before{background:linear-gradient(90deg,#f59e0b,transparent)}.comp-card.c3{border-color:rgba(245,158,11,.3)}
+.comp-card.c4::before{background:linear-gradient(90deg,#10b981,transparent)}.comp-card.c4{border-color:rgba(16,185,129,.3)}
+.comp-card.c5::before{background:linear-gradient(90deg,#ef4444,transparent)}.comp-card.c5{border-color:rgba(239,68,68,.3)}
+.comp-icon{font-size:24px;margin-bottom:8px}
+.comp-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.comp-card.c1 .comp-title{color:var(--ac2)}.comp-card.c2 .comp-title{color:var(--ac)}.comp-card.c3 .comp-title{color:var(--warn)}.comp-card.c4 .comp-title{color:var(--ac3)}.comp-card.c5 .comp-title{color:var(--red)}
+.comp-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+/* VIZ */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-title.game-t{color:var(--warn)}
+.viz-body{padding:20px}
+/* GAME CANVAS */
+.game-container{background:#000;border:2px solid var(--bd);border-radius:8px;position:relative;overflow:hidden;margin:0 auto;display:block}
+#gameCanvas{display:block}
+.game-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.8);z-index:10}
+.game-overlay h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px}
+.game-overlay p{font-size:14px;color:var(--mu);margin-bottom:20px;text-align:center}
+.start-btn{background:var(--warn);color:#000;border:none;padding:10px 28px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s}
+.start-btn:hover{background:#fbbf24;transform:scale(1.05)}
+.game-controls-hint{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.key-chip{font-size:11px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 10px;font-family:'JetBrains Mono',monospace;color:var(--ac2)}
+/* EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.mc{width:100%}
+.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h460{height:460px}.h500{height:500px}.h560{height:560px}
+/* CODE DISPLAY (read-only) */
+.code-display{background:#020d1a;border:1px solid #0d2a42;border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:#b8e8ff;overflow-x:auto;margin:14px 0;position:relative}
+.code-display::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,180,255,.015) 2px,rgba(0,180,255,.015) 4px);pointer-events:none}
+.code-display .kw{color:#48c8ff;font-weight:700}
+.code-display .fn{color:#e879f9;font-weight:600}
+.code-display .str{color:#7dd3f8}
+.code-display .num{color:#00d4ff}
+.code-display .cm{color:#1a4a6e;font-style:italic}
+/* STEP CARDS */
+.step-list{margin:16px 0}
+.step-item{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.step-num.warn{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.step-num.ac2{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.step-num.ac3{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.step-num.ac{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.step-content{flex:1}
+.step-content h4{font-size:13.5px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.step-content p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.6}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.comp-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">GDD CODING SCHOOL</div>
+    <div class="sb-title">Python EP2 · Week 11-12</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Game Components</a>
+    <a class="na" href="#live-game">🎮 Live Game Demo</a>
+    <a class="na" href="#gameloop">Part 1 — Game Loop (Screen)</a>
+    <a class="na" href="#rocket">Part 2 — จรวด &amp; การควบคุม</a>
+    <a class="na" href="#meteor">Part 3 — อุกกาบาต &amp; การตก</a>
+    <a class="na" href="#laser">Part 4 — คะแนน &amp; ระบบอาวุธ</a>
+    <a class="na" href="#lives">Part 5 — ชีวิต &amp; Game Over</a>
+    <a class="na" href="#fullcode">🗂 Full Source Code</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. ลำดับ Game Loop <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. ป้องกันยานวิ่งทะลุขอบ <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Collision Detection <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. สุ่มอุกกาบาต Reset <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. ระบบ Laser List <span class="badge br">Hard</span></a>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>›</span> Week 11-12 <span>›</span> Create Game with Python</div>
+    <div style="font-size:12px;color:var(--warn);font-weight:600">🎮 pygame in Browser Demo</div>
+  </div>
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Week 11-12 · Python EP2</div>
+      <div class="ht">Create Game<br>with Python 🚀</div>
+      <div class="hs">สร้าง Space Shooter ทีละ Component</div>
+      <div class="hm">เรียนรู้การสร้างเกม Pygame ตั้งแต่ศูนย์ — จอภาพ, ยานจรวด, อุกกาบาต, เลเซอร์, คะแนน และระบบชีวิต พร้อม Demo เล่นได้จริงในเบราว์เซอร์</div>
+      <div class="tags">
+        <span class="tag">pygame</span><span class="tag">Game Loop</span><span class="tag">Event Handling</span>
+        <span class="tag">Collision Detection</span><span class="tag">List ของกระสุน</span><span class="tag">Score &amp; Lives</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">Introduction</div>
+      <h2>เกมนี้มีองค์ประกอบอะไรบ้าง?</h2>
+      <div class="comp-grid">
+        <div class="comp-card c1"><div class="comp-icon">🖥️</div><div class="comp-title">จอภาพ (Screen)</div><div class="comp-desc">หน้าต่างเกม 800×600 px, Game Loop, FPS 60</div></div>
+        <div class="comp-card c2"><div class="comp-icon">🚀</div><div class="comp-title">จรวด &amp; ควบคุม</div><div class="comp-desc">โหลด rocket.png, เคลื่อนที่ซ้าย-ขวา, ป้องกันวิ่งทะลุขอบ</div></div>
+        <div class="comp-card c3"><div class="comp-icon">☄️</div><div class="comp-title">อุกกาบาต &amp; การตก</div><div class="comp-desc">ตกจากบนลงล่าง ถ้าพ้นขอบให้สุ่มเกิดใหม่ด้านบน</div></div>
+        <div class="comp-card c4"><div class="comp-icon">⚡</div><div class="comp-title">คะแนน &amp; เลเซอร์</div><div class="comp-desc">ใช้ List เก็บกระสุนหลายนัด, ยิงโดนบวก 10 คะแนน</div></div>
+        <div class="comp-card c5"><div class="comp-icon">❤️</div><div class="comp-title">ชีวิต &amp; Game Over</div><div class="comp-desc">อุกกาบาตชนยาน ชีวิตลด, ชีวิตหมด = Game Over</div></div>
+      </div>
+    </div>
+
+    <!-- LIVE GAME -->
+    <div class="sec" id="live-game">
+      <div class="sl">Demo สด!</div>
+      <h2>🎮 เล่นเกม Space Shooter ได้เลย</h2>
+      <p style="color:var(--mu);font-size:13px;margin-bottom:12px">Demo นี้จำลองเกม Pygame ใน Canvas — ใช้ฝึกทำความเข้าใจองค์ประกอบแต่ละส่วน</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title game-t">🚀 Space Shooter — Browser Demo</div>
+          <div style="font-size:11px;color:var(--mu)">← → เลื่อน · SPACE ยิง</div>
+        </div>
+        <div class="viz-body" style="padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px">
+          <div class="game-controls-hint">
+            <span class="key-chip">← ซ้าย</span>
+            <span class="key-chip">→ ขวา</span>
+            <span class="key-chip">SPACE ยิง</span>
+            <span class="key-chip">R รีสตาร์ท</span>
+          </div>
+          <div class="game-container" style="width:600px;max-width:100%;height:400px;position:relative">
+            <canvas id="gameCanvas" width="600" height="400" style="display:block;width:100%;height:100%"></canvas>
+            <div class="game-overlay" id="gameOverlay">
+              <div style="font-size:36px;margin-bottom:8px">🚀</div>
+              <h2 style="background:linear-gradient(135deg,#fff,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Space Shooter</h2>
+              <p>หลบอุกกาบาต ยิงให้โดน<br>คุณมีชีวิต 3 ครั้ง</p>
+              <button class="start-btn" onclick="startGame()">▶ เริ่มเกม</button>
+            </div>
+          </div>
+          <div id="gameMobileCtrl" style="display:flex;gap:10px;margin-top:4px">
+            <button onclick="game.keys['ArrowLeft']=true;setTimeout(()=>game.keys['ArrowLeft']=false,100)" style="background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:8px 20px;border-radius:6px;cursor:pointer;font-size:16px">◀</button>
+            <button onclick="game.keys[' ']=true;setTimeout(()=>game.keys[' ']=false,100)" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--warn);padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700">⚡ ยิง</button>
+            <button onclick="game.keys['ArrowRight']=true;setTimeout(()=>game.keys['ArrowRight']=false,100)" style="background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:8px 20px;border-radius:6px;cursor:pointer;font-size:16px">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME LOOP -->
+    <div class="sec" id="gameloop">
+      <div class="sl">Part 1</div>
+      <h2>สร้างหน้าต่างเกม (Game Loop)</h2>
+      <p>ทุกเกม pygame เริ่มด้วย <strong>Game Loop</strong> — วนซ้ำ 60 ครั้งต่อวินาที: รับ Event → Update → วาดภาพ</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-num warn">1</div><div class="step-content"><h4>pygame.init() + สร้างหน้าต่าง</h4><p><code>screen = pygame.display.set_mode((800, 600))</code></p></div></div>
+        <div class="step-item"><div class="step-num ac2">2</div><div class="step-content"><h4>while running: (Game Loop)</h4><p>วนซ้ำตลอดจนกว่าจะปิดเกม — ภายในมี 3 ส่วน: Event, Update, Draw</p></div></div>
+        <div class="step-item"><div class="step-num ac3">3</div><div class="step-content"><h4>screen.fill((0,0,0)) — เติมพื้นหลัง</h4><p>ต้องเติมสีทับก่อนทุก frame ไม่งั้นรูปเก่าจะค้างอยู่</p></div></div>
+        <div class="step-item"><div class="step-num ac">4</div><div class="step-content"><h4>pygame.display.flip() + clock.tick(60)</h4><p>แสดงผลบนจอ + จำกัด FPS ที่ 60</p></div></div>
+      </div>
+      <div class="code-display"><span class="kw">import</span> pygame, random
+
+pygame.<span class="fn">init</span>()
+WIDTH, HEIGHT = <span class="num">800</span>, <span class="num">600</span>
+screen = pygame.display.<span class="fn">set_mode</span>((WIDTH, HEIGHT))
+pygame.display.<span class="fn">set_caption</span>(<span class="str">"Space Shooter - by Kru Joke"</span>)
+clock = pygame.time.<span class="fn">Clock</span>()
+
+running = <span class="kw">True</span>
+<span class="kw">while</span> running:
+    screen.<span class="fn">fill</span>((<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>))   <span class="cm"># เติมพื้นหลังสีดำ</span>
+
+    <span class="kw">for</span> event <span class="kw">in</span> pygame.event.<span class="fn">get</span>():
+        <span class="kw">if</span> event.type == pygame.QUIT:
+            running = <span class="kw">False</span>
+
+    pygame.display.<span class="fn">flip</span>()
+    clock.<span class="fn">tick</span>(<span class="num">60</span>)
+
+pygame.<span class="fn">quit</span>()</div>
+    </div>
+
+    <!-- ROCKET -->
+    <div class="sec" id="rocket">
+      <div class="sl">Part 2</div>
+      <h2>จรวด และการควบคุม 🚀</h2>
+      <p>โหลด <code>rocket.png</code> กำหนดตำแหน่ง และรับ input จากแป้นพิมพ์ พร้อมป้องกันวิ่งทะลุขอบจอ</p>
+      <div class="code-display"><span class="cm"># --- พิมพ์ไว้ด้านบน (ก่อน running = True) ---</span>
+rocket_img = pygame.image.<span class="fn">load</span>(<span class="str">"rocket.png"</span>)
+rocket_img = pygame.transform.<span class="fn">scale</span>(rocket_img, (<span class="num">60</span>, <span class="num">80</span>))
+player_x, player_y = <span class="num">370</span>, <span class="num">500</span>
+player_change_x = <span class="num">0</span>
+player_speed = <span class="num">5</span>
+
+<span class="cm"># --- ใน for event ---</span>
+<span class="kw">if</span> event.type == pygame.KEYDOWN:
+    <span class="kw">if</span> event.key == pygame.K_LEFT:  player_change_x = -player_speed
+    <span class="kw">if</span> event.key == pygame.K_RIGHT: player_change_x =  player_speed
+<span class="kw">if</span> event.type == pygame.KEYUP:
+    <span class="kw">if</span> event.key <span class="kw">in</span> (pygame.K_LEFT, pygame.K_RIGHT): player_change_x = <span class="num">0</span>
+
+<span class="cm"># --- ใน while loop (ก่อนวาดรูป) ---</span>
+player_x += player_change_x
+<span class="kw">if</span> player_x &lt; <span class="num">0</span>:        player_x = <span class="num">0</span>
+<span class="kw">elif</span> player_x &gt; WIDTH - <span class="num">60</span>: player_x = WIDTH - <span class="num">60</span>
+screen.<span class="fn">blit</span>(rocket_img, (player_x, player_y))</div>
+    </div>
+
+    <!-- METEOR -->
+    <div class="sec" id="meteor">
+      <div class="sl">Part 3</div>
+      <h2>อุกกาบาต และการตก ☄️</h2>
+      <p>อุกกาบาตเพิ่มค่า Y ทุก frame (ตกลงมา) ถ้าหลุดพ้นขอบล่าง สุ่มเกิดใหม่ด้านบน</p>
+      <div class="code-display"><span class="cm"># --- ด้านบน ---</span>
+meteor_img = pygame.image.<span class="fn">load</span>(<span class="str">"meteorite.png"</span>)
+meteor_img = pygame.transform.<span class="fn">scale</span>(meteor_img, (<span class="num">50</span>, <span class="num">50</span>))
+enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH - <span class="num">50</span>)
+enemy_y = -<span class="num">50</span>
+enemy_speed = <span class="num">4</span>
+
+<span class="cm"># --- ใน while loop ---</span>
+enemy_y += enemy_speed          <span class="cm"># เคลื่อนลง</span>
+<span class="kw">if</span> enemy_y &gt; HEIGHT:            <span class="cm"># ถ้าตกพ้นขอบ</span>
+    enemy_y = -<span class="num">50</span>
+    enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH - <span class="num">50</span>)
+screen.<span class="fn">blit</span>(meteor_img, (enemy_x, enemy_y))</div>
+    </div>
+
+    <!-- LASER -->
+    <div class="sec" id="laser">
+      <div class="sl">Part 4</div>
+      <h2>คะแนน และระบบอาวุธ ⚡</h2>
+      <p>ใช้ <strong>List</strong> เก็บกระสุนหลายนัด กดยิงแล้ว append ใส่ List วนลูปขยับและตรวจ collision</p>
+      <div class="code-display"><span class="cm"># --- ด้านบน ---</span>
+lasers = []
+laser_speed = <span class="num">10</span>
+score = <span class="num">0</span>
+score_font = pygame.font.<span class="fn">Font</span>(<span class="kw">None</span>, <span class="num">36</span>)
+
+<span class="cm"># --- กด SPACE ยิง ---</span>
+<span class="kw">if</span> event.key == pygame.K_SPACE:
+    lasers.<span class="fn">append</span>([player_x + <span class="num">27</span>, player_y])
+
+<span class="cm"># --- ขยับกระสุน + ลบถ้าพ้นจอ ---</span>
+<span class="kw">for</span> laser <span class="kw">in</span> lasers[:]:
+    laser[<span class="num">1</span>] -= laser_speed
+    <span class="kw">if</span> laser[<span class="num">1</span>] &lt; <span class="num">0</span>: lasers.<span class="fn">remove</span>(laser)
+
+<span class="cm"># --- ตรวจ Collision กระสุน vs อุกกาบาต ---</span>
+enemy_box = pygame.<span class="fn">Rect</span>(enemy_x, enemy_y, <span class="num">50</span>, <span class="num">50</span>)
+<span class="kw">for</span> laser <span class="kw">in</span> lasers[:]:
+    laser_box = pygame.<span class="fn">Rect</span>(laser[<span class="num">0</span>], laser[<span class="num">1</span>], <span class="num">5</span>, <span class="num">20</span>)
+    <span class="kw">if</span> laser_box.<span class="fn">colliderect</span>(enemy_box):
+        lasers.<span class="fn">remove</span>(laser); score += <span class="num">10</span>
+        enemy_y = -<span class="num">50</span>; enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH - <span class="num">50</span>)
+        <span class="kw">break</span>
+
+<span class="cm"># --- แสดงคะแนน ---</span>
+score_text = score_font.<span class="fn">render</span>(<span class="str">"Score: "</span> + <span class="fn">str</span>(score), <span class="kw">True</span>, (<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>))
+screen.<span class="fn">blit</span>(score_text, (<span class="num">10</span>, <span class="num">10</span>))</div>
+    </div>
+
+    <!-- LIVES -->
+    <div class="sec" id="lives">
+      <div class="sl">Part 5</div>
+      <h2>ชีวิต และ Game Over ❤️</h2>
+      <p>ตรวจ collision ระหว่างยานกับอุกกาบาต ถ้าชนให้ชีวิตลด ชีวิตหมดแสดงหน้าจอ Game Over</p>
+      <div class="code-display"><span class="cm"># --- ด้านบน ---</span>
+lives = <span class="num">3</span>
+game_over = <span class="kw">False</span>
+my_font = pygame.font.<span class="fn">Font</span>(<span class="kw">None</span>, <span class="num">60</span>)
+
+<span class="cm"># --- ใน while: ตรวจยานชนอุกกาบาต ---</span>
+player_box = pygame.<span class="fn">Rect</span>(player_x, player_y, <span class="num">60</span>, <span class="num">80</span>)
+<span class="kw">if</span> player_box.<span class="fn">colliderect</span>(enemy_box):
+    lives -= <span class="num">1</span>
+    enemy_y = -<span class="num">50</span>
+    enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH - <span class="num">50</span>)
+    <span class="kw">if</span> lives &lt;= <span class="num">0</span>: game_over = <span class="kw">True</span>
+
+<span class="cm"># --- ครอบระบบทั้งหมดด้วย if not game_over ---</span>
+<span class="kw">if not</span> game_over:
+    <span class="cm"># [โค้ดอัปเดต + วาดทั้งหมดอยู่ที่นี่]</span>
+<span class="kw">else</span>:
+    screen.<span class="fn">fill</span>((<span class="num">150</span>, <span class="num">0</span>, <span class="num">0</span>))
+    go_text = my_font.<span class="fn">render</span>(<span class="str">"GAME OVER"</span>, <span class="kw">True</span>, (<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>))
+    screen.<span class="fn">blit</span>(go_text, go_text.<span class="fn">get_rect</span>(center=(WIDTH//<span class="num">2</span>, HEIGHT//<span class="num">2</span>)))</div>
+    </div>
+
+    <!-- FULL CODE -->
+    <div class="sec" id="fullcode">
+      <div class="sl">Full Source Code</div>
+      <h2>🗂 โค้ดเต็มทั้งเกม</h2>
+      <p>รวมทุก component ไว้ในไฟล์เดียว — เปิดใน Thonny แล้วรันได้เลย (ต้องมีไฟล์ rocket.png, meteorite.png, heart.png)</p>
+      <div class="callout warn">
+        <strong>ต้องติดตั้ง pygame ก่อน!</strong> ใน Thonny ไปที่ Tools → Manage Packages → ค้นหา <code>pygame</code> → Install
+      </div>
+      <div class="code-display" style="max-height:500px;overflow-y:auto"><span class="kw">import</span> pygame, random
+
+pygame.<span class="fn">init</span>(); pygame.font.<span class="fn">init</span>()
+WIDTH, HEIGHT = <span class="num">800</span>, <span class="num">600</span>
+screen = pygame.display.<span class="fn">set_mode</span>((WIDTH, HEIGHT))
+pygame.display.<span class="fn">set_caption</span>(<span class="str">"Space Shooter - by Kru Joke"</span>)
+clock = pygame.time.<span class="fn">Clock</span>()
+
+<span class="cm"># โหลดรูป</span>
+rocket_img = pygame.transform.<span class="fn">scale</span>(pygame.image.<span class="fn">load</span>(<span class="str">"rocket.png"</span>), (<span class="num">60</span>, <span class="num">80</span>))
+meteor_img = pygame.transform.<span class="fn">scale</span>(pygame.image.<span class="fn">load</span>(<span class="str">"meteorite.png"</span>), (<span class="num">50</span>, <span class="num">50</span>))
+heart_img  = pygame.transform.<span class="fn">scale</span>(pygame.image.<span class="fn">load</span>(<span class="str">"heart.png"</span>), (<span class="num">30</span>, <span class="num">30</span>))
+
+<span class="cm"># ยาน</span>
+player_x, player_y = <span class="num">370</span>, <span class="num">500</span>
+player_change_x, player_speed = <span class="num">0</span>, <span class="num">5</span>
+
+<span class="cm"># อุกกาบาต</span>
+enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH-<span class="num">50</span>); enemy_y = -<span class="num">50</span>; enemy_speed = <span class="num">4</span>
+
+<span class="cm"># เลเซอร์ + คะแนน</span>
+lasers = []; laser_speed = <span class="num">10</span>
+score = <span class="num">0</span>; score_font = pygame.font.<span class="fn">Font</span>(<span class="kw">None</span>, <span class="num">36</span>)
+my_font = pygame.font.<span class="fn">Font</span>(<span class="kw">None</span>, <span class="num">60</span>)
+
+<span class="cm"># ชีวิต</span>
+lives = <span class="num">3</span>; game_over = <span class="kw">False</span>
+
+running = <span class="kw">True</span>
+<span class="kw">while</span> running:
+    screen.<span class="fn">fill</span>((<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>))
+    <span class="kw">for</span> event <span class="kw">in</span> pygame.event.<span class="fn">get</span>():
+        <span class="kw">if</span> event.type == pygame.QUIT: running = <span class="kw">False</span>
+        <span class="kw">if not</span> game_over <span class="kw">and</span> event.type == pygame.KEYDOWN:
+            <span class="kw">if</span> event.key == pygame.K_LEFT:  player_change_x = -player_speed
+            <span class="kw">if</span> event.key == pygame.K_RIGHT: player_change_x =  player_speed
+            <span class="kw">if</span> event.key == pygame.K_SPACE:
+                lasers.<span class="fn">append</span>([player_x + <span class="num">27</span>, player_y])
+        <span class="kw">if</span> event.type == pygame.KEYUP:
+            <span class="kw">if</span> event.key <span class="kw">in</span> (pygame.K_LEFT, pygame.K_RIGHT): player_change_x = <span class="num">0</span>
+
+    <span class="kw">if not</span> game_over:
+        player_x += player_change_x
+        player_x = <span class="fn">max</span>(<span class="num">0</span>, <span class="fn">min</span>(player_x, WIDTH - <span class="num">60</span>))
+        enemy_y += enemy_speed
+        <span class="kw">if</span> enemy_y &gt; HEIGHT: enemy_y = -<span class="num">50</span>; enemy_x = random.<span class="fn">randint</span>(<span class="num">0</span>, WIDTH-<span class="num">50</span>)
+
+        enemy_box  = pygame.<span class="fn">Rect</span>(enemy_x, enemy_y, <span class="num">50</span>, <span class="num">50</span>)
+        player_box = pygame.<span class="fn">Rect</span>(player_x, player_y, <span class="num">60</span>, <span class="num">80</span>)
+
+        <span class="kw">for</span> laser <span class="kw">in</span> lasers[:]:
+            laser[<span class="num">1</span>] -= laser_speed
+            <span class="kw">if</span> laser[<span class="num">1</span>] &lt; <span class="num">0</span>: lasers.<span class="fn">remove</span>(laser); <span class="kw">continue</span>
+            lb = pygame.<span class="fn">Rect</span>(laser[<span class="num">0</span>], laser[<span class="num">1</span>], <span class="num">5</span>, <span class="num">20</span>)
+            <span class="kw">if</span> lb.<span class="fn">colliderect</span>(enemy_box):
+                lasers.<span class="fn">remove</span>(laser); score += <span class="num">10</span>
+                enemy_y=-<span class="num">50</span>; enemy_x=random.<span class="fn">randint</span>(<span class="num">0</span>,WIDTH-<span class="num">50</span>); <span class="kw">break</span>
+
+        <span class="kw">if</span> player_box.<span class="fn">colliderect</span>(enemy_box):
+            lives -= <span class="num">1</span>; enemy_y=-<span class="num">50</span>; enemy_x=random.<span class="fn">randint</span>(<span class="num">0</span>,WIDTH-<span class="num">50</span>)
+            <span class="kw">if</span> lives &lt;= <span class="num">0</span>: game_over = <span class="kw">True</span>
+
+        screen.<span class="fn">blit</span>(rocket_img, (player_x, player_y))
+        screen.<span class="fn">blit</span>(meteor_img, (enemy_x, enemy_y))
+        <span class="kw">for</span> laser <span class="kw">in</span> lasers:
+            pygame.draw.<span class="fn">rect</span>(screen, (<span class="num">255</span>,<span class="num">255</span>,<span class="num">0</span>), (laser[<span class="num">0</span>],laser[<span class="num">1</span>],<span class="num">5</span>,<span class="num">20</span>))
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(lives):
+            screen.<span class="fn">blit</span>(heart_img, (<span class="num">750</span>-(i*<span class="num">40</span>), <span class="num">10</span>))
+        screen.<span class="fn">blit</span>(score_font.<span class="fn">render</span>(<span class="str">"Score: "</span>+<span class="fn">str</span>(score), <span class="kw">True</span>, (<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)), (<span class="num">10</span>,<span class="num">10</span>))
+    <span class="kw">else</span>:
+        screen.<span class="fn">fill</span>((<span class="num">150</span>,<span class="num">0</span>,<span class="num">0</span>))
+        screen.<span class="fn">blit</span>(my_font.<span class="fn">render</span>(<span class="str">"GAME OVER"</span>,<span class="kw">True</span>,(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)), my_font.<span class="fn">render</span>(<span class="str">"GAME OVER"</span>,<span class="kw">True</span>,(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)).<span class="fn">get_rect</span>(center=(WIDTH//<span class="num">2</span>,HEIGHT//<span class="num">2</span>-<span class="num">30</span>)))
+        screen.<span class="fn">blit</span>(score_font.<span class="fn">render</span>(<span class="str">"Final Score: "</span>+<span class="fn">str</span>(score),<span class="kw">True</span>,(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)), score_font.<span class="fn">render</span>(<span class="str">"Final Score: "</span>+<span class="fn">str</span>(score),<span class="kw">True</span>,(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)).<span class="fn">get_rect</span>(center=(WIDTH//<span class="num">2</span>,HEIGHT//<span class="num">2</span>+<span class="num">30</span>)))
+
+    pygame.display.<span class="fn">flip</span>()
+    clock.<span class="fn">tick</span>(<span class="num">60</span>)
+
+pygame.<span class="fn">quit</span>()</div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISES (concept-based, no Pyodide needed) -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 · Basic</div>
+      <h2>ลำดับ Game Loop</h2>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0">
+        <div style="padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px">
+          <div class="ex-num g" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px">1</div>
+          <div><h3 style="font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px">จัดลำดับโค้ดใน Game Loop</h3>
+          <p style="font-size:12.5px;color:var(--mu);margin:0">โค้ด pygame ด้านล่างถูกสับสน ให้เรียงลำดับที่ถูกต้อง</p></div>
+        </div>
+        <div style="padding:18px">
+          <div id="sortableGame" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+          <button onclick="checkOrder()" style="background:var(--ac2);color:#fff;border:none;padding:6px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">✓ ตรวจลำดับ</button>
+          <div id="orderResult" style="margin-top:10px;font-size:13px;min-height:20px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 · Basic</div>
+      <h2>ป้องกันยานวิ่งทะลุขอบจอ</h2>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;margin:20px 0">
+        <p>โค้ดนี้มีบั๊ก — ยานสามารถวิ่งทะลุขอบซ้ายและขวาได้ จงหาและแก้บั๊ก</p>
+        <div class="code-display" style="margin:12px 0"><span class="cm"># โค้ดที่มีบั๊ก</span>
+player_x += player_change_x
+<span class="cm"># ??? ยังไม่มีการป้องกันขอบจอ</span>
+screen.<span class="fn">blit</span>(rocket_img, (player_x, player_y))</div>
+        <div id="ex2quiz" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 · Mid</div>
+      <h2>Collision Detection</h2>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;margin:20px 0">
+        <p>ฟังก์ชัน <code>pygame.Rect.colliderect()</code> ใช้ตรวจว่ากล่องสองอันชนกันหรือเปล่า ตอบคำถาม:</p>
+        <div id="ex3quiz" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 · Mid</div>
+      <h2>สุ่มอุกกาบาต Reset</h2>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;margin:20px 0">
+        <p>เมื่ออุกกาบาตตกพ้นขอบล่าง จะต้อง reset ยังไง? เลือกคำตอบที่ถูกต้อง:</p>
+        <div id="ex4quiz" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 · Hard</div>
+      <h2>ระบบ Laser List</h2>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;margin:20px 0">
+        <p>อธิบายว่าทำไมต้อง loop ผ่าน <code>lasers[:]</code> (copy) แทน <code>lasers</code> โดยตรง เมื่อต้องการลบกระสุนออก</p>
+        <div id="ex5quiz" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ GAME ENGINE ══
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const game = {
+  running: false, over: false,
+  keys: {},
+  player: {x:270, y:320, w:40, h:55, vx:0, speed:4},
+  enemy: {x:Math.random()*(W-40), y:-40, w:40, h:40, vy:3},
+  lasers: [],
+  score: 0, lives: 3,
+  frame: 0, stars: [],
+  lastShot: 0
+};
+
+// Generate stars
+for(let i=0;i<60;i++) game.stars.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.5+.5, b:Math.random()*.7+.3});
+
+function drawRocket(x, y, w, h){
+  ctx.save();ctx.translate(x+w/2, y+h/2);
+  // Body
+  ctx.fillStyle='#e8eaf0';ctx.beginPath();ctx.ellipse(0,-h*.15,w*.3,h*.42,0,0,Math.PI*2);ctx.fill();
+  // Nose
+  ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(0,-h*.55);ctx.lineTo(-w*.25,-h*.1);ctx.lineTo(w*.25,-h*.1);ctx.closePath();ctx.fill();
+  // Window
+  ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(0,-h*.12,w*.12,0,Math.PI*2);ctx.fill();
+  // Fins
+  ctx.fillStyle='#e879f9';
+  ctx.beginPath();ctx.moveTo(-w*.28,h*.22);ctx.lineTo(-w*.48,h*.47);ctx.lineTo(-w*.18,h*.35);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(w*.28,h*.22);ctx.lineTo(w*.48,h*.47);ctx.lineTo(w*.18,h*.35);ctx.closePath();ctx.fill();
+  // Flame
+  const flicker = 0.8 + Math.sin(game.frame*.3)*0.2;
+  ctx.fillStyle=`rgba(245,158,11,${flicker})`;
+  ctx.beginPath();ctx.ellipse(0,h*.42,w*.18,h*.22*flicker,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=`rgba(255,255,100,${flicker*.8})`;
+  ctx.beginPath();ctx.ellipse(0,h*.42,w*.1,h*.14*flicker,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawMeteor(x, y, w){
+  ctx.save();ctx.translate(x+w/2, y+w/2);
+  ctx.rotate(game.frame*.02);
+  ctx.fillStyle='#6b7280';ctx.beginPath();
+  const pts=8;for(let i=0;i<pts;i++){const a=(i/pts)*Math.PI*2,r=w/2*(0.7+Math.sin(i*1.7)*0.3);i===0?ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r):ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='#4b5563';ctx.beginPath();ctx.arc(-w*.1,-w*.1,w*.12,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(w*.15,w*.05,w*.08,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function gameLoop(){
+  if(!game.running)return;
+  game.frame++;
+  ctx.fillStyle='#050810';ctx.fillRect(0,0,W,H);
+  // Stars
+  game.stars.forEach(s=>{ctx.fillStyle=`rgba(255,255,255,${s.b})`;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});
+
+  if(!game.over){
+    // Move player
+    if(game.keys['ArrowLeft']||game.keys['a'])game.player.vx=-game.player.speed;
+    else if(game.keys['ArrowRight']||game.keys['d'])game.player.vx=game.player.speed;
+    else game.player.vx*=0.85;
+    game.player.x+=game.player.vx;
+    game.player.x=Math.max(0,Math.min(game.player.x,W-game.player.w));
+
+    // Auto-shoot every 40 frames
+    if(game.frame-game.lastShot>40){game.lasers.push({x:game.player.x+game.player.w/2-2,y:game.player.y,w:4,h:16});game.lastShot=game.frame;}
+
+    // Manual shoot
+    if(game.keys[' ']&&game.frame-game.lastShot>12){game.lasers.push({x:game.player.x+game.player.w/2-2,y:game.player.y,w:4,h:16});game.lastShot=game.frame;game.keys[' ']=false;}
+
+    // Move enemy
+    game.enemy.y+=game.enemy.vy;
+    if(game.enemy.y>H){game.enemy.y=-40;game.enemy.x=Math.random()*(W-game.enemy.w);}
+
+    // Move lasers + collision
+    const eb={x:game.enemy.x,y:game.enemy.y,w:game.enemy.w,h:game.enemy.h};
+    game.lasers=game.lasers.filter(l=>{
+      l.y-=9;
+      if(l.y<-20)return false;
+      if(l.x<eb.x+eb.w&&l.x+l.w>eb.x&&l.y<eb.y+eb.h&&l.y+l.h>eb.y){
+        game.score+=10;game.enemy.y=-40;game.enemy.x=Math.random()*(W-eb.w);
+        game.enemy.vy=Math.min(game.enemy.vy+0.2,8);return false;
+      }
+      return true;
+    });
+
+    // Player hit
+    const pb={x:game.player.x+4,y:game.player.y+4,w:game.player.w-8,h:game.player.h-8};
+    if(pb.x<eb.x+eb.w&&pb.x+pb.w>eb.x&&pb.y<eb.y+eb.h&&pb.y+pb.h>eb.y){
+      game.lives--;game.enemy.y=-40;game.enemy.x=Math.random()*(W-eb.w);
+      if(game.lives<=0)game.over=true;
+    }
+
+    // Draw
+    drawMeteor(game.enemy.x,game.enemy.y,game.enemy.w);
+    game.lasers.forEach(l=>{
+      ctx.fillStyle='#fbbf24';ctx.shadowColor='#fbbf24';ctx.shadowBlur=6;
+      ctx.fillRect(l.x,l.y,l.w,l.h);ctx.shadowBlur=0;
+    });
+    drawRocket(game.player.x,game.player.y,game.player.w,game.player.h);
+
+    // HUD
+    ctx.fillStyle='#fff';ctx.font='bold 14px JetBrains Mono,monospace';ctx.fillText('Score: '+game.score,10,22);
+    for(let i=0;i<game.lives;i++){ctx.fillStyle='#ef4444';ctx.font='16px sans-serif';ctx.fillText('❤',W-24-(i*22),22);}
+    ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='11px monospace';ctx.fillText('←→ move  SPACE shoot',W/2-72,H-8);
+  } else {
+    ctx.fillStyle='rgba(150,0,0,.9)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 36px Noto Sans Thai,sans-serif';ctx.textAlign='center';
+    ctx.fillText('GAME OVER',W/2,H/2-20);
+    ctx.font='18px Noto Sans Thai,sans-serif';ctx.fillStyle='#fca5a5';
+    ctx.fillText('Final Score: '+game.score,W/2,H/2+20);
+    ctx.font='14px Noto Sans Thai,sans-serif';ctx.fillStyle='#7b82a0';
+    ctx.fillText('กด R เพื่อเล่นใหม่',W/2,H/2+55);
+    ctx.textAlign='left';
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame(){
+  document.getElementById('gameOverlay').style.display='none';
+  Object.assign(game,{running:true,over:false,score:0,lives:3,frame:0,lasers:[],lastShot:0});
+  game.player.x=W/2-20;game.player.y=H-70;game.player.vx=0;
+  game.enemy.x=Math.random()*(W-40);game.enemy.y=-40;game.enemy.vy=3;
+  gameLoop();
+}
+
+document.addEventListener('keydown',e=>{game.keys[e.key]=true;if(e.key===' ')e.preventDefault();
+  if(e.key==='r'||e.key==='R')if(game.over)startGame();
+});
+document.addEventListener('keyup',e=>{game.keys[e.key]=false;});
+
+// ══ EXERCISES ══
+// EX1 - drag sort
+const correctOrder=['screen.fill((0,0,0))','for event in pygame.event.get():','   player_x += player_change_x','   screen.blit(rocket_img, ...)','pygame.display.flip()','clock.tick(60)'];
+const shuffled=[...correctOrder].sort(()=>Math.random()-.5);
+const sg=document.getElementById('sortableGame');
+shuffled.forEach((item,i)=>{
+  const d=document.createElement('div');
+  d.style.cssText='background:#13161e;border:1px solid #242836;border-radius:6px;padding:8px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:#b8e8ff;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px';
+  d.draggable=true;d.dataset.idx=i;d.innerHTML=`<span style="color:#4a5168;font-size:10px">${i+1}.</span> ${item}`;
+  d.addEventListener('dragstart',e=>e.dataTransfer.setData('text',i));
+  d.addEventListener('dragover',e=>e.preventDefault());
+  d.addEventListener('drop',e=>{
+    e.preventDefault();const from=+e.dataTransfer.getData('text');const to=+d.dataset.idx;
+    const items=[...sg.children];const fromEl=items[from],toEl=items[to];
+    sg.insertBefore(fromEl,toEl.nextSibling);sg.insertBefore(toEl,fromEl);
+    [...sg.children].forEach((c,idx)=>{c.dataset.idx=idx;c.querySelector('span').textContent=(idx+1)+'.';});
+  });
+  sg.appendChild(d);
+});
+
+function checkOrder(){
+  const items=[...sg.children].map(c=>c.textContent.replace(/^\d+\.\s*/,'').trim());
+  const correct=correctOrder.every((v,i)=>v===items[i]);
+  const r=document.getElementById('orderResult');
+  r.style.color=correct?'var(--ac3)':'var(--red)';
+  r.textContent=correct?'🎉 ถูกต้อง! นี่คือลำดับที่ถูกต้องของ Game Loop':'❌ ยังไม่ถูก ลองเรียงใหม่ดู (hint: fill → events → update → draw → flip → tick)';
+}
+
+// EX2 quiz
+const ex2opts=['เพิ่ม: if player_x < 0: player_x = 0 และ elif player_x > WIDTH-60: player_x = WIDTH-60','เพิ่ม: player_x = max(0, player_x)','เพิ่ม: player_x = min(player_x, WIDTH)','ไม่ต้องแก้ เกม pygame ป้องกันขอบอัตโนมัติ'];
+const ex2wrap=document.getElementById('ex2quiz');
+ex2opts.forEach((o,i)=>{
+  const btn=document.createElement('button');
+  btn.style.cssText='display:block;width:100%;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:#c5c9d8;font-size:13px;cursor:pointer;margin-bottom:8px;font-family:Noto Sans Thai,sans-serif;transition:all .15s';
+  btn.textContent=(i===0?'✓ ':'')+ o;
+  btn.onclick=()=>{
+    ex2wrap.querySelectorAll('button').forEach(b=>{b.style.background='var(--sf2)';b.style.borderColor='var(--bd)';b.style.color='#c5c9d8';});
+    if(i===0){btn.style.background='rgba(16,185,129,.15)';btn.style.borderColor='var(--ac3)';btn.style.color='var(--ac3)';}
+    else{btn.style.background='rgba(239,68,68,.1)';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';}
+  };
+  ex2wrap.appendChild(btn);
+});
+
+// EX3 quiz
+const ex3q=[
+  {q:'`pygame.Rect(x, y, width, height)` — พารามิเตอร์ทั้งสี่หมายถึงอะไร?',opts:['x, y คือตำแหน่งมุมซ้ายบน, width, height คือขนาด','x, y คือจุดกลาง, width, height คือรัศมี'],ans:0},
+  {q:'ทำไมต้องสร้าง Rect ก่อนตรวจ collision แทนที่จะเปรียบเทียบพิกัดตรงๆ?',opts:['เพราะ pygame.Rect มีฟังก์ชัน colliderect() ที่สะดวกและรวดเร็ว','เพราะการเปรียบเทียบพิกัดตรงๆ ไม่รองรับ float'],ans:0}
+];
+const ex3wrap=document.getElementById('ex3quiz');
+ex3q.forEach((item,qi)=>{
+  const d=document.createElement('div');d.style.marginBottom='16px';
+  d.innerHTML=`<p style="font-size:13px;color:var(--tx);margin-bottom:8px;font-weight:600">${qi+1}. ${item.q}</p>`;
+  item.opts.forEach((o,oi)=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='display:block;width:100%;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;color:#c5c9d8;font-size:12.5px;cursor:pointer;margin-bottom:6px;font-family:Noto Sans Thai,sans-serif';
+    btn.textContent=o;
+    btn.onclick=()=>{
+      d.querySelectorAll('button').forEach(b=>{b.style.background='var(--sf2)';b.style.borderColor='var(--bd)';b.style.color='#c5c9d8';});
+      if(oi===item.ans){btn.style.background='rgba(16,185,129,.15)';btn.style.borderColor='var(--ac3)';btn.style.color='var(--ac3)';}
+      else{btn.style.background='rgba(239,68,68,.1)';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';}
+    };
+    d.appendChild(btn);
+  });
+  ex3wrap.appendChild(d);
+});
+
+// EX4 quiz
+const ex4opts=[
+  'enemy_y = -50\nenemy_x = random.randint(0, WIDTH - 50)',
+  'enemy_y = 0\nenemy_x = 0',
+  'del enemy_y\ndel enemy_x',
+  'enemy_y = HEIGHT'
+];
+const ex4wrap=document.getElementById('ex4quiz');
+ex4opts.forEach((o,i)=>{
+  const btn=document.createElement('button');
+  btn.style.cssText='display:block;width:100%;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:#c5c9d8;font-size:12px;cursor:pointer;margin-bottom:8px;font-family:JetBrains Mono,monospace;white-space:pre;transition:all .15s';
+  btn.textContent=o;
+  btn.onclick=()=>{
+    ex4wrap.querySelectorAll('button').forEach(b=>{b.style.background='var(--sf2)';b.style.borderColor='var(--bd)';b.style.color='#c5c9d8';});
+    if(i===0){btn.style.background='rgba(16,185,129,.15)';btn.style.borderColor='var(--ac3)';btn.style.color='var(--ac3)';}
+    else{btn.style.background='rgba(239,68,68,.1)';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';}
+  };
+  ex4wrap.appendChild(btn);
+});
+
+// EX5 quiz
+const ex5opts=[
+  '✅ เพราะถ้า loop ผ่าน list ที่กำลัง remove() อยู่ จะทำให้ skip บาง element ได้ — lasers[:] สร้าง copy ให้ safe',
+  'เพราะ lasers[:] เร็วกว่า lasers ในด้าน performance',
+  'เพราะ pygame ต้องการ copy ก่อนเสมอ',
+  'ไม่ต่างกัน ใช้อันไหนก็ได้'
+];
+const ex5wrap=document.getElementById('ex5quiz');
+ex5opts.forEach((o,i)=>{
+  const btn=document.createElement('button');
+  btn.style.cssText='display:block;width:100%;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:#c5c9d8;font-size:13px;cursor:pointer;margin-bottom:8px;font-family:Noto Sans Thai,sans-serif;transition:all .15s';
+  btn.textContent=o;
+  btn.onclick=()=>{
+    ex5wrap.querySelectorAll('button').forEach(b=>{b.style.background='var(--sf2)';b.style.borderColor='var(--bd)';b.style.color='#c5c9d8';});
+    if(i===0){btn.style.background='rgba(16,185,129,.15)';btn.style.borderColor='var(--ac3)';btn.style.color='var(--ac3)';}
+    else{btn.style.background='rgba(239,68,68,.1)';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';}
+  };
+  ex5wrap.appendChild(btn);
+});
+
+// ── SIDEBAR ──
+const navAs=document.querySelectorAll('.na'),secs=document.querySelectorAll('.sec[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;navAs.forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.na[href="#${e.target.id}"]`);if(a)a.classList.add('active');const idx=[...secs].indexOf(e.target);document.getElementById('prog').style.width=((idx+1)/secs.length*100)+'%';});},{rootMargin:'-15% 0px -75% 0px'});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

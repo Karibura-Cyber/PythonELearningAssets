@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 9 — Dynamic Programming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0b14;--sf:#10111e;--sf2:#161728;--bd:#20223a;
+  --ac:#818cf8;--ac2:#34d399;--ac3:#f472b6;--red:#f87171;--warn:#fbbf24;
+  --tx:#e8eaf6;--mu:#6b72a8;--di:#3d4270
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac3));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(129,140,248,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(52,211,153,.15);color:var(--ac2)}
+.bb{background:rgba(129,140,248,.15);color:var(--ac)}
+.br{background:rgba(248,113,113,.15);color:var(--red)}
+.bp{background:rgba(244,114,182,.15);color:var(--ac3)}
+.bo{background:rgba(251,191,36,.15);color:var(--warn)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(10,11,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac2)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:860px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(129,140,248,.09) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(244,114,182,.07) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf6,#818cf8,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c4c6e0;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c4c6e0;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(129,140,248,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c4c6e0}
+.callout.info{border-left-color:var(--ac2);background:rgba(52,211,153,.06)}
+.callout.pink{border-left-color:var(--ac3);background:rgba(244,114,182,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(251,191,36,.06)}
+.callout.red{border-left-color:var(--red);background:rgba(248,113,113,.06)}
+
+/* DP COMPARE */
+.dp-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.dp-box{border-radius:12px;padding:20px;border:1px solid}
+.dp-box.slow{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.04)}
+.dp-box.fast{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.04)}
+.dp-hd{font-size:13.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.dp-box.slow .dp-hd{color:var(--red)}
+.dp-box.fast .dp-hd{color:var(--ac2)}
+.dp-body{font-size:12.5px;color:var(--mu);line-height:1.7}
+.dp-body strong{color:var(--tx)}
+.dp-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
+.dp-box.slow .dp-tag{background:rgba(248,113,113,.15);color:var(--red)}
+.dp-box.fast .dp-tag{background:rgba(52,211,153,.15);color:var(--ac2)}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.td{border-color:rgba(129,140,248,.3)}
+.concept-card.bu{border-color:rgba(52,211,153,.3)}
+.concept-card.key{border-color:rgba(244,114,182,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.td::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.bu::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.concept-card.key::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.td .cc-title{color:var(--ac)}
+.concept-card.bu .cc-title{color:var(--ac2)}
+.concept-card.key .cc-title{color:var(--ac3)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+
+/* MEMO VISUALIZER */
+.memo-viz{background:#080910;border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.memo-viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.memo-viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)}
+.memo-viz-body{padding:20px}
+.memo-cells{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.memo-cell{min-width:48px;height:48px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;transition:all .3s;font-family:'JetBrains Mono',monospace;padding:4px 8px;text-align:center;font-size:11px}
+.memo-cell.empty{border-color:var(--bd);background:var(--sf2);color:var(--di)}
+.memo-cell.computing{border-color:var(--warn);background:rgba(251,191,36,.12);color:var(--warn);animation:pulse .6s infinite}
+.memo-cell.cached{border-color:var(--ac2);background:rgba(52,211,153,.12);color:var(--ac2)}
+.memo-cell.hit{border-color:var(--ac);background:rgba(129,140,248,.18);color:var(--ac);transform:scale(1.1);box-shadow:0 0 14px rgba(129,140,248,.3)}
+.memo-cell-key{font-size:9px;color:var(--di);margin-bottom:2px}
+.memo-cell-val{font-size:13px;font-weight:700}
+.memo-msg{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--mu);margin:10px 0 4px;min-height:22px}
+.memo-msg.hit{color:var(--ac)}
+.memo-msg.compute{color:var(--warn)}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.play{background:rgba(129,140,248,.15);color:var(--ac);border:1px solid rgba(129,140,248,.3)}
+.viz-btn.play:hover{background:rgba(129,140,248,.25)}
+.viz-btn.step{background:rgba(52,211,153,.15);color:var(--ac2);border:1px solid rgba(52,211,153,.3)}
+.viz-btn.step:hover{background:rgba(52,211,153,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn:disabled{opacity:.4;cursor:not-allowed}
+.memo-counter{display:flex;gap:16px;margin:10px 0;flex-wrap:wrap}
+.memo-stat{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;min-width:80px;text-align:center}
+.ms-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--di);margin-bottom:3px}
+.ms-val{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.ms-calls .ms-val{color:var(--red)}
+.ms-dp .ms-val{color:var(--ac2)}
+
+/* ED BLOCK */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac);color:#fff;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#a5b4fc;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h460{height:460px}.h500{height:500px}
+.out-panel{border-top:1px solid var(--bd);background:#060710}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a5f3fc}
+.out-txt.err{color:#fca5a5}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(52,211,153,.15);color:var(--ac2)}
+.ex-num.b{background:rgba(129,140,248,.15);color:var(--ac)}
+.ex-num.r{background:rgba(248,113,113,.15);color:var(--red)}
+.ex-num.p{background:rgba(244,114,182,.15);color:var(--ac3)}
+.ex-num.o{background:rgba(251,191,36,.15);color:var(--warn)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#060710;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac)}.io-lbl.out{color:var(--ac2)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c4c6e0;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac3);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#fb7ec0;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(52,211,153,.12);color:var(--ac2);border-bottom:1px solid rgba(52,211,153,.2)}
+.vd-hd.fail{background:rgba(248,113,113,.1);color:var(--red);border-bottom:1px solid rgba(248,113,113,.15)}
+.vd-hd.running{background:rgba(129,140,248,.08);color:var(--ac)}
+.vd-body{background:#060710;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c4c6e0;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac2);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* HINT */
+.hint-toggle{background:none;border:1px solid var(--bd);color:var(--mu);font-size:12px;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s;margin-top:8px}
+.hint-toggle:hover{border-color:var(--warn);color:var(--warn)}
+.hint-box{display:none;margin-top:8px;background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#c4c6e0;line-height:1.7}
+.hint-box code{font-size:11.5px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c4c6e0;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx)}
+
+/* DP TABLE TRACE */
+.dp-table{background:#060710;border:1px solid var(--bd);border-radius:10px;padding:16px;margin:16px 0;overflow-x:auto}
+.dp-table-inner{display:flex;gap:4px;align-items:flex-end;min-width:max-content}
+.dp-col{display:flex;flex-direction:column;align-items:center;gap:3px}
+.dp-idx{font-size:9px;font-weight:700;color:var(--di);font-family:'JetBrains Mono',monospace}
+.dp-bar{width:36px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .4s;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;min-height:28px}
+.dp-bar.base{background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);color:var(--ac2)}
+.dp-bar.computed{background:rgba(129,140,248,.2);border:1px solid rgba(129,140,248,.4);color:var(--ac)}
+.dp-bar.active{background:rgba(244,114,182,.25);border:1px solid rgba(244,114,182,.5);color:var(--ac3);transform:scale(1.1);box-shadow:0 0 10px rgba(244,114,182,.3)}
+.dp-bar.empty{background:var(--sf2);border:1px solid var(--bd);color:var(--di)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid{grid-template-columns:1fr}.io-grid{grid-template-columns:1fr}.dp-compare{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">GDD CODING SCHOOL</div>
+    <div class="sb-title">Python EP2 · Week 9</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">🧠 DP คืออะไร?</a>
+    <a class="na" href="#problem">😱 ปัญหาของ Recursion</a>
+    <a class="na" href="#memo">📓 Memoization</a>
+    <a class="na" href="#viz">🎬 Visualizer</a>
+    <a class="na" href="#lesson1">🧪 ลองรัน — Fibonacci DP</a>
+    <a class="na" href="#lesson2">🧪 ลองรัน — Climbing Stairs</a>
+    <a class="na" href="#lesson3">🧪 ลองรัน — Grid Traveler</a>
+    <a class="na" href="#lesson4">🧪 ลองรัน — สายลับขโมยทอง</a>
+    <div class="nav-sec">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1 · Fibonacci DP <span class="badge bg">Easy</span></a>
+    <a class="na sub" href="#ex2">2 · Climbing Stairs <span class="badge bg">Easy</span></a>
+    <a class="na sub" href="#ex3">3 · Min Cost Stairs <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4 · Grid Traveler <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5 · House Robber <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6 · Count Ways (k-step) <span class="badge bp">Mid+</span></a>
+    <a class="na sub" href="#ex7">7 · Max Sum No Adj <span class="badge bp">Mid+</span></a>
+    <a class="na sub" href="#ex8">8 · Unique Paths (obstacle) <span class="badge br">Hard</span></a>
+    <a class="na sub" href="#ex9">9 · Coin Change (DP) <span class="badge br">Hard</span></a>
+    <a class="na sub" href="#ex10">10 · Longest Inc. Subseq. <span class="badge br">Hard</span></a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>›</span> Week 9 <span>›</span> Dynamic Programming</div>
+    <div class="py-st"><div class="dot" id="pyDot"></div><span id="pyStatus">กำลังโหลด...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="sec hero" id="intro">
+      <div class="hw">Week 9 · Problem Solving Strategies</div>
+      <div class="ht">Dynamic Programming</div>
+      <div class="hs">อย่าทำเรื่องเดิมซ้ำสอง — จำไว้แล้วนำมาใช้</div>
+      <div class="hm">DP แบบ Top-down คือวิธีการเขียนโปรแกรมโดยใช้ "ความจำ" เข้ามาช่วย หัวใจสำคัญคือ "อย่าทำเรื่องเดิมซ้ำสอง" (Don't Repeat Yourself) — เหมือนเวลาเพื่อนถามการบ้านข้อเดิม ถ้าเราทำเสร็จแล้ว เราก็กางสมุดให้ลอกเลย ไม่ต้องนั่งคิดใหม่</div>
+      <div class="tags">
+        <span class="tag">🧠 Memoization</span>
+        <span class="tag">📓 Top-down DP</span>
+        <span class="tag">🪜 Climbing Stairs</span>
+        <span class="tag">🤖 Grid Traveler</span>
+        <span class="tag">🥷 House Robber</span>
+      </div>
+    </div>
+
+    <!-- PROBLEM -->
+    <div class="sec" id="problem">
+      <div class="sl">ปัญหาของ Recursion เปล่า</div>
+      <h2>😱 ทำไม Recursion ธรรมดาถึงช้า?</h2>
+      <p>ลองนึกถึง <strong>Fibonacci</strong> — การหา <code>fib(5)</code> ต้องไปเรียก <code>fib(3)</code> ซ้ำกันถึง 2 ครั้ง! ถ้าหา <code>fib(50)</code> คอมพิวเตอร์จะทำงานซ้ำเป็นล้านล้านรอบ (เครื่องค้างแน่นอน)</p>
+
+      <div class="dp-compare">
+        <div class="dp-box slow">
+          <div class="dp-hd">😭 Recursion เปล่า <span class="dp-tag">O(2ⁿ)</span></div>
+          <div class="dp-body">
+            <strong>fib(5)</strong> เรียก <strong>fib(4)</strong> และ <strong>fib(3)</strong><br>
+            <strong>fib(4)</strong> เรียก <strong>fib(3)</strong> และ <strong>fib(2)</strong><br>
+            <strong>fib(3)</strong> ถูกคำนวณซ้ำ 2 ครั้ง!<br>
+            <strong>fib(50)</strong> → คำนวณซ้ำ ~2<sup>50</sup> ครั้ง = <strong style="color:var(--red)">เครื่องค้าง!</strong>
+          </div>
+        </div>
+        <div class="dp-box fast">
+          <div class="dp-hd">🚀 DP + Memoization <span class="dp-tag">O(n)</span></div>
+          <div class="dp-body">
+            คำนวณ <strong>fib(3)</strong> ครั้งแรก → จดไว้ใน memo<br>
+            ครั้งต่อไปที่ต้องการ <strong>fib(3)</strong> → เปิดสมุดดูเลย!<br>
+            <strong>fib(50)</strong> → คำนวณแค่ <strong style="color:var(--ac2)">50 ครั้ง</strong> = ทันที!<br>
+            ประหยัดเวลาได้มหาศาล
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>📊 เปรียบเทียบ:</strong> fib(50) แบบ Recursion เปล่า ต้องคำนวณ ~2,251,799,813,685,248 ครั้ง แต่แบบ DP จำเป็นแค่ 50 ครั้ง = <strong>เร็วกว่า 45 ล้านล้านเท่า!</strong>
+      </div>
+    </div>
+
+    <!-- MEMOIZATION -->
+    <div class="sec" id="memo">
+      <div class="sl">หัวใจของ DP</div>
+      <h2>📓 Memoization — สมุดจดที่เปลี่ยนชีวิต</h2>
+      <p>เทคนิค Memoization ใช้ <strong>Dictionary (memo = {})</strong> เป็น "สมุดจด" โดยก่อนคำนวณอะไร ให้เปิดสมุดดูก่อนว่า "เคยคิดไปหรือยัง?"</p>
+
+      <div class="concept-grid">
+        <div class="concept-card td">
+          <div class="cc-icon">1️⃣</div>
+          <div class="cc-title">เช็คสมุดก่อน</div>
+          <div class="cc-desc"><code>if n in memo: return memo[n]</code><br>ถ้ามีคำตอบแล้ว → คืนค่าทันที ไม่คำนวณซ้ำ</div>
+        </div>
+        <div class="concept-card bu">
+          <div class="cc-icon">2️⃣</div>
+          <div class="cc-title">คำนวณ + จด</div>
+          <div class="cc-desc">ถ้ายังไม่มี → คำนวณตามปกติ แล้ว<code>memo[n] = result</code> จดลงสมุด</div>
+        </div>
+        <div class="concept-card key">
+          <div class="cc-icon">⚠️</div>
+          <div class="cc-title">memo ไว้นอกฟังก์ชัน!</div>
+          <div class="cc-desc">ถ้าเอาไว้ข้างใน ทุกครั้งที่เรียกฟังก์ชัน สมุดจะถูกลบ เราต้องการสมุดเล่มเดิมที่จดต่อเนื่อง</div>
+        </div>
+      </div>
+
+      <table class="tbl">
+        <thead><tr><th>ปัญหา</th><th>Recurrence Formula</th><th>Base Case</th></tr></thead>
+        <tbody>
+          <tr><td>Fibonacci</td><td>fib(n) = fib(n-1) + fib(n-2)</td><td>fib(0)=0, fib(1)=1</td></tr>
+          <tr><td>Climbing Stairs</td><td>climb(n) = climb(n-1) + climb(n-2)</td><td>climb(1)=1, climb(2)=2</td></tr>
+          <tr><td>Grid Traveler</td><td>grid(m,n) = grid(m-1,n) + grid(m,n-1)</td><td>1x1=1, 0×any=0</td></tr>
+          <tr><td>House Robber</td><td>rob(i) = max(gold[i]+rob(i-2), rob(i-1))</td><td>rob(-1)=0, rob(0)=gold[0]</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- VISUALIZER -->
+    <div class="sec" id="viz">
+      <div class="memo-viz">
+        <div class="memo-viz-hd">
+          <div class="memo-viz-title">🎬 Memoization Visualizer — ดู fib(n) DP แบบ Step-by-Step</div>
+        </div>
+        <div class="memo-viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:14px">กด Step เพื่อดูว่า DP จดค่าลง memo ยังไง สังเกต: คำนวณ <span style="color:var(--warn)">ครั้งเดียว</span> แต่ถ้าถามซ้ำก็ <span style="color:var(--ac)">ดูสมุดเลย</span></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <span style="font-size:12px;color:var(--mu)">คำนวณ:</span>
+            <button class="viz-btn step" onclick="setFibN(7)">fib(7)</button>
+            <button class="viz-btn step" onclick="setFibN(10)">fib(10)</button>
+            <button class="viz-btn step" onclick="setFibN(12)">fib(12)</button>
+          </div>
+          <div class="memo-counter">
+            <div class="memo-stat ms-calls"><div class="ms-lbl">คำนวณจริง</div><div class="ms-val" id="vzCalls">0</div></div>
+            <div class="memo-stat ms-dp"><div class="ms-lbl">ดึงจาก memo</div><div class="ms-val" id="vzHits">0</div></div>
+            <div class="memo-stat"><div class="ms-lbl">ผลลัพธ์</div><div class="ms-val" id="vzResult" style="color:var(--ac)">?</div></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--di);margin:10px 0 6px">memo dictionary:</div>
+          <div class="memo-cells" id="vzCells"></div>
+          <div class="memo-msg" id="vzMsg">กด "Step" เพื่อเริ่ม</div>
+          <div class="viz-ctrl">
+            <button class="viz-btn step" id="vzStepBtn" onclick="memoStep()">⏭ Step</button>
+            <button class="viz-btn play" id="vzPlayBtn" onclick="memoPlay()">▶ Auto Play</button>
+            <button class="viz-btn rst" onclick="setFibN(currentFibN)">↺ Reset</button>
+          </div>
+          <!-- DP bar chart -->
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--di);margin:16px 0 8px">DP Table (Bottom-up view):</div>
+          <div class="dp-table"><div class="dp-table-inner" id="vzDpTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LESSON 1 -->
+    <div class="sec" id="lesson1">
+      <div class="sl">ตัวอย่าง 1 · Workshop</div>
+      <h2>Fibonacci DP — กับดักของ Recursion</h2>
+      <p>เพิ่ม <code>memo = {}</code> เข้าไป แค่นั้นก็เปลี่ยน O(2ⁿ) เป็น O(n) ได้ทันที!</p>
+      <div class="callout">
+        <strong>🔑 Pattern:</strong> 1) ตรวจ memo ก่อน 2) Base Case 3) คำนวณ + จด memo 4) return
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">fib_dp.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h340" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- LESSON 2 -->
+    <div class="sec" id="lesson2">
+      <div class="sl">ตัวอย่าง 2 · Workshop</div>
+      <h2>Climbing Stairs — บันไดกับ Fibonacci</h2>
+      <p>มีบันได N ขั้น ก้าวได้ครั้งละ 1 หรือ 2 ขั้น — มีกี่วิธี? สูตรเหมือน Fibonacci เลย!</p>
+      <div class="callout info">
+        <strong>💡 Insight:</strong> วิธี(10) = วิธี(9) + วิธี(8) — เพราะถ้าจะขึ้นไปขั้นที่ 10 เราต้องมาจากขั้น 9 (ก้าว 1) หรือขั้น 8 (ก้าว 2)
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">climbing_stairs.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h340" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- LESSON 3 -->
+    <div class="sec" id="lesson3">
+      <div class="sl">ตัวอย่าง 3 · Workshop</div>
+      <h2>Grid Traveler — หุ่นยนต์สำรวจดาว</h2>
+      <p>หุ่นยนต์เดินจากมุมซ้ายบน ไปมุมขวาล่าง ตารางขนาด M×N ได้แค่เดินขวาหรือเดินลง — มีกี่วิธี?</p>
+      <div class="callout info">
+        <strong>💡 สูตร:</strong> paths(m,n) = paths(m-1,n) + paths(m,n-1) · Key ของ memo คือ Tuple <code>(m,n)</code>
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">grid_traveler.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h380" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- LESSON 4 -->
+    <div class="sec" id="lesson4">
+      <div class="sl">ตัวอย่าง 4 · Workshop</div>
+      <h2>สายลับขโมยทอง — House Robber</h2>
+      <p>ปล้นบ้านติดกันไม่ได้ ต้องเลือกว่า "ปล้นบ้านนี้" หรือ "ปล่อยผ่าน" ให้ได้ทองสูงสุด</p>
+      <div class="callout pink">
+        <strong>🥷 สูตรลับ:</strong> rob(i) = max(gold[i] + rob(i-2), rob(i-1)) · เลือกทางที่ได้เงินเยอะกว่า!
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd">
+          <div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">house_robber.py</span></div>
+          <button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button>
+        </div>
+        <div class="mc h420" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EX 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 · Easy · DP</div>
+      <h2>Fibonacci DP</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">1</div>
+          <div class="ex-info">
+            <h3>fib_dp(n) — หา Fibonacci ด้วย Memoization</h3>
+            <p>ใช้ memo = {} เพื่อหลีกเลี่ยงการคำนวณซ้ำ · F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">fib_dp(0)
+fib_dp(1)
+fib_dp(10)
+fib_dp(20)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">0
+1
+55
+6765</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div>
+              <button class="check-btn" onclick="checkEx(1)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX1"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(1)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT1">
+            <code>memo = {}</code><br>
+            <code>def fib_dp(n):</code><br>
+            &nbsp;&nbsp;<code>if n in memo: return memo[n]</code><br>
+            &nbsp;&nbsp;<code>if n <= 1: return n</code><br>
+            &nbsp;&nbsp;<code>memo[n] = fib_dp(n-1) + fib_dp(n-2)</code><br>
+            &nbsp;&nbsp;<code>return memo[n]</code>
+          </div>
+          <div class="verdict" id="VD1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 · Easy · DP</div>
+      <h2>Climbing Stairs</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">2</div>
+          <div class="ex-info">
+            <h3>climb_stairs(n) — นับวิธีขึ้นบันได N ขั้น</h3>
+            <p>ก้าวได้ครั้งละ 1 หรือ 2 ขั้น · ใช้ Memoization · climb(1)=1, climb(2)=2</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">climb_stairs(1)
+climb_stairs(3)
+climb_stairs(5)
+climb_stairs(10)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">1
+3
+8
+89</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div>
+              <button class="check-btn" onclick="checkEx(2)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX2"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(2)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT2">
+            <code>memo = {}</code><br>
+            <code>def climb_stairs(n):</code><br>
+            &nbsp;&nbsp;<code>if n == 1: return 1</code><br>
+            &nbsp;&nbsp;<code>if n == 2: return 2</code><br>
+            &nbsp;&nbsp;<code>if n in memo: return memo[n]</code><br>
+            &nbsp;&nbsp;<code>memo[n] = climb_stairs(n-1) + climb_stairs(n-2)</code><br>
+            &nbsp;&nbsp;<code>return memo[n]</code>
+          </div>
+          <div class="verdict" id="VD2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 · Mid · DP</div>
+      <h2>Min Cost Climbing Stairs</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">3</div>
+          <div class="ex-info">
+            <h3>min_cost_stairs(cost) — ขึ้นบันไดด้วยพลังงานน้อยสุด</h3>
+            <p>cost[i] คือพลังงานที่ขั้น i · เริ่มที่ขั้น 0 หรือ 1 · สูตร: min_cost(i) = cost[i] + min(min_cost(i+1), min_cost(i+2))</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">min_cost_stairs([10,15,20])
+min_cost_stairs([1,100,1,1,1,100,1,1,100,1])
+min_cost_stairs([0,0,0,0])</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">15
+6
+0</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div>
+              <button class="check-btn" onclick="checkEx(3)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX3"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(3)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT3">
+            <code>def min_cost_stairs(cost):</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def dp(i):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i >= len(cost): return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i in memo: return memo[i]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[i] = cost[i] + min(dp(i+1), dp(i+2))</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return memo[i]</code><br>
+            &nbsp;&nbsp;<code>return min(dp(0), dp(1))</code>
+          </div>
+          <div class="verdict" id="VD3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 · Mid · DP</div>
+      <h2>Grid Traveler</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">4</div>
+          <div class="ex-info">
+            <h3>grid_traveler(m, n) — หาจำนวนเส้นทางในตาราง m×n</h3>
+            <p>เดินได้แค่ขวาหรือลง · Base: 1×1=1, 0×n=0 · key ของ memo คือ tuple (m,n)</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">grid_traveler(1,1)
+grid_traveler(2,3)
+grid_traveler(3,3)
+grid_traveler(5,5)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">1
+3
+6
+70</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div>
+              <button class="check-btn" onclick="checkEx(4)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX4"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(4)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT4">
+            <code>memo = {}</code><br>
+            <code>def grid_traveler(m, n):</code><br>
+            &nbsp;&nbsp;<code>if (m,n) in memo: return memo[(m,n)]</code><br>
+            &nbsp;&nbsp;<code>if m==1 and n==1: return 1</code><br>
+            &nbsp;&nbsp;<code>if m==0 or n==0: return 0</code><br>
+            &nbsp;&nbsp;<code>memo[(m,n)] = grid_traveler(m-1,n) + grid_traveler(m,n-1)</code><br>
+            &nbsp;&nbsp;<code>return memo[(m,n)]</code>
+          </div>
+          <div class="verdict" id="VD4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 · Mid · DP</div>
+      <h2>House Robber — สายลับขโมยทอง</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">5</div>
+          <div class="ex-info">
+            <h3>house_robber(gold) — หาทองสูงสุดที่ขโมยได้โดยไม่ปล้นบ้านติดกัน</h3>
+            <p>max( gold[i] + rob(i-2), rob(i-1) ) · Base: rob(-1)=0, rob(0)=gold[0]</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">house_robber([1,2,3,1])
+house_robber([2,7,9,3,1])
+house_robber([5,1,1,5])</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">4
+12
+10</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div>
+              <button class="check-btn" onclick="checkEx(5)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX5"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(5)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT5">
+            <code>def house_robber(gold):</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def rob(i):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i < 0: return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i == 0: return gold[0]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i in memo: return memo[i]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[i] = max(gold[i]+rob(i-2), rob(i-1))</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return memo[i]</code><br>
+            &nbsp;&nbsp;<code>return rob(len(gold)-1)</code>
+          </div>
+          <div class="verdict" id="VD5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 · Mid+ · DP</div>
+      <h2>Count Ways (k-step)</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num p">6</div>
+          <div class="ex-info">
+            <h3>count_ways(n, k) — นับวิธีขึ้นบันไดที่ก้าวได้ 1 ถึง k ขั้น</h3>
+            <p>เหมือน Climbing Stairs แต่ก้าวได้สูงสุด k ขั้น · ways(n) = ways(n-1) + ways(n-2) + ... + ways(n-k)</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">count_ways(3, 2)
+count_ways(4, 3)
+count_ways(5, 2)
+count_ways(5, 3)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">3
+7
+8
+13</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex6.py</span></div>
+              <button class="check-btn" onclick="checkEx(6)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX6"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(6)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT6">
+            <code>def count_ways(n, k):</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def dp(i):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i == 0: return 1</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i < 0: return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i in memo: return memo[i]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[i] = sum(dp(i-s) for s in range(1,k+1))</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return memo[i]</code><br>
+            &nbsp;&nbsp;<code>return dp(n)</code>
+          </div>
+          <div class="verdict" id="VD6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 · Mid+ · DP</div>
+      <h2>Max Sum No Adjacent</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num p">7</div>
+          <div class="ex-info">
+            <h3>max_sum_no_adj(nums) — หาผลรวมสูงสุดโดยไม่เลือกตัวเลขติดกัน</h3>
+            <p>เหมือน House Robber แต่รับ list ตัวเลขทั่วไป · max(nums[i] + dp(i-2), dp(i-1))</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">max_sum_no_adj([3,2,5,10,7])
+max_sum_no_adj([3,2,7,10])
+max_sum_no_adj([5,5,10,100,10,5])</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">15
+13
+110</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex7.py</span></div>
+              <button class="check-btn" onclick="checkEx(7)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX7"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(7)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT7">
+            <code>def max_sum_no_adj(nums):</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def dp(i):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i < 0: return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i == 0: return nums[0]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if i in memo: return memo[i]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[i] = max(nums[i]+dp(i-2), dp(i-1))</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return memo[i]</code><br>
+            &nbsp;&nbsp;<code>return dp(len(nums)-1)</code>
+          </div>
+          <div class="verdict" id="VD7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 · Hard · DP</div>
+      <h2>Unique Paths with Obstacle</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">8</div>
+          <div class="ex-info">
+            <h3>unique_paths_obs(grid) — Grid Traveler ที่มีสิ่งกีดขวาง</h3>
+            <p>grid[i][j] == 1 คือสิ่งกีดขวาง (ผ่านไม่ได้) · 0 คือทางเปิด · เดินจาก [0][0] ไป [m-1][n-1]</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">unique_paths_obs([[0,0,0],[0,1,0],[0,0,0]])
+unique_paths_obs([[0,1],[0,0]])
+unique_paths_obs([[1,0]])</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">2
+1
+0</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex8.py</span></div>
+              <button class="check-btn" onclick="checkEx(8)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX8"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(8)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT8">
+            <code>def unique_paths_obs(grid):</code><br>
+            &nbsp;&nbsp;<code>m, n = len(grid), len(grid[0])</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def dp(r, c):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if r >= m or c >= n or grid[r][c]==1: return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if r==m-1 and c==n-1: return 1</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if (r,c) in memo: return memo[(r,c)]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[(r,c)] = dp(r+1,c) + dp(r,c+1)</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return memo[(r,c)]</code><br>
+            &nbsp;&nbsp;<code>return dp(0,0)</code>
+          </div>
+          <div class="verdict" id="VD8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 9 -->
+    <div class="sec" id="ex9">
+      <div class="sl">โจทย์ที่ 9 · Hard · DP</div>
+      <h2>Coin Change DP — จำนวนเหรียญน้อยสุด (ทุกชุดเหรียญ)</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">9</div>
+          <div class="ex-info">
+            <h3>coin_change_dp(coins, amount) — หาจำนวนเหรียญน้อยสุดที่ถูกต้องเสมอ</h3>
+            <p>DP แก้จุดอ่อนของ Greedy ที่ล้มเหลวกับเหรียญแปลกๆ · dp(amount) = 1 + min(dp(amount-c) for c in coins)</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">coin_change_dp([1,3,4], 6)
+coin_change_dp([1,5,6,9], 11)
+coin_change_dp([2], 3)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">2
+2
+-1</div></div>
+          </div>
+          <div class="callout warn" style="font-size:12.5px;margin-bottom:10px">
+            <strong>💡 ตัวอย่าง:</strong> [1,3,4] ทอน 6 — Greedy เลือก 4+1+1=3 เหรียญ แต่ DP รู้ว่า 3+3=2 เหรียญดีกว่า! คืน -1 ถ้าทอนไม่ได้
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex9.py</span></div>
+              <button class="check-btn" onclick="checkEx(9)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX9"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(9)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT9">
+            <code>def coin_change_dp(coins, amount):</code><br>
+            &nbsp;&nbsp;<code>memo = {}</code><br>
+            &nbsp;&nbsp;<code>def dp(rem):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if rem == 0: return 0</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if rem < 0: return float('inf')</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>if rem in memo: return memo[rem]</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>best = min(1+dp(rem-c) for c in coins)</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>memo[rem] = best</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>return best</code><br>
+            &nbsp;&nbsp;<code>res = dp(amount)</code><br>
+            &nbsp;&nbsp;<code>return res if res != float('inf') else -1</code>
+          </div>
+          <div class="verdict" id="VD9"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX 10 -->
+    <div class="sec" id="ex10">
+      <div class="sl">โจทย์ที่ 10 · Hard · DP</div>
+      <h2>Longest Increasing Subsequence</h2>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">10</div>
+          <div class="ex-info">
+            <h3>lis(nums) — หาความยาวของลำดับย่อยที่เพิ่มขึ้นยาวสุด</h3>
+            <p>ไม่ต้องเลือกตัวเลขติดกัน แต่ต้องเพิ่มขึ้นตลอด · dp[i] = 1 + max(dp[j] for j &lt; i if nums[j] &lt; nums[i])</p>
+          </div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">lis([10,9,2,5,3,7,101,18])
+lis([0,1,0,3,2,3])
+lis([7,7,7,7,7])</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">4
+4
+1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd">
+              <div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex10.py</span></div>
+              <button class="check-btn" onclick="checkEx(10)">✓ ตรวจ</button>
+            </div>
+            <div class="ex-mc" id="EX10"></div>
+          </div>
+          <button class="hint-toggle" onclick="toggleHint(10)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT10">
+            <code>def lis(nums):</code><br>
+            &nbsp;&nbsp;<code>n = len(nums)</code><br>
+            &nbsp;&nbsp;<code>dp = [1] * n</code><br>
+            &nbsp;&nbsp;<code>for i in range(1, n):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<code>for j in range(i):</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>if nums[j] < nums[i]:</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>dp[i] = max(dp[i], dp[j]+1)</code><br>
+            &nbsp;&nbsp;<code>return max(dp)</code>
+          </div>
+          <div class="verdict" id="VD10"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Monaco -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+// ════ PYODIDE ════
+let pyodide = null, pyReady = false;
+async function initPyodide() {
+  const dot = document.getElementById('pyDot'), st = document.getElementById('pyStatus');
+  dot.className = 'dot loading'; st.textContent = 'กำลังโหลด Pyodide...';
+  try {
+    pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/" });
+    pyReady = true; dot.className = 'dot ready'; st.textContent = 'Pyodide พร้อมแล้ว ✓';
+    setTimeout(() => { st.textContent = 'Python พร้อม'; }, 2000);
+  } catch(e) { dot.className = 'dot error'; st.textContent = 'โหลดไม่สำเร็จ'; }
+}
+const pyScript = document.createElement('script');
+pyScript.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+pyScript.onload = initPyodide;
+document.head.appendChild(pyScript);
+
+// ════ MONACO ════
+const monacoEditors = {};
+
+const LESSON_CODE = {
+  L1: `# Fibonacci DP — ด้วย Memoization
+# ก่อน DP: fib(50) = คอมค้างแน่นอน
+# หลัง DP: fib(50) = ออกทันที!
+
+memo = {}  # ← สมุดจดที่เปลี่ยนชีวิต
+
+def fib_dp(n):
+    # 1. เช็คสมุดก่อน: ถ้ามีคำตอบแล้ว เอาไปเลย!
+    if n in memo:
+        return memo[n]
+
+    # 2. Base Case: จุดหยุด
+    if n <= 1:
+        return n
+
+    # 3. ถ้ายังไม่มี: คำนวณ แล้ว "จดใส่สมุด"
+    memo[n] = fib_dp(n-1) + fib_dp(n-2)
+    return memo[n]
+
+# ลองรันดูความเร็ว
+print("fib(10) =", fib_dp(10))
+print("fib(30) =", fib_dp(30))
+print("fib(50) =", fib_dp(50))   # ออกทันที! ไม่ค้าง
+print()
+print("10 ตัวแรก:", [fib_dp(i) for i in range(11)])
+`,
+  L2: `# Climbing Stairs — ขึ้นบันได N ขั้น
+# ก้าวได้ครั้งละ 1 หรือ 2 ขั้น
+
+memo = {}
+
+def climb_stairs(n):
+    if n == 1: return 1   # บันได 1 ขั้น → 1 วิธี
+    if n == 2: return 2   # บันได 2 ขั้น → 2 วิธี (1+1 หรือ 2)
+    if n in memo: return memo[n]
+
+    # สูตรเหมือน Fibonacci: ways(n) = ways(n-1) + ways(n-2)
+    # เพราะจะขึ้นขั้น n ต้องมาจากขั้น n-1 หรือ n-2
+    result = climb_stairs(n-1) + climb_stairs(n-2)
+    memo[n] = result
+    return result
+
+for i in range(1, 11):
+    print(f"บันได {i:2d} ขั้น มีวิธีเดิน: {climb_stairs(i):5d} วิธี")
+`,
+  L3: `# Grid Traveler — หุ่นยนต์สำรวจดาว
+# เดินได้แค่ขวาหรือลง จากมุมซ้ายบนไปมุมขวาล่าง
+
+memo = {}  # Key คือ Tuple (m, n) เพราะมี 2 ตัวเลข
+
+def grid_traveler(m, n):
+    if (m, n) in memo: return memo[(m, n)]
+
+    # Base Cases
+    if m == 1 and n == 1: return 1   # ถึงที่หมายแล้ว
+    if m == 0 or n == 0: return 0    # ตกขอบ
+
+    # สูตร: มาจากข้างบน + มาจากข้างซ้าย
+    result = grid_traveler(m-1, n) + grid_traveler(m, n-1)
+    memo[(m, n)] = result
+    return result
+
+print(f"ตาราง 2x3 มีทางเดิน: {grid_traveler(2, 3)} วิธี")   # ตอบ 3
+print(f"ตาราง 3x3 มีทางเดิน: {grid_traveler(3, 3)} วิธี")   # ตอบ 6
+print(f"ตาราง 5x5 มีทางเดิน: {grid_traveler(5, 5)} วิธี")   # ตอบ 70
+print(f"ตาราง 18x18 มีทางเดิน: {grid_traveler(18, 18)} วิธี") # ใหญ่มากแต่ออกทันที!
+`,
+  L4: `# House Robber — สายลับขโมยทอง
+# ปล้นบ้านติดกันไม่ได้ → สัญญาณเตือนดัง!
+
+memo = {}
+gold = [2, 7, 9, 3, 1]  # ทองในบ้านแต่ละหลัง
+
+def rob(i):
+    # Base Cases
+    if i < 0: return 0         # ก่อนบ้านแรก → ได้ 0
+    if i == 0: return gold[0]  # บ้านแรก → ปล้นเลย
+
+    if i in memo: return memo[i]
+
+    # ทางที่ 1: ปล้นบ้านนี้  → ได้ gold[i] + ผลจากบ้าน i-2
+    rob_this = gold[i] + rob(i-2)
+
+    # ทางที่ 2: ไม่ปล้นบ้านนี้ → ได้ผลดีสุดจากบ้าน i-1
+    skip_this = rob(i-1)
+
+    # เลือกทางที่ได้ทองเยอะกว่า!
+    best = max(rob_this, skip_this)
+    memo[i] = best
+    return best
+
+last = len(gold) - 1
+print(f"รายการทอง: {gold}")
+print(f"ขโมยทองได้มากที่สุด: {rob(last)} ชิ้น")
+
+# ทดสอบกับข้อมูลอื่น
+gold2 = [1, 2, 3, 1]
+memo.clear()
+gold = gold2
+print(f"\\nรายการทอง: {gold2}")
+print(f"ขโมยทองได้มากที่สุด: {rob(len(gold2)-1)} ชิ้น")
+`
+};
+
+const EX_STARTER = {
+  1: `memo = {}
+
+def fib_dp(n):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(fib_dp(0))
+print(fib_dp(1))
+print(fib_dp(10))
+print(fib_dp(20))`,
+  2: `memo = {}
+
+def climb_stairs(n):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(climb_stairs(1))
+print(climb_stairs(3))
+print(climb_stairs(5))
+print(climb_stairs(10))`,
+  3: `def min_cost_stairs(cost):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(min_cost_stairs([10,15,20]))
+print(min_cost_stairs([1,100,1,1,1,100,1,1,100,1]))
+print(min_cost_stairs([0,0,0,0]))`,
+  4: `memo = {}
+
+def grid_traveler(m, n):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(grid_traveler(1,1))
+print(grid_traveler(2,3))
+print(grid_traveler(3,3))
+print(grid_traveler(5,5))`,
+  5: `def house_robber(gold):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(house_robber([1,2,3,1]))
+print(house_robber([2,7,9,3,1]))
+print(house_robber([5,1,1,5]))`,
+  6: `def count_ways(n, k):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(count_ways(3, 2))
+print(count_ways(4, 3))
+print(count_ways(5, 2))
+print(count_ways(5, 3))`,
+  7: `def max_sum_no_adj(nums):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(max_sum_no_adj([3,2,5,10,7]))
+print(max_sum_no_adj([3,2,7,10]))
+print(max_sum_no_adj([5,5,10,100,10,5]))`,
+  8: `def unique_paths_obs(grid):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(unique_paths_obs([[0,0,0],[0,1,0],[0,0,0]]))
+print(unique_paths_obs([[0,1],[0,0]]))
+print(unique_paths_obs([[1,0]]))`,
+  9: `def coin_change_dp(coins, amount):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(coin_change_dp([1,3,4], 6))
+print(coin_change_dp([1,5,6,9], 11))
+print(coin_change_dp([2], 3))`,
+  10:`def lis(nums):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(lis([10,9,2,5,3,7,101,18]))
+print(lis([0,1,0,3,2,3]))
+print(lis([7,7,7,7,7]))`
+};
+
+const EX_TESTS = {
+  1:[
+    {input:'fib_dp(0)',expected:'0'},{input:'fib_dp(1)',expected:'1'},
+    {input:'fib_dp(10)',expected:'55'},{input:'fib_dp(20)',expected:'6765'},
+  ],
+  2:[
+    {input:'climb_stairs(1)',expected:'1'},{input:'climb_stairs(3)',expected:'3'},
+    {input:'climb_stairs(5)',expected:'8'},{input:'climb_stairs(10)',expected:'89'},
+  ],
+  3:[
+    {input:'min_cost_stairs([10,15,20])',expected:'15'},
+    {input:'min_cost_stairs([1,100,1,1,1,100,1,1,100,1])',expected:'6'},
+    {input:'min_cost_stairs([0,0,0,0])',expected:'0'},
+  ],
+  4:[
+    {input:'grid_traveler(1,1)',expected:'1'},{input:'grid_traveler(2,3)',expected:'3'},
+    {input:'grid_traveler(3,3)',expected:'6'},{input:'grid_traveler(5,5)',expected:'70'},
+  ],
+  5:[
+    {input:'house_robber([1,2,3,1])',expected:'4'},
+    {input:'house_robber([2,7,9,3,1])',expected:'12'},
+    {input:'house_robber([5,1,1,5])',expected:'10'},
+  ],
+  6:[
+    {input:'count_ways(3,2)',expected:'3'},{input:'count_ways(4,3)',expected:'7'},
+    {input:'count_ways(5,2)',expected:'8'},{input:'count_ways(5,3)',expected:'13'},
+  ],
+  7:[
+    {input:'max_sum_no_adj([3,2,5,10,7])',expected:'15'},
+    {input:'max_sum_no_adj([3,2,7,10])',expected:'13'},
+    {input:'max_sum_no_adj([5,5,10,100,10,5])',expected:'110'},
+  ],
+  8:[
+    {input:'unique_paths_obs([[0,0,0],[0,1,0],[0,0,0]])',expected:'2'},
+    {input:'unique_paths_obs([[0,1],[0,0]])',expected:'1'},
+    {input:'unique_paths_obs([[1,0]])',expected:'0'},
+  ],
+  9:[
+    {input:'coin_change_dp([1,3,4],6)',expected:'2'},
+    {input:'coin_change_dp([1,5,6,9],11)',expected:'2'},
+    {input:'coin_change_dp([2],3)',expected:'-1'},
+    {input:'coin_change_dp([1,2,5],11)',expected:'3'},
+  ],
+  10:[
+    {input:'lis([10,9,2,5,3,7,101,18])',expected:'4'},
+    {input:'lis([0,1,0,3,2,3])',expected:'4'},
+    {input:'lis([7,7,7,7,7])',expected:'1'},
+    {input:'lis([1,3,6,7,9,4,10,5,6])',expected:'6'},
+  ]
+};
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+
+require(['vs/editor/editor.main'], function() {
+  monaco.editor.defineTheme('dp-theme', {
+    base:'vs-dark', inherit:true,
+    rules:[
+      {token:'comment',foreground:'3d4270',fontStyle:'italic'},
+      {token:'keyword',foreground:'818cf8',fontStyle:'bold'},
+      {token:'string',foreground:'34d399'},
+      {token:'number',foreground:'f472b6'},
+      {token:'identifier',foreground:'e8eaf6'},
+    ],
+    colors:{
+      'editor.background':'#0a0b14','editor.foreground':'#e8eaf6',
+      'editorLineNumber.foreground':'#3d4270','editor.selectionBackground':'#818cf830',
+      'editor.lineHighlightBackground':'#161728','editorCursor.foreground':'#818cf8',
+      'editorIndentGuide.background':'#20223a'
+    }
+  });
+  Object.entries(LESSON_CODE).forEach(([id, code]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    monacoEditors[id] = monaco.editor.create(el, {
+      value:code, language:'python', theme:'dp-theme',
+      fontSize:13, fontFamily:"'JetBrains Mono',monospace",
+      minimap:{enabled:false}, scrollBeyondLastLine:false,
+      lineNumbers:'on', padding:{top:10,bottom:10}, automaticLayout:true
+    });
+  });
+  for (let i = 1; i <= 10; i++) {
+    const el = document.getElementById('EX'+i);
+    if (!el) continue;
+    monacoEditors['EX'+i] = monaco.editor.create(el, {
+      value:EX_STARTER[i], language:'python', theme:'dp-theme',
+      fontSize:13, fontFamily:"'JetBrains Mono',monospace",
+      minimap:{enabled:false}, scrollBeyondLastLine:false,
+      lineNumbers:'on', padding:{top:8,bottom:8}, automaticLayout:true
+    });
+  }
+});
+
+// ════ RUN LESSON ════
+async function runLesson(btn, edId, outId) {
+  const out = document.getElementById(outId);
+  if (!pyReady) { out.textContent='⏳ รอ Pyodide โหลดก่อน...'; out.className='out-txt err'; return; }
+  const code = monacoEditors[edId].getValue();
+  btn.disabled = true; btn.textContent = '⏳ กำลังรัน...';
+  out.className = 'out-txt'; out.textContent = '';
+  const wrapped = `
+import sys, io
+_out = io.StringIO()
+sys.stdout = _out
+${code}
+sys.stdout = sys.__stdout__
+_out.getvalue()
+`;
+  try {
+    const r = await pyodide.runPythonAsync(wrapped);
+    out.textContent = r || '(ไม่มี output)'; out.className = 'out-txt ok';
+  } catch(e) { out.textContent = '❌ Error:\n' + e.message; out.className = 'out-txt err'; }
+  btn.disabled = false; btn.textContent = '▶ รันโค้ด';
+}
+
+// ════ CHECK EXERCISE ════
+async function checkEx(num) {
+  const btn = document.querySelector(`#ex${num} .check-btn`);
+  const vd  = document.getElementById('VD'+num);
+  if (!pyReady) { vd.style.display='block'; vd.innerHTML='<div class="vd-hd running">⏳ รอ Pyodide...</div>'; return; }
+  const code = monacoEditors['EX'+num].getValue();
+  const tests = EX_TESTS[num];
+  btn.disabled = true;
+  vd.style.display = 'block';
+  vd.innerHTML = '<div class="vd-hd running">🔄 กำลังตรวจ...</div>';
+  let allPass = true, rowsHTML = '';
+  for (const t of tests) {
+    const rc = `
+import sys, io
+_out = io.StringIO()
+sys.stdout = _out
+${code}
+print(${t.input})
+sys.stdout = sys.__stdout__
+_out.getvalue().strip()
+`;
+    let got = '', ok = false;
+    try { got = (await pyodide.runPythonAsync(rc)).trim(); ok = got === t.expected.trim(); }
+    catch(e) { got = '❌ ' + e.message.split('\n')[0]; }
+    if (!ok) allPass = false;
+    rowsHTML += `<div class="vd-row"><div class="vd-icon">${ok?'✅':'❌'}</div><div class="vd-content"><div class="vd-title">${ok?'ผ่าน':'ไม่ผ่าน'}</div><div class="vd-in">▷ ${t.input}</div><div class="vd-row-inner"><div><div class="vd-label">ได้</div><div class="vd-got ${ok?'':'wrong'}">${got||'(ว่าง)'}</div></div><div><div class="vd-label">คาดหวัง</div><div class="vd-expect">${t.expected}</div></div></div></div></div>`;
+  }
+  const hd = allPass
+    ? `<div class="vd-hd pass">🎉 ผ่านทุก Test Case! (${tests.length}/${tests.length})</div>`
+    : `<div class="vd-hd fail">💥 ยังไม่ผ่านทุกข้อ — ลองแก้โค้ดดูอีกครั้ง</div>`;
+  vd.innerHTML = hd + '<div class="vd-body">' + rowsHTML + '</div>';
+  btn.disabled = false;
+}
+
+function toggleHint(num) {
+  const h = document.getElementById('HINT'+num);
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+}
+
+// ════ MEMOIZATION VISUALIZER ════
+// Pre-compute fib steps
+let currentFibN = 7;
+let vizSteps = [];
+let vizCursor = 0;
+let vizPlayTimer = null;
+
+function computeFibSteps(n) {
+  const steps = [];
+  const memo = {};
+  let calls = 0, hits = 0;
+  function fib(x) {
+    if (x in memo) {
+      hits++;
+      steps.push({ type:'hit', key:x, val:memo[x], memo:{...memo}, calls, hits, msg:`🔍 fib(${x}) → สมุดมีแล้ว! ได้ ${memo[x]} เลย` });
+      return memo[x];
+    }
+    if (x <= 1) {
+      calls++;
+      memo[x] = x;
+      steps.push({ type:'base', key:x, val:x, memo:{...memo}, calls, hits, msg:`📌 Base Case: fib(${x}) = ${x}` });
+      return x;
+    }
+    calls++;
+    steps.push({ type:'compute', key:x, val:null, memo:{...memo}, calls, hits, msg:`⚙️ คำนวณ fib(${x}) = fib(${x-1}) + fib(${x-2})...` });
+    const res = fib(x-1) + fib(x-2);
+    memo[x] = res;
+    steps.push({ type:'cached', key:x, val:res, memo:{...memo}, calls, hits, msg:`📓 จด memo[${x}] = ${res}` });
+    return res;
+  }
+  fib(n);
+  steps.push({ type:'done', memo:{...memo}, calls, hits, result:memo[n], msg:`🎉 เสร็จ! fib(${n}) = ${memo[n]} | คำนวณจริง ${calls} ครั้ง | ดึง memo ${hits} ครั้ง` });
+  return steps;
+}
+
+function setFibN(n) {
+  currentFibN = n;
+  vizSteps = computeFibSteps(n);
+  vizCursor = 0;
+  if (vizPlayTimer) { clearInterval(vizPlayTimer); vizPlayTimer = null; document.getElementById('vzPlayBtn').textContent='▶ Auto Play'; }
+  renderVizStep(vizSteps[0]);
+  document.getElementById('vzStepBtn').disabled = false;
+  document.getElementById('vzStepBtn').textContent = '⏭ Step';
+}
+
+function renderVizStep(step) {
+  document.getElementById('vzCalls').textContent = step.calls;
+  document.getElementById('vzHits').textContent = step.hits;
+  document.getElementById('vzResult').textContent = step.type === 'done' ? step.result : '...';
+  const msg = document.getElementById('vzMsg');
+  msg.textContent = step.msg;
+  msg.className = 'memo-msg ' + (step.type==='hit' ? 'hit' : step.type==='compute' ? 'compute' : '');
+
+  // Memo cells
+  const cellsEl = document.getElementById('vzCells');
+  const allKeys = Array.from({length: currentFibN+1}, (_,i) => i);
+  cellsEl.innerHTML = allKeys.map(k => {
+    let cls = 'memo-cell empty', valTxt = '?';
+    if (k in step.memo) { cls = 'memo-cell cached'; valTxt = step.memo[k]; }
+    if (step.key === k) {
+      if (step.type === 'hit') cls = 'memo-cell hit';
+      else if (step.type === 'compute') cls = 'memo-cell computing';
+      valTxt = step.type === 'compute' ? '...' : (k in step.memo ? step.memo[k] : '?');
+    }
+    return `<div class="${cls}"><div class="memo-cell-key">fib(${k})</div><div class="memo-cell-val">${valTxt}</div></div>`;
+  }).join('');
+
+  // DP bar chart
+  const dpEl = document.getElementById('vzDpTable');
+  dpEl.innerHTML = allKeys.map(k => {
+    let cls = 'dp-bar empty', lbl = '?';
+    if (k in step.memo) { cls = k <= 1 ? 'dp-bar base' : 'dp-bar computed'; lbl = step.memo[k]; }
+    if (step.key === k && step.type === 'compute') { cls = 'dp-bar active'; lbl = '...'; }
+    return `<div class="dp-col"><div class="dp-bar ${cls}" style="height:${k <= 1 ? 28 : Math.min(80, Math.max(28, (step.memo[k]||0)*2+28))}px">${lbl}</div><div class="dp-idx">${k}</div></div>`;
+  }).join('');
+}
+
+function memoStep() {
+  if (vizCursor >= vizSteps.length) { setFibN(currentFibN); return; }
+  renderVizStep(vizSteps[vizCursor++]);
+  if (vizCursor >= vizSteps.length) document.getElementById('vzStepBtn').textContent = '↺ Reset';
+}
+
+function memoPlay() {
+  if (vizPlayTimer) {
+    clearInterval(vizPlayTimer); vizPlayTimer = null;
+    document.getElementById('vzPlayBtn').textContent = '▶ Auto Play'; return;
+  }
+  document.getElementById('vzPlayBtn').textContent = '⏸ Pause';
+  vizPlayTimer = setInterval(() => {
+    if (vizCursor >= vizSteps.length) {
+      clearInterval(vizPlayTimer); vizPlayTimer = null;
+      document.getElementById('vzPlayBtn').textContent = '↺ Play Again'; return;
+    }
+    renderVizStep(vizSteps[vizCursor++]);
+  }, 650);
+}
+
+window.addEventListener('load', () => setFibN(7));
+
+// ════ SIDEBAR ════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

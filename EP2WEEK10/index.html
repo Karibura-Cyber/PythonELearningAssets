@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python EP2 Week 10 — Dynamic Programming (Bottom-up)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;--ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;--tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}.bb{background:rgba(6,182,212,.15);color:var(--ac2)}.br{background:rgba(239,68,68,.15);color:var(--red)}.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}.dot.ready{background:var(--ac3)}.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.content{max-width:860px;margin:0 auto;padding:44px 36px 100px}
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+.cx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.cx-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.cx-card.fast{border-color:rgba(16,185,129,.3)}.cx-card.slow{border-color:rgba(239,68,68,.2)}.cx-card.mid{border-color:rgba(6,182,212,.3)}
+.cx-type{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.cx-val{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.cx-card.fast .cx-val{color:var(--ac3)}.cx-card.slow .cx-val{color:var(--red)}.cx-card.mid .cx-val{color:var(--ac2)}
+.cx-desc{font-size:11.5px;color:var(--mu)}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.td{border-color:rgba(239,68,68,.3)}.concept-card.bu{border-color:rgba(16,185,129,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.td::before{background:linear-gradient(90deg,var(--red),transparent)}
+.concept-card.bu::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.td .cc-title{color:var(--red)}.concept-card.bu .cc-title{color:var(--ac3)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+.cc-eg{margin-top:10px;font-size:12px;color:var(--di);font-style:italic}
+/* VIZ */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac2)}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.play{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3)}
+.viz-btn.play:hover{background:rgba(232,121,249,.25)}
+.viz-btn.step{background:rgba(6,182,212,.15);color:var(--ac2);border:1px solid rgba(6,182,212,.3)}
+.viz-btn.step:hover{background:rgba(6,182,212,.25)}
+.viz-btn.green{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.viz-btn.green:hover{background:rgba(16,185,129,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-btn:disabled{opacity:.4;cursor:not-allowed}
+/* DP TABLE */
+.dp-table-wrap{overflow-x:auto;margin:14px 0}
+.dp-table{border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13px;min-width:100%}
+.dp-table th{background:var(--sf2);padding:8px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);border:1px solid var(--bd);text-align:center;white-space:nowrap}
+.dp-table td{padding:10px 16px;border:1px solid var(--bd);text-align:center;font-weight:600;transition:all .4s;color:#c5c9d8}
+.dp-cell-empty{color:var(--di);font-style:italic}
+.dp-cell-base{background:rgba(245,158,11,.12);color:var(--warn);border-color:rgba(245,158,11,.3)!important}
+.dp-cell-current{background:rgba(232,121,249,.15);color:var(--ac);border-color:rgba(232,121,249,.4)!important;box-shadow:0 0 8px rgba(232,121,249,.2)}
+.dp-cell-done{background:rgba(16,185,129,.1);color:var(--ac3);border-color:rgba(16,185,129,.25)!important}
+.dp-status{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--mu);margin-top:10px;min-height:22px;padding:6px 0}
+/* 2D DP grid */
+.dp-grid-2d{display:inline-grid;gap:3px;margin:14px 0}
+.dp-cell-2d{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;border-radius:6px;border:1px solid var(--bd);transition:all .35s;color:#c5c9d8;background:var(--sf2)}
+.dp-cell-2d.base{background:rgba(245,158,11,.12);color:var(--warn);border-color:rgba(245,158,11,.3)}
+.dp-cell-2d.cur{background:rgba(232,121,249,.15);color:var(--ac);border-color:rgba(232,121,249,.4)}
+.dp-cell-2d.done{background:rgba(16,185,129,.1);color:var(--ac3);border-color:rgba(16,185,129,.25)}
+.dp-cell-2d.empty{color:var(--di);font-style:italic}
+/* EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h460{height:460px}
+.out-panel{border-top:2px solid #1a3a5c;background:#020d1a;position:relative;overflow:hidden}
+.out-panel::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,180,255,.025) 2px,rgba(0,180,255,.025) 4px);pointer-events:none;z-index:1}
+.out-panel::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,.55) 100%);pointer-events:none;z-index:2}
+.out-lbl{padding:5px 14px 5px 36px;font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#2a7aad;border-bottom:1px solid #0d2a42;background:#010b15;position:relative;z-index:3;display:flex;align-items:center;gap:8px}
+.out-lbl::before{content:'●';font-size:8px;color:#0af;position:absolute;left:14px;animation:crt-blink 1.2s step-end infinite;text-shadow:0 0 6px #0af}
+@keyframes crt-blink{0%,100%{opacity:1}50%{opacity:0}}
+.out-txt{padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;min-height:52px;max-height:220px;overflow-y:auto;white-space:pre-wrap;position:relative;z-index:3;letter-spacing:.02em}
+.out-txt.idle{color:#1a4a6e;font-style:italic}.out-txt.ok{color:#48c8ff;text-shadow:0 0 8px rgba(72,200,255,.35)}.out-txt.err{color:#ff5f7e}
+/* EXERCISE */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#020d1a;border:1px solid #0d2a42;border-radius:8px;overflow:hidden;position:relative}
+.io-box::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,160,255,.018) 2px,rgba(0,160,255,.018) 4px);pointer-events:none;z-index:0}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #0d2a42;background:#010b15;position:relative;z-index:1}
+.io-lbl.inp{color:#2a9fd6}.io-lbl.out{color:#48c8ff}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#7dd3f8;white-space:pre;position:relative;z-index:1;text-shadow:0 0 6px rgba(125,211,248,.2)}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+.hint-toggle{background:none;border:1px solid var(--bd);color:var(--mu);font-size:12px;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s;margin-top:8px}
+.hint-toggle:hover{border-color:var(--warn);color:var(--warn)}
+.hint-box{display:none;margin-top:8px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#c5c9d8;line-height:1.7}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.io-grid{grid-template-columns:1fr}.cx-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">GDD CODING SCHOOL</div>
+    <div class="sb-title">Python EP2 · Week 10</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#recap">Recap — Top-down vs Bottom-up</a>
+    <a class="na" href="#concept">Concept — เปลี่ยน "สมุดจด" เป็น "ตาราง"</a>
+    <a class="na" href="#fib">ตัวอย่างที่ 1 — Fibonacci Bottom-up</a>
+    <a class="na sub" href="#fib-viz">🎬 DP Table Visualizer</a>
+    <a class="na" href="#stairs">Workshop 1 — Climbing Stairs</a>
+    <a class="na" href="#coin">Level Up! — Coin Change</a>
+    <a class="na sub" href="#coin-viz">🪙 Coin Change Visualizer</a>
+    <a class="na" href="#mincost">Min Cost Climbing Stairs</a>
+    <a class="na" href="#grid">Grid Traveler — หุ่นยนต์เดินตาราง</a>
+    <a class="na sub" href="#grid-viz">🤖 Grid DP Visualizer</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. Fibonacci Bottom-up <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. Climbing Stairs <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Coin Change <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Min Cost Stairs <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. Grid Traveler <span class="badge br">Hard</span></a>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="bc">Python EP2 <span>›</span> Week 10 <span>›</span> Dynamic Programming (Part 2)</div>
+    <div class="py-st"><div class="dot" id="pyDot"></div><span id="pyStatus">กำลังโหลด Pyodide...</span></div>
+  </div>
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Week 10 · Python EP2</div>
+      <div class="ht">Dynamic Programming<br>Part 2: Bottom-up</div>
+      <div class="hs">เปลี่ยน "สมุดจด" เป็น "ตาราง"</div>
+      <div class="hm">เรียนรู้วิธีสร้างคำตอบจากเล็กไปใหญ่ด้วย For Loop ไม่ต้องเรียก Recursion ซ้อนกัน รองรับ N ขนาดใหญ่ได้ไม่กลัว Stack Overflow</div>
+      <div class="tags">
+        <span class="tag">Bottom-up DP</span><span class="tag">DP Table</span><span class="tag">Fibonacci</span>
+        <span class="tag">Climbing Stairs</span><span class="tag">Coin Change</span><span class="tag">Grid Traveler</span>
+      </div>
+    </div>
+
+    <!-- RECAP -->
+    <div class="sec" id="recap">
+      <div class="sl">Recap</div>
+      <h2>Top-down vs Bottom-up — ต่างกันยังไง?</h2>
+      <div class="concept-grid">
+        <div class="concept-card td">
+          <div class="cc-icon">🔽</div>
+          <div class="cc-title">Top-down (Week 9)</div>
+          <div class="cc-desc">เริ่มจากโจทย์ใหญ่ (N) → แตกเป็นโจทย์ย่อย ใช้ Recursion + Memoization (สมุดจด)</div>
+          <div class="cc-eg">❗ ข้อจำกัด: N ใหญ่มาก → Recursion Limit Exceeded</div>
+        </div>
+        <div class="concept-card bu">
+          <div class="cc-icon">🔼</div>
+          <div class="cc-title">Bottom-up (สัปดาห์นี้)</div>
+          <div class="cc-desc">ไม่เรียกซ้อน แต่ <strong>"วนลูป"</strong> สร้างคำตอบจากเล็กไปใหญ่ เหมือนก่อกำแพงอิฐจากฐานขึ้นบน</div>
+          <div class="cc-eg">✅ เปลี่ยนจาก "สมุดจด" เป็น "ตาราง" (List/Array)</div>
+        </div>
+      </div>
+      <table class="tbl">
+        <thead><tr><th></th><th>Top-down</th><th>Bottom-up</th></tr></thead>
+        <tbody>
+          <tr><td>วิธีคิด</td><td>แยกจากใหญ่ → เล็ก</td><td>สร้างจากเล็ก → ใหญ่</td></tr>
+          <tr><td>เทคนิค</td><td>Recursion + Memo dict</td><td>For Loop + dp array</td></tr>
+          <tr><td>Stack Overflow</td><td>เสี่ยงเมื่อ N ใหญ่</td><td>ไม่เสี่ยง ✅</td></tr>
+          <tr><td>ความเร็ว</td><td>O(N) เท่ากัน</td><td>O(N) เท่ากัน</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CONCEPT -->
+    <div class="sec" id="concept">
+      <div class="sl">Concept</div>
+      <h2>เปลี่ยนจาก "สมุดจด" เป็น "ตาราง"</h2>
+      <p>แทนที่จะถามหาคำตอบจากตัวก่อนหน้า เราจะ <strong>"เตรียมตารางคำตอบ"</strong> ไว้รอเลย</p>
+      <div class="cx-grid">
+        <div class="cx-card warn" style="border-color:rgba(245,158,11,.3)">
+          <div class="cx-type">ขั้นที่ 1</div>
+          <div class="cx-val" style="color:var(--warn);font-size:14px">สร้างตาราง</div>
+          <div class="cx-desc">List ขนาด N+1 เริ่มด้วย 0 ทั้งหมด</div>
+        </div>
+        <div class="cx-card mid">
+          <div class="cx-type">ขั้นที่ 2</div>
+          <div class="cx-val" style="font-size:14px">Base Case</div>
+          <div class="cx-desc">ใส่ค่าที่รู้อยู่แล้ว เช่น dp[0]=0, dp[1]=1</div>
+        </div>
+        <div class="cx-card fast">
+          <div class="cx-type">ขั้นที่ 3 & 4</div>
+          <div class="cx-val" style="font-size:14px">Loop → Answer</div>
+          <div class="cx-desc">วนเติมค่าจากช่องที่ 2 → คำตอบอยู่ช่องสุดท้าย!</div>
+        </div>
+      </div>
+      <div class="callout ok">
+        <strong>สูตรสำเร็จ Bottom-up:</strong><br>
+        <code>dp = [0] * (n + 1)</code> → ใส่ Base Case → <code>for i in range(2, n+1): dp[i] = ...</code> → <code>return dp[n]</code>
+      </div>
+    </div>
+
+    <!-- FIBONACCI -->
+    <div class="sec" id="fib">
+      <div class="sl">ตัวอย่างที่ 1</div>
+      <h2>Fibonacci — Bottom-up</h2>
+      <p>แทนที่จะเรียก <code>fib(5) → fib(4) → ...</code> ลงไปเรื่อยๆ เราสร้าง List เติมทีละช่องจากซ้ายไปขวา</p>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">fib_bottom_up.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h300" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- FIB VIZ -->
+    <div class="sec" id="fib-viz">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title">🎬 DP Table Visualizer — Fibonacci Bottom-up</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:12px">ดูตารางถูกเติมทีละช่อง · เลือก N แล้วกด Step</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="viz-btn step" onclick="fibVizInit(7)">F(7)</button>
+            <button class="viz-btn step" onclick="fibVizInit(10)">F(10)</button>
+            <button class="viz-btn step" onclick="fibVizInit(12)">F(12)</button>
+          </div>
+          <div class="dp-table-wrap" id="fibTableWrap"></div>
+          <div class="dp-status" id="fibStatus">เลือก N แล้วกด Step</div>
+          <div class="viz-ctrl">
+            <button class="viz-btn play" id="fibPlayBtn" onclick="fibPlay()">▶ Auto Play</button>
+            <button class="viz-btn step" onclick="fibStep()">⏭ Step</button>
+            <button class="viz-btn rst" onclick="fibVizInit(fibN)">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIMBING STAIRS -->
+    <div class="sec" id="stairs">
+      <div class="sl">Workshop 1</div>
+      <h2>Climbing Stairs — บันไดแบบ Bottom-up</h2>
+      <p>มีบันได N ขั้น ขึ้นได้ทีละ 1 หรือ 2 ขั้น มีกี่วิธี?</p>
+      <div class="callout info">
+        <strong>ความสัมพันธ์:</strong> <code>dp[i] = dp[i-1] + dp[i-2]</code> (เหมือน Fibonacci!)<br>
+        Base Case: dp[1] = 1, dp[2] = 2
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">climb_stairs.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- COIN CHANGE -->
+    <div class="sec" id="coin">
+      <div class="sl">Level Up!</div>
+      <h2>Coin Change — ทำไม Greedy ไม่ได้?</h2>
+      <p>มีเหรียญ 1, 3, 4 บาท ต้องการทอนเงิน 6 บาท ใช้เหรียญน้อยที่สุดกี่เหรียญ</p>
+      <div class="callout warn">
+        <strong>Greedy ผิด!</strong> หยิบ 4+1+1 = 3 เหรียญ ❌ · คำตอบที่ถูก: 3+3 = 2 เหรียญ ✅<br>
+        <strong>ต้องใช้ DP!</strong> สูตร: <code>dp[i] = min(dp[i - coin] + 1)</code> สำหรับทุก coin
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">coin_change.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h380" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- COIN VIZ -->
+    <div class="sec" id="coin-viz">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title">🪙 Coin Change DP Table Visualizer</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:10px">ดูว่าตาราง dp ถูกเติมยังไงสำหรับเหรียญ [1,3,4] และเงิน 6 บาท</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="viz-btn step" onclick="coinVizInit([1,3,4],6)">[1,3,4] → 6</button>
+            <button class="viz-btn step" onclick="coinVizInit([1,5,6,9],11)">[1,5,6,9] → 11</button>
+            <button class="viz-btn step" onclick="coinVizInit([2],3)">[2] → 3</button>
+          </div>
+          <div class="dp-table-wrap" id="coinTableWrap"></div>
+          <div class="dp-status" id="coinStatus">เลือกชุดเหรียญแล้วกด Step</div>
+          <div class="viz-ctrl">
+            <button class="viz-btn play" id="coinPlayBtn" onclick="coinPlay()">▶ Auto Play</button>
+            <button class="viz-btn step" onclick="coinStep()">⏭ Step</button>
+            <button class="viz-btn rst" onclick="coinVizInit(coinCoins,coinAmt)">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIN COST -->
+    <div class="sec" id="mincost">
+      <div class="sl">Workshop 2</div>
+      <h2>Min Cost Climbing Stairs — ขึ้นบันไดแบบประหยัดพลังงาน</h2>
+      <p>บันไดแต่ละขั้นเสียพลังงานต่างกัน เริ่มที่ขั้น 0 หรือ 1 ก็ได้ จงหาพลังงานรวมที่น้อยที่สุดเพื่อขึ้นไปถึงดาดฟ้า</p>
+      <div class="callout info">
+        <strong>สูตร:</strong> <code>dp[i] = cost[i] + min(dp[i-1], dp[i-2])</code><br>
+        คำตอบ = <code>min(dp[-1], dp[-2])</code> (เลือกขาออกที่ถูกที่สุด)
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">min_cost_stairs.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- GRID TRAVELER -->
+    <div class="sec" id="grid">
+      <div class="sl">Grid Traveler</div>
+      <h2>หุ่นยนต์เดินในตาราง — DP 2 มิติ</h2>
+      <p>ตารางขนาด M×N หุ่นยนต์เริ่มมุมซ้ายบน เดินได้แค่ <strong>"ขวา"</strong> กับ <strong>"ลง"</strong> ไปให้ถึงมุมขวาล่าง มีกี่วิธี</p>
+      <div class="callout info">
+        <strong>สูตร 2 มิติ:</strong> <code>dp[r][c] = dp[r-1][c] + dp[r][c-1]</code><br>
+        Base Case: แถวแรก = 1 ทั้งแถว, คอลัมน์แรก = 1 ทั้งคอลัมน์
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">grid_traveler.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h340" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- GRID VIZ -->
+    <div class="sec" id="grid-viz">
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <div class="viz-title">🤖 Grid Traveler DP Visualizer</div>
+        </div>
+        <div class="viz-body">
+          <p style="font-size:13px;color:var(--mu);margin-bottom:10px">ดูตาราง 2 มิติถูกเติมจากมุมซ้ายบนทีละช่อง</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="viz-btn step" onclick="gridVizInit(3,3)">3×3</button>
+            <button class="viz-btn step" onclick="gridVizInit(4,4)">4×4</button>
+            <button class="viz-btn step" onclick="gridVizInit(3,5)">3×5</button>
+          </div>
+          <div id="gridVizArea" style="overflow-x:auto"></div>
+          <div class="dp-status" id="gridStatus">เลือกขนาดตารางแล้วกด Step</div>
+          <div class="viz-ctrl">
+            <button class="viz-btn play" id="gridPlayBtn" onclick="gridPlay()">▶ Auto Play</button>
+            <button class="viz-btn step" onclick="gridStep()">⏭ Step</button>
+            <button class="viz-btn rst" onclick="gridVizInit(gridM,gridN)">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EX1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 · Basic</div>
+      <h2>Fibonacci Bottom-up</h2>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">1</div>
+          <div class="ex-info"><h3>fib_dp(n) — หา Fibonacci ด้วย Bottom-up DP</h3>
+            <p>ห้ามใช้ Recursion! ใช้ Loop สร้างตาราง dp แล้ว return dp[n]</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">ตัวอย่าง call</div><div class="io-txt">fib_dp(0)
+fib_dp(6)
+fib_dp(100)</div></div>
+            <div class="io-box"><div class="io-lbl out">ผลลัพธ์</div><div class="io-txt">0
+8
+354224848179261915075</div></div>
+          </div>
+          <div class="ex-ed"><div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex1.py</span></div><button class="check-btn" onclick="checkEx(1)">✓ ตรวจ</button></div><div class="ex-mc" id="EX1"></div></div>
+          <button class="hint-toggle" onclick="toggleHint(1)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT1"><code>dp = [0]*(n+1)</code><br><code>if n==0: return 0</code><br><code>dp[1]=1</code><br><code>for i in range(2,n+1): dp[i]=dp[i-1]+dp[i-2]</code><br><code>return dp[n]</code></div>
+          <div class="verdict" id="VD1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 · Basic</div>
+      <h2>Climbing Stairs</h2>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num g">2</div>
+          <div class="ex-info"><h3>climb_stairs(n) — นับวิธีขึ้นบันได N ขั้น (ทีละ 1 หรือ 2)</h3>
+            <p>ใช้ Bottom-up DP · ห้ามใช้ Recursion!</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">call</div><div class="io-txt">climb_stairs(1)
+climb_stairs(5)
+climb_stairs(10)</div></div>
+            <div class="io-box"><div class="io-lbl out">output</div><div class="io-txt">1
+8
+89</div></div>
+          </div>
+          <div class="ex-ed"><div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex2.py</span></div><button class="check-btn" onclick="checkEx(2)">✓ ตรวจ</button></div><div class="ex-mc" id="EX2"></div></div>
+          <button class="hint-toggle" onclick="toggleHint(2)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT2">Base Case: <code>if n&lt;=2: return n</code><br>จากนั้น <code>dp = [0]*(n+1); dp[1]=1; dp[2]=2</code><br><code>for i in range(3,n+1): dp[i]=dp[i-1]+dp[i-2]</code><br><code>return dp[n]</code></div>
+          <div class="verdict" id="VD2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 · Mid</div>
+      <h2>Coin Change</h2>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">3</div>
+          <div class="ex-info"><h3>coin_change(coins, amount) — เหรียญน้อยที่สุดในการทอน</h3>
+            <p>return จำนวนเหรียญน้อยที่สุด ถ้าทอนไม่ได้ให้ return -1</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">call</div><div class="io-txt">coin_change([1,3,4], 6)
+coin_change([2], 3)
+coin_change([1,5,6,9],11)</div></div>
+            <div class="io-box"><div class="io-lbl out">output</div><div class="io-txt">2
+-1
+2</div></div>
+          </div>
+          <div class="ex-ed"><div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex3.py</span></div><button class="check-btn" onclick="checkEx(3)">✓ ตรวจ</button></div><div class="ex-mc" id="EX3"></div></div>
+          <button class="hint-toggle" onclick="toggleHint(3)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT3"><code>dp = [float('inf')]*(amount+1); dp[0]=0</code><br><code>for i in range(1,amount+1):</code><br>&nbsp;&nbsp;<code>for c in coins:</code><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>if i-c &gt;= 0: dp[i]=min(dp[i],dp[i-c]+1)</code><br><code>return dp[amount] if dp[amount]!=float('inf') else -1</code></div>
+          <div class="verdict" id="VD3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 · Mid</div>
+      <h2>Min Cost Climbing Stairs</h2>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num b">4</div>
+          <div class="ex-info"><h3>min_cost_stairs(cost) — พลังงานน้อยที่สุดในการขึ้นบันได</h3>
+            <p>เริ่มที่ขั้น 0 หรือ 1 ก็ได้ · คำตอบ = min(dp[-1], dp[-2])</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">call</div><div class="io-txt">min_cost_stairs([10,15,20])
+min_cost_stairs([1,100,1,1,1,100,1,1,100,1])</div></div>
+            <div class="io-box"><div class="io-lbl out">output</div><div class="io-txt">15
+6</div></div>
+          </div>
+          <div class="ex-ed"><div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex4.py</span></div><button class="check-btn" onclick="checkEx(4)">✓ ตรวจ</button></div><div class="ex-mc" id="EX4"></div></div>
+          <button class="hint-toggle" onclick="toggleHint(4)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT4"><code>n=len(cost); dp=cost[:]</code><br><code>for i in range(2,n): dp[i]+=min(dp[i-1],dp[i-2])</code><br><code>return min(dp[-1],dp[-2])</code></div>
+          <div class="verdict" id="VD4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EX5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 · Hard</div>
+      <h2>Grid Traveler</h2>
+      <div class="ex-card">
+        <div class="ex-hd"><div class="ex-num r">5</div>
+          <div class="ex-info"><h3>grid_traveler(m, n) — นับทางเดินในตาราง M×N</h3>
+            <p>เดินได้แค่ขวาและลง · DP 2 มิติ</p></div></div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">call</div><div class="io-txt">grid_traveler(1,1)
+grid_traveler(3,3)
+grid_traveler(4,4)</div></div>
+            <div class="io-box"><div class="io-lbl out">output</div><div class="io-txt">1
+6
+20</div></div>
+          </div>
+          <div class="ex-ed"><div class="ex-ed-hd"><div class="ed-hl"><span class="ed-lbl">เขียนโค้ด</span><span class="ed-fn">ex5.py</span></div><button class="check-btn" onclick="checkEx(5)">✓ ตรวจ</button></div><div class="ex-mc" id="EX5"></div></div>
+          <button class="hint-toggle" onclick="toggleHint(5)">💡 ดู Hint</button>
+          <div class="hint-box" id="HINT5"><code>dp=[[0]*n for _ in range(m)]</code><br><code>for r in range(m): dp[r][0]=1</code><br><code>for c in range(n): dp[0][c]=1</code><br><code>for r in range(1,m):</code><br>&nbsp;&nbsp;<code>for c in range(1,n): dp[r][c]=dp[r-1][c]+dp[r][c-1]</code><br><code>return dp[m-1][n-1]</code></div>
+          <div class="verdict" id="VD5"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+// ── PYODIDE ──
+let pyodide=null,pyReady=false;
+async function initPyodide(){
+  const dot=document.getElementById('pyDot'),st=document.getElementById('pyStatus');
+  dot.className='dot loading';st.textContent='กำลังโหลด Pyodide...';
+  try{pyodide=await loadPyodide({indexURL:"https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"});pyReady=true;dot.className='dot ready';st.textContent='Python พร้อม ✓';}
+  catch(e){dot.className='dot error';st.textContent='โหลด Pyodide ไม่สำเร็จ';}
+}
+const pyScript=document.createElement('script');pyScript.src='https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';pyScript.onload=initPyodide;document.head.appendChild(pyScript);
+
+// ── MONACO ──
+const editors={};
+const LESSON={
+  L1:`def fib_bottom_up(n):
+    dp = [0] * (n + 1)   # 1. สร้างตาราง
+    if n <= 1:
+        return n
+    dp[0] = 0
+    dp[1] = 1             # 2. Base Case
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]  # 3. เติมค่า
+    return dp[n]          # 4. คืนช่องสุดท้าย
+
+print(fib_bottom_up(10))   # 55
+print(fib_bottom_up(50))   # รวดเร็ว ไม่ crash!
+print(fib_bottom_up(100))  # ได้เลย!`,
+  L2:`def climb_stairs(n):
+    if n <= 2:
+        return n
+    dp = [0] * (n + 1)   # สร้างตาราง (บวก 1 เพื่อให้ index ตรงกับเลขขั้น)
+    dp[1] = 1             # ขั้นที่ 1: มี 1 วิธี
+    dp[2] = 2             # ขั้นที่ 2: มี 2 วิธี (1+1, 2)
+    for i in range(3, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+
+print(f"บันได 5 ขั้น มี {climb_stairs(5)} วิธี")   # 8
+print(f"บันได 10 ขั้น มี {climb_stairs(10)} วิธี")  # 89`,
+  L3:`def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)  # inf = ยังหาไม่ได้
+    dp[0] = 0                           # เงิน 0 บาท ใช้ 0 เหรียญ
+
+    for i in range(1, amount + 1):       # Loop เงินแต่ละจำนวน
+        for coin in coins:               # Loop เหรียญแต่ละชนิด
+            if i - coin >= 0:            # ถ้าหักเหรียญออกได้
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+print(coin_change([1, 3, 4], 6))   # 2  (3+3)
+print(coin_change([2], 3))         # -1 (ทอนไม่ได้)
+print(coin_change([1,5,6,9], 11))  # 2  (5+6)`,
+  L4:`def min_cost_climbing_stairs(cost):
+    n = len(cost)
+    dp = cost[:]  # copy ค่า cost มาใช้เป็นตาราง
+
+    # Base Case: 2 ขั้นแรก ค่าเท่ากับตัวมันเอง
+    # dp[0] = cost[0], dp[1] = cost[1] (already set)
+
+    # เริ่มวนลูปจากขั้นที่ 2
+    for i in range(2, n):
+        dp[i] = cost[i] + min(dp[i-1], dp[i-2])
+
+    return min(dp[-1], dp[-2])  # เลือกขาออกที่ถูกกว่า
+
+cost = [10, 15, 20]
+print(min_cost_climbing_stairs(cost))  # 15
+cost2 = [1,100,1,1,1,100,1,1,100,1]
+print(min_cost_climbing_stairs(cost2)) # 6`,
+  L5:`def grid_traveler(m, n):
+    # 1. สร้างตาราง 2 มิติ ขนาด m x n (เติม 0 ไว้ก่อน)
+    dp = [[0] * n for _ in range(m)]
+
+    # 2. Base Case: แถวแรกและคอลัมน์แรก = 1 ทั้งหมด
+    for r in range(m): dp[r][0] = 1
+    for c in range(n): dp[0][c] = 1
+
+    # 3. เติมค่าในตาราง
+    for r in range(1, m):
+        for c in range(1, n):
+            dp[r][c] = dp[r-1][c] + dp[r][c-1]
+
+    return dp[m-1][n-1]
+
+print(f"ตาราง 3x3: {grid_traveler(3,3)} วิธี")  # 6
+print(f"ตาราง 4x4: {grid_traveler(4,4)} วิธี")  # 20`
+};
+const EX_START={
+  1:`def fib_dp(n):
+    # Bottom-up DP (ห้ามใช้ Recursion!)
+    pass
+
+print(fib_dp(0))
+print(fib_dp(6))
+print(fib_dp(100))`,
+  2:`def climb_stairs(n):
+    # Bottom-up DP
+    pass
+
+print(climb_stairs(1))
+print(climb_stairs(5))
+print(climb_stairs(10))`,
+  3:`def coin_change(coins, amount):
+    # DP ทอนเงิน
+    pass
+
+print(coin_change([1,3,4], 6))
+print(coin_change([2], 3))
+print(coin_change([1,5,6,9], 11))`,
+  4:`def min_cost_stairs(cost):
+    # DP บันไดประหยัดพลังงาน
+    pass
+
+print(min_cost_stairs([10,15,20]))
+print(min_cost_stairs([1,100,1,1,1,100,1,1,100,1]))`,
+  5:`def grid_traveler(m, n):
+    # DP 2 มิติ
+    pass
+
+print(grid_traveler(1,1))
+print(grid_traveler(3,3))
+print(grid_traveler(4,4))`
+};
+const EX_TESTS={
+  1:[{call:'fib_dp(0)',expected:'0'},{call:'fib_dp(1)',expected:'1'},{call:'fib_dp(6)',expected:'8'},{call:'fib_dp(10)',expected:'55'}],
+  2:[{call:'climb_stairs(1)',expected:'1'},{call:'climb_stairs(2)',expected:'2'},{call:'climb_stairs(5)',expected:'8'},{call:'climb_stairs(10)',expected:'89'}],
+  3:[{call:'coin_change([1,3,4],6)',expected:'2'},{call:'coin_change([2],3)',expected:'-1'},{call:'coin_change([1,5,6,9],11)',expected:'2'},{call:'coin_change([1],0)',expected:'0'}],
+  4:[{call:'min_cost_stairs([10,15,20])',expected:'15'},{call:'min_cost_stairs([1,100,1,1,1,100,1,1,100,1])',expected:'6'},{call:'min_cost_stairs([0,0,0,0])',expected:'0'}],
+  5:[{call:'grid_traveler(1,1)',expected:'1'},{call:'grid_traveler(2,2)',expected:'2'},{call:'grid_traveler(3,3)',expected:'6'},{call:'grid_traveler(4,4)',expected:'20'}]
+};
+
+require.config({paths:{'vs':'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'}});
+require(['vs/editor/editor.main'],()=>{
+  monaco.editor.defineTheme('gdd',{base:'vs-dark',inherit:true,rules:[{token:'keyword',foreground:'48c8ff',fontStyle:'bold'},{token:'comment',foreground:'1a4a6e',fontStyle:'italic'},{token:'string',foreground:'7dd3f8'},{token:'number',foreground:'00d4ff'}],colors:{'editor.background':'#020d1a','editor.foreground':'#b8e8ff','editorLineNumber.foreground':'#1a4a6e','editor.lineHighlightBackground':'#04162a','editorCursor.foreground':'#48c8ff','editor.selectionBackground':'#0d2a42'}});
+  const cfg={theme:'gdd',language:'python',minimap:{enabled:false},scrollBeyondLastLine:false,fontSize:13,fontFamily:"'JetBrains Mono',monospace",lineNumbers:'on',wordWrap:'on',automaticLayout:true};
+  Object.entries(LESSON).forEach(([id,code])=>{const el=document.getElementById(id);if(el)editors[id]=monaco.editor.create(el,{...cfg,value:code})});
+  Object.entries(EX_START).forEach(([num,code])=>{const el=document.getElementById('EX'+num);if(el)editors['EX'+num]=monaco.editor.create(el,{...cfg,value:code,lineNumbers:'off'})});
+});
+
+async function runLesson(btn,edId,outId){
+  if(!pyReady){alert('Pyodide ยังโหลดไม่เสร็จ');return;}
+  const code=editors[edId]?.getValue()||'',out=document.getElementById(outId);
+  btn.disabled=true;btn.textContent='⏳ กำลังรัน...';out.className='out-txt';out.textContent='';
+  try{
+    let cap='';pyodide.globals.set('__pb__',(s)=>{cap+=s+'\n';});
+    await pyodide.runPythonAsync(`import sys,io\n_o=sys.stdout\nsys.stdout=io.StringIO()\ntry:\n${code.split('\n').map(l=>'    '+l).join('\n')}\nexcept Exception as e:\n    print(f"Error: {e}")\nfinally:\n    __pb__(sys.stdout.getvalue())\n    sys.stdout=_o`);
+    out.className='out-txt ok';out.textContent=cap.trim()||'(ไม่มี output)';
+  }catch(e){out.className='out-txt err';out.textContent=String(e);}
+  btn.disabled=false;btn.textContent='▶ รันโค้ด';
+}
+
+async function checkEx(num){
+  if(!pyReady){alert('Pyodide ยังโหลดไม่เสร็จ');return;}
+  const code=editors['EX'+num]?.getValue()||'',tests=EX_TESTS[num]||[],vd=document.getElementById('VD'+num);
+  vd.style.display='block';vd.innerHTML='<div class="vd-hd running">⏳ กำลังตรวจ...</div>';
+  const results=[];
+  for(const t of tests){
+    try{await pyodide.runPythonAsync(code+`\n__r__=str(${t.call})`);const got=pyodide.globals.get('__r__');results.push({...t,got:String(got),pass:String(got).trim()===t.expected.trim()});}
+    catch(e){results.push({...t,got:'Error: '+e,pass:false});}
+  }
+  const allPass=results.every(r=>r.pass),pc=results.filter(r=>r.pass).length;
+  let html=`<div class="vd-hd ${allPass?'pass':'fail'}">${allPass?'🎉 ผ่านทุก Testcase!':'❌ ผ่าน '+pc+'/'+results.length+' Testcase'}</div><div class="vd-body">`;
+  for(const r of results)html+=`<div class="vd-row"><div class="vd-icon">${r.pass?'✅':'❌'}</div><div class="vd-content"><div class="vd-title">${r.call}</div><div class="vd-row-inner"><div><div class="vd-label">ได้</div><div class="vd-got ${r.pass?'':'wrong'}">${r.got}</div></div><div><div class="vd-label">คาดหวัง</div><div class="vd-expect">${r.expected}</div></div></div></div></div>`;
+  vd.innerHTML=html+'</div>';
+}
+function toggleHint(n){const h=document.getElementById('HINT'+n);h.style.display=h.style.display==='block'?'none':'block';}
+
+// ══ FIBONACCI VIZ ══
+let fibN=7,fibDP=[],fibCur=0,fibTimer=null;
+function fibVizInit(n){
+  fibN=n;fibDP=[];fibCur=0;
+  if(fibTimer){clearInterval(fibTimer);fibTimer=null;document.getElementById('fibPlayBtn').textContent='▶ Auto Play';}
+  renderFibTable();document.getElementById('fibStatus').textContent='กด Step เพื่อเริ่ม';
+}
+function renderFibTable(){
+  const wrap=document.getElementById('fibTableWrap');
+  const dp=fibDP.slice();
+  let hdr='<table class="dp-table"><thead><tr>';
+  for(let i=0;i<=fibN;i++)hdr+=`<th>F(${i})</th>`;
+  hdr+='</tr></thead><tbody><tr>';
+  for(let i=0;i<=fibN;i++){
+    let cls='dp-cell-empty',val='?';
+    if(dp[i]!==undefined){val=dp[i];cls=i<=1?'dp-cell-base':i===fibCur-1?'dp-cell-current':'dp-cell-done';}
+    hdr+=`<td class="${cls}">${val}</td>`;
+  }
+  hdr+='</tr></tbody></table>';
+  wrap.innerHTML=hdr;
+}
+function fibStep(){
+  if(fibCur>fibN){fibVizInit(fibN);return;}
+  if(fibCur===0){fibDP[0]=0;fibCur=1;}
+  else if(fibCur===1){fibDP[1]=1;fibCur=2;}
+  else{fibDP[fibCur]=fibDP[fibCur-1]+fibDP[fibCur-2];fibCur++;}
+  renderFibTable();
+  const i=fibCur-1;
+  if(i<=1)document.getElementById('fibStatus').textContent=`📌 Base Case: F(${i}) = ${fibDP[i]}`;
+  else document.getElementById('fibStatus').textContent=`➕ F(${i}) = F(${i-1})(${fibDP[i-1]}) + F(${i-2})(${fibDP[i-2]}) = ${fibDP[i]}`;
+  if(fibCur>fibN)document.getElementById('fibStatus').textContent=`🎉 F(${fibN}) = ${fibDP[fibN]}`;
+}
+function fibPlay(){
+  if(fibTimer){clearInterval(fibTimer);fibTimer=null;document.getElementById('fibPlayBtn').textContent='▶ Auto Play';return;}
+  document.getElementById('fibPlayBtn').textContent='⏸ Pause';
+  fibTimer=setInterval(()=>{if(fibCur>fibN){clearInterval(fibTimer);fibTimer=null;document.getElementById('fibPlayBtn').textContent='↺ Play Again';return;}fibStep();},500);
+}
+window.addEventListener('load',()=>fibVizInit(7));
+
+// ══ COIN CHANGE VIZ ══
+let coinCoins=[1,3,4],coinAmt=6,coinDP=[],coinCur=1,coinTimer=null;
+function coinVizInit(coins,amt){
+  coinCoins=coins;coinAmt=amt;coinDP=new Array(amt+1).fill(null);coinDP[0]=0;coinCur=1;
+  if(coinTimer){clearInterval(coinTimer);coinTimer=null;document.getElementById('coinPlayBtn').textContent='▶ Auto Play';}
+  renderCoinTable();document.getElementById('coinStatus').textContent='กด Step เพื่อเริ่ม';
+}
+function renderCoinTable(){
+  const wrap=document.getElementById('coinTableWrap');
+  let html='<table class="dp-table"><thead><tr>';
+  for(let i=0;i<=coinAmt;i++)html+=`<th>dp[${i}]</th>`;
+  html+='</tr></thead><tbody><tr>';
+  for(let i=0;i<=coinAmt;i++){
+    let cls='dp-cell-empty',val='∞';
+    if(coinDP[i]===0){val=0;cls='dp-cell-base';}
+    else if(coinDP[i]!==null&&i<coinCur){val=coinDP[i];cls='dp-cell-done';}
+    else if(i===coinCur&&coinDP[i]!==null){val=coinDP[i];cls='dp-cell-current';}
+    html+=`<td class="${cls}">${val}</td>`;
+  }
+  html+='</tr></tbody></table>';
+  wrap.innerHTML=html;
+}
+function coinStep(){
+  if(coinCur>coinAmt){coinVizInit(coinCoins,coinAmt);return;}
+  let best=Infinity;
+  for(const c of coinCoins){if(coinCur-c>=0&&coinDP[coinCur-c]!==null)best=Math.min(best,coinDP[coinCur-c]+1);}
+  coinDP[coinCur]=best===Infinity?null:best;
+  const msg=coinDP[coinCur]===null?`dp[${coinCur}] = ∞ (ทอนไม่ได้)`:`dp[${coinCur}] = ${coinDP[coinCur]} เหรียญ`;
+  document.getElementById('coinStatus').textContent=msg;
+  renderCoinTable();coinCur++;
+  if(coinCur>coinAmt){const ans=coinDP[coinAmt];document.getElementById('coinStatus').textContent=ans===null?`🚫 ทอน ${coinAmt} ไม่ได้!`:`🎉 ทอน ${coinAmt} บาท ใช้ ${ans} เหรียญ`;}
+}
+function coinPlay(){
+  if(coinTimer){clearInterval(coinTimer);coinTimer=null;document.getElementById('coinPlayBtn').textContent='▶ Auto Play';return;}
+  document.getElementById('coinPlayBtn').textContent='⏸ Pause';
+  coinTimer=setInterval(()=>{if(coinCur>coinAmt){clearInterval(coinTimer);coinTimer=null;document.getElementById('coinPlayBtn').textContent='↺ Play Again';return;}coinStep();},600);
+}
+window.addEventListener('load',()=>coinVizInit([1,3,4],6));
+
+// ══ GRID VIZ ══
+let gridM=3,gridN=3,gridDP=[],gridRCur=0,gridCCur=0,gridTimer=null,gridDone=false;
+function gridVizInit(m,n){
+  gridM=m;gridN=n;gridDone=false;gridRCur=0;gridCCur=0;
+  gridDP=Array.from({length:m},()=>new Array(n).fill(null));
+  if(gridTimer){clearInterval(gridTimer);gridTimer=null;document.getElementById('gridPlayBtn').textContent='▶ Auto Play';}
+  renderGridTable();document.getElementById('gridStatus').textContent='กด Step เพื่อเริ่ม';
+}
+function renderGridTable(){
+  const area=document.getElementById('gridVizArea');
+  const g=document.createElement('div');
+  g.className='dp-grid-2d';
+  g.style.gridTemplateColumns=`repeat(${gridN},46px)`;
+  for(let r=0;r<gridM;r++)for(let c=0;c<gridN;c++){
+    const cell=document.createElement('div');cell.className='dp-cell-2d';
+    const v=gridDP[r][c];
+    if(v===null){cell.textContent='?';cell.classList.add('empty');}
+    else if(r===0||c===0){cell.textContent=v;cell.classList.add('base');}
+    else if(r===gridRCur&&c===gridCCur-1){cell.textContent=v;cell.classList.add('cur');}
+    else{cell.textContent=v;cell.classList.add('done');}
+    g.appendChild(cell);
+  }
+  area.innerHTML='';area.appendChild(g);
+}
+function gridStep(){
+  if(gridDone){gridVizInit(gridM,gridN);return;}
+  if(gridRCur===0&&gridCCur===0){for(let r=0;r<gridM;r++)gridDP[r][0]=1;for(let c=0;c<gridN;c++)gridDP[0][c]=1;gridRCur=1;gridCCur=1;renderGridTable();document.getElementById('gridStatus').textContent='📌 Base Case: แถวแรกและคอลัมน์แรก = 1';return;}
+  gridDP[gridRCur][gridCCur]=gridDP[gridRCur-1][gridCCur]+gridDP[gridRCur][gridCCur-1];
+  document.getElementById('gridStatus').textContent=`dp[${gridRCur}][${gridCCur}] = dp[${gridRCur-1}][${gridCCur}](${gridDP[gridRCur-1][gridCCur]}) + dp[${gridRCur}][${gridCCur-1}](${gridDP[gridRCur][gridCCur-1]}) = ${gridDP[gridRCur][gridCCur]}`;
+  const tmpR=gridRCur,tmpC=gridCCur;
+  gridCCur++;if(gridCCur>=gridN){gridCCur=1;gridRCur++;}
+  renderGridTable();
+  if(gridRCur>=gridM){gridDone=true;document.getElementById('gridStatus').textContent=`🎉 ตาราง ${gridM}×${gridN} มีทั้งหมด ${gridDP[gridM-1][gridN-1]} วิธี!`;}
+}
+function gridPlay(){
+  if(gridTimer){clearInterval(gridTimer);gridTimer=null;document.getElementById('gridPlayBtn').textContent='▶ Auto Play';return;}
+  document.getElementById('gridPlayBtn').textContent='⏸ Pause';
+  gridTimer=setInterval(()=>{if(gridDone){clearInterval(gridTimer);gridTimer=null;document.getElementById('gridPlayBtn').textContent='↺ Play Again';return;}gridStep();},600);
+}
+window.addEventListener('load',()=>gridVizInit(3,3));
+
+// ── SIDEBAR ──
+const navAs=document.querySelectorAll('.na'),secs=document.querySelectorAll('.sec[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;navAs.forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.na[href="#${e.target.id}"]`);if(a)a.classList.add('active');const idx=[...secs].indexOf(e.target);document.getElementById('prog').style.width=((idx+1)/secs.length*100)+'%';});},{rootMargin:'-15% 0px -75% 0px'});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,3122 @@
+<!doctype html>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Python EP2 Week 8 — Greedy Algorithm</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg: #0d0f0e;
+                --sf: #131610;
+                --sf2: #191d14;
+                --bd: #242b1c;
+                --ac: #f59e0b;
+                --ac2: #84cc16;
+                --ac3: #22d3ee;
+                --red: #ef4444;
+                --warn: #fb923c;
+                --tx: #edeee8;
+                --mu: #8a9268;
+                --di: #4a5535;
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: "Noto Sans Thai", sans-serif;
+                background: var(--bg);
+                color: var(--tx);
+                line-height: 1.75;
+                font-size: 15px;
+            }
+
+            /* SIDEBAR */
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 252px;
+                background: var(--sf);
+                border-right: 1px solid var(--bd);
+                overflow-y: auto;
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+            }
+            .sb-hd {
+                padding: 18px 16px 14px;
+                border-bottom: 1px solid var(--bd);
+            }
+            .sb-logo {
+                font-size: 10px;
+                font-weight: 800;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--ac);
+                margin-bottom: 5px;
+            }
+            .sb-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--tx);
+                line-height: 1.4;
+            }
+            .prog-bar {
+                height: 3px;
+                background: var(--bd);
+                border-radius: 2px;
+                margin-top: 12px;
+                overflow: hidden;
+            }
+            .prog-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--ac), var(--ac2));
+                width: 0%;
+                transition: width 0.4s;
+            }
+            .sb-nav {
+                padding: 10px 0;
+                flex: 1;
+            }
+            .nav-sec {
+                padding: 8px 16px 3px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--di);
+            }
+            .na {
+                display: block;
+                padding: 6px 16px;
+                font-size: 12.5px;
+                color: var(--mu);
+                text-decoration: none;
+                border-left: 2px solid transparent;
+                transition: all 0.15s;
+            }
+            .na:hover {
+                color: var(--tx);
+                background: var(--sf2);
+                border-left-color: var(--bd);
+            }
+            .na.active {
+                color: var(--ac);
+                background: rgba(245, 158, 11, 0.08);
+                border-left-color: var(--ac);
+                font-weight: 600;
+            }
+            .na.sub {
+                padding-left: 28px;
+                font-size: 12px;
+            }
+            .badge {
+                display: inline-block;
+                font-size: 9px;
+                padding: 1px 6px;
+                border-radius: 20px;
+                margin-left: 5px;
+                font-weight: 700;
+                vertical-align: middle;
+            }
+            .bg {
+                background: rgba(34, 211, 238, 0.15);
+                color: var(--ac3);
+            }
+            .bb {
+                background: rgba(132, 204, 22, 0.15);
+                color: var(--ac2);
+            }
+            .br {
+                background: rgba(239, 68, 68, 0.15);
+                color: var(--red);
+            }
+            .bp {
+                background: rgba(245, 158, 11, 0.15);
+                color: var(--ac);
+            }
+            .bo {
+                background: rgba(251, 146, 60, 0.15);
+                color: var(--warn);
+            }
+
+            /* MAIN */
+            .main {
+                margin-left: 252px;
+                min-height: 100vh;
+            }
+            .topbar {
+                position: sticky;
+                top: 0;
+                background: rgba(13, 15, 14, 0.95);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--bd);
+                padding: 0 36px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                z-index: 50;
+            }
+            .bc {
+                font-size: 12px;
+                color: var(--mu);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .bc span {
+                color: var(--di);
+            }
+            .py-st {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--di);
+                transition: background 0.3s;
+                flex-shrink: 0;
+            }
+            .dot.loading {
+                background: var(--ac);
+                animation: pulse 1s infinite;
+            }
+            .dot.ready {
+                background: var(--ac2);
+            }
+            .dot.error {
+                background: var(--red);
+            }
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.3;
+                }
+            }
+
+            /* CONTENT */
+            .content {
+                max-width: 860px;
+                margin: 0 auto;
+                padding: 44px 36px 100px;
+            }
+
+            /* HERO */
+            .hero {
+                padding: 52px 0 44px;
+                border-bottom: 1px solid var(--bd);
+                margin-bottom: 52px;
+                position: relative;
+                overflow: hidden;
+            }
+            .hero::before {
+                content: "";
+                position: absolute;
+                top: -60px;
+                right: -80px;
+                width: 340px;
+                height: 340px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    rgba(245, 158, 11, 0.09) 0%,
+                    transparent 70%
+                );
+                pointer-events: none;
+            }
+            .hero::after {
+                content: "";
+                position: absolute;
+                bottom: -40px;
+                left: 40px;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    rgba(132, 204, 22, 0.07) 0%,
+                    transparent 70%
+                );
+                pointer-events: none;
+            }
+            .hw {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--ac);
+                margin-bottom: 10px;
+            }
+            .ht {
+                font-size: 36px;
+                font-weight: 800;
+                line-height: 1.15;
+                margin-bottom: 10px;
+                background: linear-gradient(135deg, #edeee8, #f59e0b, #84cc16);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .hs {
+                font-size: 17px;
+                font-weight: 500;
+                color: var(--ac);
+                margin-bottom: 18px;
+            }
+            .hm {
+                font-size: 13px;
+                color: var(--mu);
+            }
+            .tags {
+                display: flex;
+                gap: 7px;
+                flex-wrap: wrap;
+                margin-top: 18px;
+            }
+            .tag {
+                font-size: 11px;
+                padding: 3px 10px;
+                border-radius: 20px;
+                border: 1px solid var(--bd);
+                color: var(--mu);
+                font-weight: 500;
+            }
+
+            /* SECTION */
+            .sec {
+                margin-bottom: 60px;
+                scroll-margin-top: 66px;
+            }
+            .sl {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--ac);
+                margin-bottom: 8px;
+            }
+            h2 {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--tx);
+                margin-bottom: 18px;
+                line-height: 1.3;
+            }
+            h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--tx);
+                margin: 26px 0 10px;
+            }
+            h4 {
+                font-size: 13.5px;
+                font-weight: 600;
+                color: var(--ac2);
+                margin: 18px 0 7px;
+                font-family: "JetBrains Mono", monospace;
+            }
+            p {
+                color: #cccebb;
+                margin-bottom: 12px;
+                line-height: 1.8;
+            }
+            strong {
+                color: var(--tx);
+                font-weight: 600;
+            }
+            code {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                background: var(--sf2);
+                padding: 2px 6px;
+                border-radius: 4px;
+                color: var(--ac2);
+            }
+            ul,
+            ol {
+                padding-left: 20px;
+                margin-bottom: 12px;
+            }
+            li {
+                margin-bottom: 5px;
+                color: #cccebb;
+                line-height: 1.7;
+            }
+            hr.div {
+                border: none;
+                border-top: 1px solid var(--bd);
+                margin: 44px 0;
+            }
+
+            /* CALLOUT */
+            .callout {
+                border-left: 3px solid var(--ac);
+                background: rgba(245, 158, 11, 0.06);
+                padding: 12px 16px;
+                border-radius: 0 8px 8px 0;
+                margin: 18px 0;
+                font-size: 13.5px;
+                color: #cccebb;
+            }
+            .callout.info {
+                border-left-color: var(--ac2);
+                background: rgba(132, 204, 22, 0.06);
+            }
+            .callout.ok {
+                border-left-color: var(--ac3);
+                background: rgba(34, 211, 238, 0.06);
+            }
+            .callout.warn {
+                border-left-color: var(--warn);
+                background: rgba(251, 146, 60, 0.06);
+            }
+            .callout.red {
+                border-left-color: var(--red);
+                background: rgba(239, 68, 68, 0.06);
+            }
+
+            /* CONCEPT CARDS */
+            .concept-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 14px;
+                margin: 20px 0;
+            }
+            .concept-card {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 12px;
+                padding: 20px;
+                position: relative;
+                overflow: hidden;
+            }
+            .concept-card.s1 {
+                border-color: rgba(245, 158, 11, 0.3);
+            }
+            .concept-card.s2 {
+                border-color: rgba(132, 204, 22, 0.3);
+            }
+            .concept-card.s3 {
+                border-color: rgba(34, 211, 238, 0.3);
+            }
+            .concept-card.trap {
+                border-color: rgba(239, 68, 68, 0.3);
+            }
+            .concept-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+            }
+            .concept-card.s1::before {
+                background: linear-gradient(90deg, var(--ac), transparent);
+            }
+            .concept-card.s2::before {
+                background: linear-gradient(90deg, var(--ac2), transparent);
+            }
+            .concept-card.s3::before {
+                background: linear-gradient(90deg, var(--ac3), transparent);
+            }
+            .concept-card.trap::before {
+                background: linear-gradient(90deg, var(--red), transparent);
+            }
+            .cc-icon {
+                font-size: 28px;
+                margin-bottom: 10px;
+            }
+            .cc-title {
+                font-size: 15px;
+                font-weight: 700;
+                margin-bottom: 6px;
+            }
+            .concept-card.s1 .cc-title {
+                color: var(--ac);
+            }
+            .concept-card.s2 .cc-title {
+                color: var(--ac2);
+            }
+            .concept-card.s3 .cc-title {
+                color: var(--ac3);
+            }
+            .concept-card.trap .cc-title {
+                color: var(--red);
+            }
+            .cc-desc {
+                font-size: 13px;
+                color: var(--mu);
+                line-height: 1.6;
+            }
+            .cc-eg {
+                margin-top: 10px;
+                font-size: 12px;
+                color: var(--di);
+                font-style: italic;
+            }
+
+            /* CX GRID */
+            .cx-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin: 20px 0;
+            }
+            .cx-card {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 10px;
+                padding: 16px;
+                text-align: center;
+            }
+            .cx-card.fast {
+                border-color: rgba(132, 204, 22, 0.3);
+            }
+            .cx-card.slow {
+                border-color: rgba(239, 68, 68, 0.2);
+            }
+            .cx-card.mid {
+                border-color: rgba(34, 211, 238, 0.3);
+            }
+            .cx-type {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--mu);
+                margin-bottom: 6px;
+            }
+            .cx-val {
+                font-size: 20px;
+                font-weight: 800;
+                font-family: "JetBrains Mono", monospace;
+                margin-bottom: 5px;
+            }
+            .cx-card.fast .cx-val {
+                color: var(--ac2);
+            }
+            .cx-card.slow .cx-val {
+                color: var(--red);
+            }
+            .cx-card.mid .cx-val {
+                color: var(--ac3);
+            }
+            .cx-desc {
+                font-size: 11.5px;
+                color: var(--mu);
+            }
+
+            /* TABLE */
+            .tbl {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+                font-size: 13px;
+            }
+            .tbl th {
+                background: var(--sf2);
+                padding: 9px 13px;
+                text-align: left;
+                font-weight: 700;
+                font-size: 11px;
+                letter-spacing: 0.04em;
+                color: var(--mu);
+                border-bottom: 2px solid var(--bd);
+            }
+            .tbl td {
+                padding: 9px 13px;
+                border-bottom: 1px solid var(--bd);
+                color: #cccebb;
+                vertical-align: top;
+            }
+            .tbl tr:hover td {
+                background: rgba(255, 255, 255, 0.015);
+            }
+            .tbl td:first-child {
+                font-weight: 600;
+                color: var(--tx);
+            }
+
+            /* GREEDY VISUALIZER */
+            .gviz {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 12px;
+                overflow: hidden;
+                margin: 18px 0;
+            }
+            .gviz-hd {
+                background: var(--sf2);
+                padding: 11px 16px;
+                border-bottom: 1px solid var(--bd);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .gviz-title {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--ac);
+            }
+            .gviz-body {
+                padding: 20px;
+            }
+            .coin-row {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin: 12px 0;
+            }
+            .coin {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: 800;
+                font-family: "JetBrains Mono", monospace;
+                border: 2px solid;
+                transition: all 0.3s;
+            }
+            .coin.idle {
+                border-color: var(--bd);
+                background: var(--sf2);
+                color: var(--mu);
+            }
+            .coin.active {
+                border-color: var(--ac);
+                background: rgba(245, 158, 11, 0.18);
+                color: var(--ac);
+                transform: scale(1.15);
+                box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+            }
+            .coin.skip {
+                border-color: var(--red);
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--red);
+                opacity: 0.6;
+            }
+            .coin.used {
+                border-color: var(--ac2);
+                background: rgba(132, 204, 22, 0.12);
+                color: var(--ac2);
+            }
+            .gviz-stats {
+                display: flex;
+                gap: 14px;
+                flex-wrap: wrap;
+                margin: 10px 0;
+            }
+            .gstat {
+                background: var(--sf2);
+                border: 1px solid var(--bd);
+                border-radius: 8px;
+                padding: 8px 14px;
+                min-width: 90px;
+                text-align: center;
+            }
+            .gstat-lbl {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--di);
+                margin-bottom: 3px;
+            }
+            .gstat-val {
+                font-size: 20px;
+                font-weight: 800;
+                font-family: "JetBrains Mono", monospace;
+                color: var(--ac);
+            }
+            .gstep-msg {
+                font-size: 13px;
+                color: var(--mu);
+                padding: 8px 0;
+                min-height: 22px;
+                font-family: "JetBrains Mono", monospace;
+            }
+            .gstep-msg.active {
+                color: var(--ac2);
+            }
+            .basket {
+                display: flex;
+                gap: 6px;
+                flex-wrap: wrap;
+                min-height: 30px;
+                align-items: center;
+            }
+            .basket-coin {
+                background: rgba(132, 204, 22, 0.15);
+                border: 1px solid rgba(132, 204, 22, 0.4);
+                border-radius: 6px;
+                padding: 3px 8px;
+                font-size: 12px;
+                font-weight: 800;
+                font-family: "JetBrains Mono", monospace;
+                color: var(--ac2);
+                animation: popin 0.2s ease;
+            }
+            @keyframes popin {
+                from {
+                    transform: scale(0);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+            .basket-lbl {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--di);
+                margin-bottom: 4px;
+            }
+            .viz-ctrl {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                margin-top: 12px;
+                flex-wrap: wrap;
+            }
+            .viz-btn {
+                border: none;
+                padding: 6px 14px;
+                border-radius: 6px;
+                font-size: 11.5px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.15s;
+                font-family: "Noto Sans Thai", sans-serif;
+            }
+            .viz-btn.play {
+                background: rgba(245, 158, 11, 0.15);
+                color: var(--ac);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+            }
+            .viz-btn.play:hover {
+                background: rgba(245, 158, 11, 0.25);
+            }
+            .viz-btn.step {
+                background: rgba(132, 204, 22, 0.15);
+                color: var(--ac2);
+                border: 1px solid rgba(132, 204, 22, 0.3);
+            }
+            .viz-btn.step:hover {
+                background: rgba(132, 204, 22, 0.25);
+            }
+            .viz-btn.rst {
+                background: var(--sf2);
+                color: var(--mu);
+                border: 1px solid var(--bd);
+            }
+            .viz-btn.rst:hover {
+                color: var(--tx);
+            }
+            .viz-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+            /* TRAP CARDS */
+            .trap-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                margin: 18px 0;
+            }
+            .trap-box {
+                border-radius: 10px;
+                padding: 16px 18px;
+                border: 1px solid;
+            }
+            .trap-box.bad {
+                border-color: rgba(239, 68, 68, 0.3);
+                background: rgba(239, 68, 68, 0.05);
+            }
+            .trap-box.good {
+                border-color: rgba(132, 204, 22, 0.3);
+                background: rgba(132, 204, 22, 0.05);
+            }
+            .trap-hd {
+                font-size: 13px;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+            .trap-box.bad .trap-hd {
+                color: var(--red);
+            }
+            .trap-box.good .trap-hd {
+                color: var(--ac2);
+            }
+            .trap-step {
+                font-size: 12.5px;
+                color: #cccebb;
+                line-height: 1.7;
+            }
+
+            /* LESSON EDITOR */
+            .ed-block {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 10px;
+                overflow: hidden;
+                margin: 14px 0;
+            }
+            .ed-hd {
+                background: var(--sf2);
+                padding: 9px 14px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--bd);
+            }
+            .ed-hl {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+            }
+            .ed-lbl {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--ac2);
+            }
+            .ed-fn {
+                font-size: 11.5px;
+                color: var(--mu);
+                font-family: "JetBrains Mono", monospace;
+            }
+            .run-btn {
+                background: var(--ac2);
+                color: #000;
+                border: none;
+                padding: 5px 14px;
+                border-radius: 6px;
+                font-size: 11.5px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.15s;
+                font-family: "Noto Sans Thai", sans-serif;
+                white-space: nowrap;
+            }
+            .run-btn:hover {
+                background: #a3e635;
+                transform: translateY(-1px);
+            }
+            .run-btn:active {
+                transform: none;
+            }
+            .run-btn:disabled {
+                background: var(--di);
+                cursor: not-allowed;
+                transform: none;
+            }
+            .mc {
+                width: 100%;
+            }
+            .h160 {
+                height: 160px;
+            }
+            .h200 {
+                height: 200px;
+            }
+            .h240 {
+                height: 240px;
+            }
+            .h280 {
+                height: 280px;
+            }
+            .h300 {
+                height: 300px;
+            }
+            .h340 {
+                height: 340px;
+            }
+            .h380 {
+                height: 380px;
+            }
+            .h420 {
+                height: 420px;
+            }
+            .h460 {
+                height: 460px;
+            }
+            .h500 {
+                height: 500px;
+            }
+            .out-panel {
+                border-top: 1px solid var(--bd);
+                background: #0a0c08;
+            }
+            .out-lbl {
+                padding: 5px 14px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--di);
+                border-bottom: 1px solid var(--bd);
+            }
+            .out-txt {
+                padding: 12px 16px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 12px;
+                line-height: 1.6;
+                min-height: 46px;
+                max-height: 200px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            .out-txt.idle {
+                color: var(--di);
+                font-style: italic;
+            }
+            .out-txt.ok {
+                color: #c9f575;
+            }
+            .out-txt.err {
+                color: #ff6b6b;
+            }
+
+            /* EXERCISE CARD */
+            .ex-card {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 12px;
+                overflow: hidden;
+                margin: 20px 0;
+            }
+            .ex-hd {
+                padding: 14px 18px;
+                background: var(--sf2);
+                border-bottom: 1px solid var(--bd);
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .ex-num {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 800;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+            .ex-num.g {
+                background: rgba(34, 211, 238, 0.15);
+                color: var(--ac3);
+            }
+            .ex-num.b {
+                background: rgba(132, 204, 22, 0.15);
+                color: var(--ac2);
+            }
+            .ex-num.r {
+                background: rgba(239, 68, 68, 0.15);
+                color: var(--red);
+            }
+            .ex-num.p {
+                background: rgba(245, 158, 11, 0.15);
+                color: var(--ac);
+            }
+            .ex-num.o {
+                background: rgba(251, 146, 60, 0.15);
+                color: var(--warn);
+            }
+            .ex-info h3 {
+                font-size: 14.5px;
+                font-weight: 700;
+                color: var(--tx);
+                margin: 0 0 3px;
+            }
+            .ex-info p {
+                font-size: 12.5px;
+                color: var(--mu);
+                margin: 0;
+                line-height: 1.5;
+            }
+            .ex-body {
+                padding: 18px;
+            }
+            .io-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+            .io-box {
+                background: #0a0c08;
+                border: 1px solid var(--bd);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .io-lbl {
+                padding: 4px 10px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                border-bottom: 1px solid var(--bd);
+            }
+            .io-lbl.inp {
+                color: var(--ac2);
+            }
+            .io-lbl.out {
+                color: var(--ac);
+            }
+            .io-txt {
+                padding: 9px 11px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11.5px;
+                line-height: 1.6;
+                color: #cccebb;
+                white-space: pre;
+            }
+            .full-col {
+                grid-column: 1/-1;
+            }
+            .ex-ed {
+                border: 1px solid var(--bd);
+                border-radius: 8px;
+                overflow: hidden;
+                margin-top: 4px;
+            }
+            .ex-ed-hd {
+                background: var(--sf2);
+                padding: 9px 14px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--bd);
+            }
+            .ex-mc {
+                width: 100%;
+                height: 220px;
+            }
+            .check-btn {
+                background: var(--ac);
+                color: #000;
+                border: none;
+                padding: 5px 16px;
+                border-radius: 6px;
+                font-size: 11.5px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.15s;
+                font-family: "Noto Sans Thai", sans-serif;
+                white-space: nowrap;
+            }
+            .check-btn:hover {
+                background: #fbbf24;
+                transform: translateY(-1px);
+            }
+            .check-btn:active {
+                transform: none;
+            }
+            .check-btn:disabled {
+                background: var(--di);
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            /* VERDICT */
+            .verdict {
+                margin-top: 12px;
+                border: 1px solid var(--bd);
+                border-radius: 8px;
+                overflow: hidden;
+                display: none;
+            }
+            .vd-hd {
+                padding: 10px 14px;
+                font-size: 13px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .vd-hd.pass {
+                background: rgba(132, 204, 22, 0.12);
+                color: var(--ac2);
+                border-bottom: 1px solid rgba(132, 204, 22, 0.2);
+            }
+            .vd-hd.fail {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--red);
+                border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+            }
+            .vd-hd.running {
+                background: rgba(245, 158, 11, 0.08);
+                color: var(--ac);
+            }
+            .vd-body {
+                background: #0a0c08;
+                padding: 2px 0;
+            }
+            .vd-row {
+                padding: 8px 14px;
+                border-bottom: 1px solid var(--bd);
+                font-size: 12px;
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .vd-row:last-child {
+                border-bottom: none;
+            }
+            .vd-icon {
+                font-size: 13px;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+            .vd-content {
+                flex: 1;
+                min-width: 0;
+            }
+            .vd-title {
+                font-weight: 600;
+                margin-bottom: 4px;
+                color: var(--tx);
+            }
+            .vd-row-inner {
+                display: flex;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            .vd-got {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11.5px;
+                color: #cccebb;
+                white-space: pre-wrap;
+            }
+            .vd-got.wrong {
+                color: var(--red);
+            }
+            .vd-expect {
+                font-family: "JetBrains Mono", monospace;
+                font-size: 11.5px;
+                color: var(--ac2);
+                white-space: pre-wrap;
+            }
+            .vd-label {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--di);
+                margin-bottom: 2px;
+            }
+
+            /* HINT */
+            .hint-toggle {
+                background: none;
+                border: 1px solid var(--bd);
+                color: var(--mu);
+                font-size: 12px;
+                padding: 4px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-family: "Noto Sans Thai", sans-serif;
+                transition: all 0.15s;
+                margin-top: 8px;
+            }
+            .hint-toggle:hover {
+                border-color: var(--warn);
+                color: var(--warn);
+            }
+            .hint-box {
+                display: none;
+                margin-top: 8px;
+                background: rgba(251, 146, 60, 0.05);
+                border: 1px solid rgba(251, 146, 60, 0.2);
+                border-radius: 8px;
+                padding: 10px 14px;
+                font-size: 12.5px;
+                color: #cccebb;
+                line-height: 1.7;
+            }
+            .hint-box code {
+                font-size: 11.5px;
+            }
+
+            /* SCROLLBAR */
+            ::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--bd);
+                border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--di);
+            }
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    display: none;
+                }
+                .main {
+                    margin-left: 0;
+                }
+                .content {
+                    padding: 20px 16px 80px;
+                }
+                .concept-grid {
+                    grid-template-columns: 1fr;
+                }
+                .cx-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .io-grid {
+                    grid-template-columns: 1fr;
+                }
+                .trap-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sb-hd">
+                <div class="sb-logo">GDD CODING SCHOOL</div>
+                <div class="sb-title">Python EP2 · Week 8</div>
+                <div class="prog-bar">
+                    <div class="prog-fill" id="prog"></div>
+                </div>
+            </div>
+            <nav class="sb-nav">
+                <div class="nav-sec">เนื้อหา</div>
+                <a class="na" href="#intro">🍕 Greedy คืออะไร?</a>
+                <a class="na" href="#concept">💡 แนวคิดหลัก</a>
+                <a class="na" href="#steps">📋 3 Steps</a>
+                <a class="na" href="#viz">🎬 Coin Visualizer</a>
+                <a class="na" href="#lesson1">🧪 ลองรัน — ทอนเงิน</a>
+                <a class="na" href="#lesson2">🧪 ลองรัน — นักช้อป</a>
+                <a class="na" href="#trap">⚠️ The Trap</a>
+                <div class="nav-sec" style="margin-top: 6px">โจทย์ฝึกหัด</div>
+                <a class="na sub" href="#ex1"
+                    >1 · ทอนเงินไทย <span class="badge bb">Easy</span></a
+                >
+                <a class="na sub" href="#ex2"
+                    >2 · นักช้อปงบน้อย <span class="badge bb">Easy</span></a
+                >
+                <a class="na sub" href="#ex3"
+                    >3 · ปาร์ตี้แมวเหมียว <span class="badge bp">Mid</span></a
+                >
+                <a class="na sub" href="#ex4"
+                    >4 · โรงหนังหรรษา <span class="badge bp">Mid</span></a
+                >
+                <a class="na sub" href="#ex5"
+                    >5 · เดินทางถูกที่สุด <span class="badge bp">Mid</span></a
+                >
+                <a class="na sub" href="#ex6"
+                    >6 · แพ็คกระเป๋า <span class="badge bo">Mid+</span></a
+                >
+                <a class="na sub" href="#ex7"
+                    >7 · งานช่างหลายชิ้น <span class="badge bo">Mid+</span></a
+                >
+                <a class="na sub" href="#ex8"
+                    >8 · แบ่งขนม <span class="badge br">Hard</span></a
+                >
+                <a class="na sub" href="#ex9"
+                    >9 · สกุลเงินแปลก <span class="badge br">Hard</span></a
+                >
+                <a class="na sub" href="#ex10"
+                    >10 · จัดตาราง Interval
+                    <span class="badge br">Hard</span></a
+                >
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main">
+            <div class="topbar">
+                <div class="bc">
+                    Python EP2 <span>›</span> Week 8 <span>›</span> Greedy
+                    Algorithm
+                </div>
+                <div class="py-st">
+                    <div class="dot" id="pyDot"></div>
+                    <span id="pyStatus">กำลังโหลด...</span>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- HERO -->
+                <div class="hero sec" id="intro">
+                    <div class="hw">Week 8 · Problem Solving Strategies</div>
+                    <div class="ht">Greedy Algorithm</div>
+                    <div class="hs">
+                        คนตะกละ — เลือกสิ่งที่ดีที่สุด ณ วินาทีนี้
+                    </div>
+                    <div class="hm">
+                        อัลกอริทึมที่ตัดสินใจโดยเลือกทางเลือกที่ดีที่สุดในขณะนั้น
+                        (Local Optimal) โดยเชื่อว่าการเลือกที่ดีที่สุดในทุกๆ
+                        ก้าว จะนำไปสู่ผลลัพธ์ที่ดีที่สุดในตอนจบ
+                    </div>
+                    <div class="tags">
+                        <span class="tag">🐢 Greedy</span>
+                        <span class="tag">🔃 Sorting</span>
+                        <span class="tag">🪙 Coin Change</span>
+                        <span class="tag">🎬 Activity Selection</span>
+                        <span class="tag">🐱 Assign Cookies</span>
+                    </div>
+                </div>
+
+                <!-- CONCEPT -->
+                <div class="sec" id="concept">
+                    <div class="sl">แนวคิดหลัก</div>
+                    <h2>Greedy Choice Property</h2>
+                    <p>
+                        Greedy Algorithm คือ
+                        <strong>การเลือกสิ่งที่ดีที่สุด... ณ วินาทีนี้</strong>
+                        โดยไม่มองไปข้างหน้าหรือย้อนดูอดีต
+                        เหมือนคนเดินขึ้นเขาที่เลือกก้าวเท้าไปทางที่ชันที่สุดเสมอ
+                        เพราะคิดว่าจะถึงยอดเขาเร็วสุด
+                    </p>
+
+                    <div class="callout">
+                        <strong>🍕 ตัวอย่างง่ายๆ — การทอนเงิน:</strong><br />
+                        ลูกค้าจ่าย 1,000 ซื้อของ 120 บาท (ทอน 880) →
+                        เราหยิบแบงก์ 500 ก่อน (ใบใหญ่สุด) → แล้วหยิบแบงก์ 100 (3
+                        ใบ) → แล้วหยิบแบงก์ 50 → แล้วหยิบเหรียญ<br />
+                        เราไม่หยิบเหรียญบาท 880 เหรียญแน่นอน — นี่คือ Greedy!
+                    </div>
+
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>สถานการณ์</th>
+                                <th>Greedy Strategy</th>
+                                <th>เรียงลำดับ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ทอนเงิน</td>
+                                <td>หยิบเหรียญใหญ่สุดก่อน</td>
+                                <td>มาก → น้อย</td>
+                            </tr>
+                            <tr>
+                                <td>นักช้อปงบน้อย</td>
+                                <td>ซื้อของถูกที่สุดก่อน</td>
+                                <td>น้อย → มาก</td>
+                            </tr>
+                            <tr>
+                                <td>ดูหนังให้ได้เยอะ</td>
+                                <td>เลือกหนังที่จบเร็วสุดก่อน</td>
+                                <td>เวลาจบ น้อย → มาก</td>
+                            </tr>
+                            <tr>
+                                <td>ให้อาหารแมว</td>
+                                <td>จับคู่แมวที่ต้องการน้อยกับปลาเล็กสุด</td>
+                                <td>น้อย → มาก</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="callout info">
+                        <strong>🔑 หัวใจสำคัญคือ "การเรียงลำดับ":</strong><br />
+                        เราจะเป็นคนตะกละได้... เราต้องรู้ก่อนว่าอะไรคือ
+                        "ชิ้นที่ดีที่สุด" — Greedy มักจะมาคู่กับ Sorting เสมอ
+                    </div>
+                </div>
+
+                <!-- STEPS -->
+                <div class="sec" id="steps">
+                    <div class="sl">วิธีการทำงาน</div>
+                    <h2>3 Steps of Greedy</h2>
+                    <div class="concept-grid">
+                        <div class="concept-card s1">
+                            <div class="cc-icon">1️⃣</div>
+                            <div class="cc-title">Selection</div>
+                            <div class="cc-desc">
+                                เลือกชิ้นที่ดีที่สุด ณ ตอนนั้น จากข้อมูลที่ Sort
+                                แล้ว
+                            </div>
+                            <div class="cc-eg">
+                                เช่น: หยิบเหรียญที่ใหญ่ที่สุด
+                            </div>
+                        </div>
+                        <div class="concept-card s2">
+                            <div class="cc-icon">2️⃣</div>
+                            <div class="cc-title">Feasibility Check</div>
+                            <div class="cc-desc">
+                                เช็คเงื่อนไขว่า "เอามาแล้วไม่พังใช่ไหม"
+                            </div>
+                            <div class="cc-eg">
+                                เช่น: หยิบเหรียญ 10 มา แต่เงินทอนเหลือแค่ 5 →
+                                หยิบไม่ได้
+                            </div>
+                        </div>
+                        <div class="concept-card s3">
+                            <div class="cc-icon">3️⃣</div>
+                            <div class="cc-title">Solution Update</div>
+                            <div class="cc-desc">
+                                ถ้าเงื่อนไขผ่าน → เก็บเข้ากระเป๋า (คำตอบ)
+                                แล้วไปทำข้อ 1 ใหม่
+                            </div>
+                            <div class="cc-eg">
+                                เช่น: หยิบเหรียญได้ → count++ แล้ว loop ต่อ
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout warn">
+                        <strong>⚠️ Greedy ไม่ได้แก้ได้ทุกโจทย์บนโลก!</strong
+                        ><br />
+                        แต่สำหรับโจทย์ส่วนใหญ่ในระดับเริ่มต้น
+                        มันคือท่าไม้ตายที่ง่ายและเร็วที่สุด ถ้า Greedy ใช้ไม่ได้
+                        ต้องใช้ Dynamic Programming (DP)
+                    </div>
+                </div>
+
+                <!-- VISUALIZER -->
+                <div class="sec" id="viz">
+                    <div class="gviz">
+                        <div class="gviz-hd">
+                            <div class="gviz-title">
+                                🪙 Coin Change Visualizer — ดูการทำงาน Greedy
+                                แบบ Step-by-Step
+                            </div>
+                        </div>
+                        <div class="gviz-body">
+                            <p
+                                style="
+                                    font-size: 13px;
+                                    color: var(--mu);
+                                    margin-bottom: 14px;
+                                "
+                            >
+                                กด Step เพื่อดูว่า Greedy เลือกเหรียญยังไง กด ↺
+                                Reset เพื่อเปลี่ยนจำนวนเงิน
+                            </p>
+                            <div
+                                style="
+                                    display: flex;
+                                    gap: 8px;
+                                    align-items: center;
+                                    margin-bottom: 12px;
+                                    flex-wrap: wrap;
+                                "
+                            >
+                                <span style="font-size: 12px; color: var(--mu)"
+                                    >ทอนเงิน:</span
+                                >
+                                <button
+                                    class="viz-btn step"
+                                    onclick="setVizAmount(18)"
+                                >
+                                    18 บาท
+                                </button>
+                                <button
+                                    class="viz-btn step"
+                                    onclick="setVizAmount(37)"
+                                >
+                                    37 บาท
+                                </button>
+                                <button
+                                    class="viz-btn step"
+                                    onclick="setVizAmount(93)"
+                                >
+                                    93 บาท
+                                </button>
+                                <button
+                                    class="viz-btn step"
+                                    onclick="setVizAmount(47)"
+                                >
+                                    47 บาท
+                                </button>
+                            </div>
+                            <div class="gviz-stats">
+                                <div class="gstat">
+                                    <div class="gstat-lbl">เงินคงเหลือ</div>
+                                    <div class="gstat-val" id="vzAmt">18</div>
+                                </div>
+                                <div class="gstat">
+                                    <div class="gstat-lbl">จำนวนเหรียญ</div>
+                                    <div class="gstat-val" id="vzCnt">0</div>
+                                </div>
+                            </div>
+                            <div
+                                style="
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    letter-spacing: 0.08em;
+                                    text-transform: uppercase;
+                                    color: var(--di);
+                                    margin: 10px 0 6px;
+                                "
+                            >
+                                เหรียญที่มี (เรียง มาก → น้อย)
+                            </div>
+                            <div class="coin-row">
+                                <div class="coin idle" id="vc10">10</div>
+                                <div class="coin idle" id="vc5">5</div>
+                                <div class="coin idle" id="vc2">2</div>
+                                <div class="coin idle" id="vc1">1</div>
+                            </div>
+                            <div class="gstep-msg" id="vzMsg">
+                                กด "Step" เพื่อเริ่ม Greedy
+                            </div>
+                            <div
+                                style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    margin-top: 6px;
+                                "
+                            >
+                                <div>
+                                    <div class="basket-lbl">
+                                        🧺 เหรียญที่หยิบ:
+                                    </div>
+                                    <div class="basket" id="vzBasket"></div>
+                                </div>
+                            </div>
+                            <div class="viz-ctrl">
+                                <button
+                                    class="viz-btn step"
+                                    id="vzStepBtn"
+                                    onclick="vizStep()"
+                                >
+                                    ⏭ Step
+                                </button>
+                                <button
+                                    class="viz-btn play"
+                                    id="vzPlayBtn"
+                                    onclick="vizPlay()"
+                                >
+                                    ▶ Auto Play
+                                </button>
+                                <button
+                                    class="viz-btn rst"
+                                    onclick="setVizAmount(vzCurrentAmt)"
+                                >
+                                    ↺ Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LESSON 1 -->
+                <div class="sec" id="lesson1">
+                    <div class="sl">ตัวอย่าง 1 — Workshop</div>
+                    <h2>Coin Change — ทอนเงิน</h2>
+                    <p>
+                        เขียนโปรแกรมแก้ปัญหาทอนเงินด้วยเหรียญไทย [10, 5, 2, 1]
+                        โดยใช้ Greedy Algorithm
+                    </p>
+                    <div class="callout info">
+                        <strong>Concept:</strong>
+                        "หยิบเหรียญที่ใหญ่ที่สุดเท่าที่จะหยิบได้ก่อน"<br />
+                        ใช้ <code>amount // coin</code> เพื่อหาจำนวนเหรียญที่ใช้
+                        และ <code>amount % coin</code> เพื่อคำนวณเงินที่เหลือ
+                    </div>
+                    <div class="ed-block">
+                        <div class="ed-hd">
+                            <div class="ed-hl">
+                                <span class="ed-lbl">ลองรัน</span
+                                ><span class="ed-fn">coin_change.py</span>
+                            </div>
+                            <button
+                                class="run-btn"
+                                onclick="runLesson(this, 'L1', 'LO1')"
+                            >
+                                ▶ รันโค้ด
+                            </button>
+                        </div>
+                        <div class="mc h300" id="L1"></div>
+                        <div class="out-panel">
+                            <div class="out-lbl">Output</div>
+                            <div class="out-txt idle" id="LO1">
+                                กด "รันโค้ด" เพื่อดูผลลัพธ์
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LESSON 2 -->
+                <div class="sec" id="lesson2">
+                    <div class="sl">ตัวอย่าง 2 — Workshop</div>
+                    <h2>นักช้อปงบน้อย — ซื้อให้ได้เยอะชิ้นที่สุด</h2>
+                    <p>
+                        มีงบ 100 บาท สินค้าราคา [50, 20, 10, 80, 30] —
+                        จงซื้อให้ได้จำนวนชิ้นมากที่สุด
+                    </p>
+                    <div class="callout info">
+                        <strong>Greedy Logic:</strong>
+                        ถ้าอยากได้จำนวนชิ้นเยอะที่สุด... เราต้องซื้อของที่
+                        "ราคาถูกที่สุด" ใส่ตะกร้าก่อน<br />
+                        → เรียงราคาจาก
+                        <strong>น้อยไปมาก (Ascending)</strong> ก่อนเสมอ!
+                    </div>
+                    <div class="ed-block">
+                        <div class="ed-hd">
+                            <div class="ed-hl">
+                                <span class="ed-lbl">ลองรัน</span
+                                ><span class="ed-fn">shopaholic.py</span>
+                            </div>
+                            <button
+                                class="run-btn"
+                                onclick="runLesson(this, 'L2', 'LO2')"
+                            >
+                                ▶ รันโค้ด
+                            </button>
+                        </div>
+                        <div class="mc h300" id="L2"></div>
+                        <div class="out-panel">
+                            <div class="out-lbl">Output</div>
+                            <div class="out-txt idle" id="LO2">
+                                กด "รันโค้ด" เพื่อดูผลลัพธ์
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAP -->
+                <div class="sec" id="trap">
+                    <div class="sl">ข้อควรระวัง</div>
+                    <h2>⚠️ The Trap — เมื่อ Greedy พัง!</h2>
+                    <p>
+                        สมมติเราไปดาวอังคาร ที่นั่นมีเหรียญแปลกๆ คือ 4 บาท, 3
+                        บาท, 1 บาท — ต้องการทอนเงิน
+                        <strong>6 บาท</strong> ให้ได้จำนวนเหรียญน้อยที่สุด
+                    </p>
+
+                    <div class="trap-grid">
+                        <div class="trap-box bad">
+                            <div class="trap-hd">❌ Greedy (ผิด)</div>
+                            <div class="trap-step">
+                                เห็นเลข 6... รีบคว้าเหรียญ
+                                <strong>4</strong> ก่อน (เพราะมากสุด)<br />
+                                เหลือ 2... ต้องใช้เหรียญ <strong>1 + 1</strong
+                                ><br />
+                                สรุป: ได้ <strong>3 เหรียญ</strong> (4+1+1)
+                            </div>
+                        </div>
+                        <div class="trap-box good">
+                            <div class="trap-hd">✅ Optimal (ถูก)</div>
+                            <div class="trap-step">
+                                มองภาพรวม... ไม่หยิบ 4<br />
+                                เลือกหยิบ <strong>3 + 3</strong><br />
+                                สรุป: ได้ <strong>2 เหรียญ</strong> เท่านั้น!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout red">
+                        <strong>Checklist อย่างง่าย:</strong><br />
+                        1. ถ้าโจทย์เป็นระบบมาตรฐาน (เช่น เงินไทย, เงินดอลลาร์) →
+                        Greedy มักจะรอด<br />
+                        2. ถ้าโจทย์กำหนดตัวเลขมาแปลกๆ หรือให้ Input อิสระ →
+                        ให้ระวัง! Greedy อาจพัง<br />
+                        3. ถ้า Greedy ใช้ไม่ได้ → ต้องใช้
+                        <strong>Dynamic Programming (DP)</strong>
+                    </div>
+                </div>
+
+                <hr class="div" />
+
+                <!-- EX 1 -->
+                <div class="sec" id="ex1">
+                    <div class="sl">โจทย์ที่ 1 · Easy · Greedy</div>
+                    <h2>ทอนเงินไทย</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num b">1</div>
+                            <div class="ex-info">
+                                <h3>
+                                    coin_change(amount) —
+                                    หาจำนวนเหรียญน้อยที่สุดในการทอนเงิน
+                                </h3>
+                                <p>
+                                    เหรียญ [10, 5, 2, 1] มีไม่จำกัดจำนวน ·
+                                    ต้องคืนค่าจำนวนเหรียญทั้งหมดที่ใช้
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+coin_change(18) 
+coin_change(7)
+coin_change(23)
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">4 3 4</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex1.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(1)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX1"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(1)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT1">
+                                <code>def coin_change(amount):</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >coins = [10, 5, 2, 1]</code
+                                ><br />&nbsp;&nbsp;<code>total = 0</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >for coin in coins:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >total += amount // coin</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >amount = amount % coin</code
+                                ><br />&nbsp;&nbsp;<code>return total</code>
+                            </div>
+                            <div class="verdict" id="VD1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 2 -->
+                <div class="sec" id="ex2">
+                    <div class="sl">โจทย์ที่ 2 · Easy · Greedy</div>
+                    <h2>นักช้อปงบน้อย</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num b">2</div>
+                            <div class="ex-info">
+                                <h3>
+                                    max_items(budget, prices) —
+                                    หาจำนวนชิ้นสูงสุดที่ซื้อได้
+                                </h3>
+                                <p>
+                                    ซื้อให้ได้จำนวนชิ้นมากที่สุดโดยไม่เกิน
+                                    budget · Greedy: ซื้อของถูกที่สุดก่อน
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+max_items(100, [50,20,10,80,30])
+max_items(50, [30,10,20]) max_items(5,
+[10,20,30])
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">3 2 0</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex2.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(2)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX2"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(2)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT2">
+                                <code>def max_items(budget, prices):</code
+                                ><br />&nbsp;&nbsp;<code>prices.sort()</code
+                                ><br />&nbsp;&nbsp;<code>count = 0</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >for price in prices:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if budget >= price:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >budget -= price</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >count += 1</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >else: break</code
+                                ><br />&nbsp;&nbsp;<code>return count</code>
+                            </div>
+                            <div class="verdict" id="VD2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 3 -->
+                <div class="sec" id="ex3">
+                    <div class="sl">โจทย์ที่ 3 · Mid · Greedy</div>
+                    <h2>ปาร์ตี้แมวเหมียว</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num p">3</div>
+                            <div class="ex-info">
+                                <h3>
+                                    assign_cookies(greed, size) —
+                                    หาจำนวนแมวที่อิ่มมากที่สุด
+                                </h3>
+                                <p>
+                                    แมวตัวที่ i
+                                    จะพอใจก็ต่อเมื่อได้ปลาขนาดอย่างน้อย greed[i]
+                                    · Greedy: Sort ทั้งคู่
+                                    แล้วจับคู่ปลาเล็กสุดกับแมวที่ต้องการน้อยสุด
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+assign_cookies([1,2,3], [1,1])
+assign_cookies([1,2], [1,2,3])
+assign_cookies([2,3], [1,2])
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">1 2 1</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex3.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(3)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX3"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(3)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT3">
+                                <code>def assign_cookies(greed, size):</code
+                                ><br />&nbsp;&nbsp;<code>greed.sort()</code
+                                ><br />&nbsp;&nbsp;<code>size.sort()</code
+                                ><br />&nbsp;&nbsp;<code>cat = 0</code
+                                ><br />&nbsp;&nbsp;<code>for s in size:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if cat &lt; len(greed) and s >=
+                                    greed[cat]:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >cat += 1</code
+                                ><br />&nbsp;&nbsp;<code>return cat</code>
+                            </div>
+                            <div class="verdict" id="VD3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 4 -->
+                <div class="sec" id="ex4">
+                    <div class="sl">โจทย์ที่ 4 · Mid · Greedy</div>
+                    <h2>โรงหนังหรรษา</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num p">4</div>
+                            <div class="ex-info">
+                                <h3>
+                                    max_movies(intervals) —
+                                    ดูหนังให้ได้มากเรื่องที่สุด
+                                </h3>
+                                <p>
+                                    intervals คือ [[start,end],...] ·
+                                    ดูหนังซ้อนกันไม่ได้ · Greedy: เรียงตาม end
+                                    time แล้วเลือกหนังที่จบเร็วสุดก่อน
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+max_movies([[1,3],[2,4],[3,5]])
+max_movies([[1,2],[2,3],[3,4]])
+max_movies([[1,5],[2,3],[4,6]])
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">2 3 2</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex4.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(4)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX4"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(4)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT4">
+                                <code>def max_movies(intervals):</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >intervals.sort(key=lambda x: x[1])</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >count, last_end = 0, -1</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >for start, end in intervals:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if start >= last_end:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >count += 1</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >last_end = end</code
+                                ><br />&nbsp;&nbsp;<code>return count</code>
+                            </div>
+                            <div class="verdict" id="VD4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 5 -->
+                <div class="sec" id="ex5">
+                    <div class="sl">โจทย์ที่ 5 · Mid · Greedy</div>
+                    <h2>เดินทางถูกที่สุด</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num p">5</div>
+                            <div class="ex-info">
+                                <h3>
+                                    min_cost_trip(costs, k) — เลือก k
+                                    จุดหมายถูกที่สุด
+                                </h3>
+                                <p>
+                                    มี costs หลายๆ ราคา ต้องการเลือก k จุด
+                                    คืนค่าผลรวมของ k ราคาที่ถูกที่สุด · Greedy:
+                                    Sort แล้วหยิบ k ตัวแรก
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+min_cost_trip([50,30,20,80,10], 3)
+min_cost_trip([100,200,300], 2)
+min_cost_trip([5,5,5,5], 4)
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">60 300 20</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex5.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(5)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX5"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(5)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT5">
+                                <code>def min_cost_trip(costs, k):</code
+                                ><br />&nbsp;&nbsp;<code>costs.sort()</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >return sum(costs[:k])</code
+                                >
+                            </div>
+                            <div class="verdict" id="VD5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 6 -->
+                <div class="sec" id="ex6">
+                    <div class="sl">โจทย์ที่ 6 · Mid+ · Greedy</div>
+                    <h2>แพ็คกระเป๋า</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num o">6</div>
+                            <div class="ex-info">
+                                <h3>
+                                    pack_bag(capacity, weights) —
+                                    หาจำนวนชิ้นสูงสุดที่บรรทุกได้
+                                </h3>
+                                <p>
+                                    กระเป๋าจุ capacity กก. มีของน้ำหนักหลายชิ้น
+                                    ต้องการใส่ให้ได้จำนวนชิ้นมากที่สุดโดยไม่เกิน
+                                    capacity · Greedy: ใส่ของเบาที่สุดก่อน
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+pack_bag(10, [4,3,2,5,1]) 
+pack_bag(5,[2,2,2,2]) 
+pack_bag(3, [5,10,15])
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">4 2 0</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex6.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(6)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX6"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(6)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT6">
+                                <code>def pack_bag(capacity, weights):</code
+                                ><br />&nbsp;&nbsp;<code>weights.sort()</code
+                                ><br />&nbsp;&nbsp;<code>count = 0</code
+                                ><br />&nbsp;&nbsp;<code>for w in weights:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if capacity >= w:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >capacity -= w</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >count += 1</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >else: break</code
+                                ><br />&nbsp;&nbsp;<code>return count</code>
+                            </div>
+                            <div class="verdict" id="VD6"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 7 -->
+                <div class="sec" id="ex7">
+                    <div class="sl">โจทย์ที่ 7 · Mid+ · Greedy</div>
+                    <h2>งานช่างหลายชิ้น</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num o">7</div>
+                            <div class="ex-info">
+                                <h3>
+                                    min_jobs(tasks, time_limit) —
+                                    ทำงานให้ได้มากชิ้นภายในเวลาที่กำหนด
+                                </h3>
+                                <p>
+                                    tasks คือลิสต์เวลาที่ใช้ต่อชิ้น (นาที) ·
+                                    ต้องการทำให้ได้มากชิ้นภายใน time_limit นาที
+                                    · Greedy: เรียงเวลาน้อยไปมาก
+                                    แล้วเลือกงานที่ใช้เวลาน้อยสุดก่อน
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+min_jobs([3,5,2,7,1], 10)
+min_jobs([10,10,10], 20)
+min_jobs([1,2,3,4,5], 6)
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">4 2 3</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex7.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(7)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX7"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(7)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT7">
+                                <code>def min_jobs(tasks, time_limit):</code
+                                ><br />&nbsp;&nbsp;<code>tasks.sort()</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >count = 0; time_used = 0</code
+                                ><br />&nbsp;&nbsp;<code>for t in tasks:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if time_used + t &lt;= time_limit:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >time_used += t</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >count += 1</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >else: break</code
+                                ><br />&nbsp;&nbsp;<code>return count</code>
+                            </div>
+                            <div class="verdict" id="VD7"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 8 -->
+                <div class="sec" id="ex8">
+                    <div class="sl">
+                        โจทย์ที่ 8 · Hard · Greedy + Binary Search
+                    </div>
+                    <h2>แบ่งขนม</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num r">8</div>
+                            <div class="ex-info">
+                                <h3>
+                                    share_candy(candies, n) — แบ่งขนมให้เด็ก n
+                                    คน คนละเท่าๆ กัน ได้มากสุด
+                                </h3>
+                                <p>
+                                    candies คือจำนวนขนมแต่ละถุง · แบ่งขนมให้เด็ก
+                                    n คน โดยแต่ละคนต้องได้เท่ากัน
+                                    คืนจำนวนขนมสูงสุดต่อคน · แนวคิด: หาจาก sum
+                                    ก่อน แล้ว Binary Search หาค่า k สูงสุด
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+share_candy([5,3,2], 3)
+share_candy([10,2,3], 2)
+share_candy([1,2], 7)
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">3 7 0</div>
+                                </div>
+                            </div>
+                            <div
+                                class="callout warn"
+                                style="margin-bottom: 14px; font-size: 12.5px"
+                            >
+                                <strong>💡 แนวคิด:</strong> ขนมรวมทั้งหมด =
+                                sum(candies) · แต่ละคนได้ไม่เกิน sum // n ·
+                                แต่ต้องตรวจว่าแต่ละถุงสามารถแบ่งได้ตามจำนวนที่ต้องการด้วย
+                                (นับว่าแต่ละถุงส่งได้กี่ส่วนๆ ละ k ชิ้น)
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex8.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(8)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX8"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(8)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT8">
+                                <code>def share_candy(candies, n):</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >lo, hi = 0, sum(candies) // n</code
+                                ><br />&nbsp;&nbsp;<code>while lo &lt; hi:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >mid = (lo + hi + 1) // 2</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if sum(c // mid for c in candies) >=
+                                    n:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >lo = mid</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code>else:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >hi = mid - 1</code
+                                ><br />&nbsp;&nbsp;<code>return lo</code>
+                            </div>
+                            <div class="verdict" id="VD8"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 9 -->
+                <div class="sec" id="ex9">
+                    <div class="sl">โจทย์ที่ 9 · Hard · Greedy</div>
+                    <h2>สกุลเงินแปลก (Custom Coins)</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num r">9</div>
+                            <div class="ex-info">
+                                <h3>
+                                    greedy_coins(coins, amount) —
+                                    ทอนเงินด้วยเหรียญที่กำหนด (Greedy)
+                                </h3>
+                                <p>
+                                    รับ list เหรียญและจำนวนเงิน
+                                    คืนจำนวนเหรียญน้อยสุดตาม Greedy
+                                    (ไม่ต้องรับประกันว่าถูกต้องเสมอ) · Sort
+                                    เหรียญจากมากไปน้อย แล้วใช้ Greedy ตามปกติ
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+greedy_coins([25,10,5,1], 47)
+greedy_coins([10,5,2,1], 18)
+greedy_coins([1,5,10,25], 36)
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">5 4 3</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex9.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(9)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX9"></div>
+                            </div>
+                            <button class="hint-toggle" onclick="toggleHint(9)">
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT9">
+                                <code>def greedy_coins(coins, amount):</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >coins.sort(reverse=True)</code
+                                ><br />&nbsp;&nbsp;<code>total = 0</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >for coin in coins:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >total += amount // coin</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >amount = amount % coin</code
+                                ><br />&nbsp;&nbsp;<code>return total</code>
+                            </div>
+                            <div class="verdict" id="VD9"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EX 10 -->
+                <div class="sec" id="ex10">
+                    <div class="sl">โจทย์ที่ 10 · Hard · Greedy</div>
+                    <h2>จัดตาราง Interval — ลบ Overlap น้อยที่สุด</h2>
+                    <div class="ex-card">
+                        <div class="ex-hd">
+                            <div class="ex-num r">10</div>
+                            <div class="ex-info">
+                                <h3>
+                                    min_remove(intervals) — หาจำนวน interval
+                                    น้อยสุดที่ต้องลบออกเพื่อไม่ให้ซ้อนทับกัน
+                                </h3>
+                                <p>
+                                    คล้าย Activity Selection แต่คืนจำนวนที่ต้อง
+                                    "ตัดออก" · Greedy: นับ interval
+                                    สูงสุดที่ไม่ซ้อนทับได้ แล้วเอาทั้งหมดลบออก
+                                </p>
+                            </div>
+                        </div>
+                        <div class="ex-body">
+                            <div class="io-grid">
+                                <div class="io-box">
+                                    <div class="io-lbl inp">ตัวอย่าง call</div>
+                                    <div class="io-txt">
+min_remove([[1,2],[2,3],[3,4],[1,3]])
+min_remove([[1,2],[1,2],[1,2]])
+min_remove([[1,2],[2,3]])
+                                    </div>
+                                </div>
+                                <div class="io-box">
+                                    <div class="io-lbl out">ผลลัพธ์</div>
+                                    <div class="io-txt">1 2 0</div>
+                                </div>
+                            </div>
+                            <div class="ex-ed">
+                                <div class="ex-ed-hd">
+                                    <div class="ed-hl">
+                                        <span class="ed-lbl">เขียนโค้ด</span
+                                        ><span class="ed-fn">ex10.py</span>
+                                    </div>
+                                    <button
+                                        class="check-btn"
+                                        onclick="checkEx(10)"
+                                    >
+                                        ✓ ตรวจ
+                                    </button>
+                                </div>
+                                <div class="ex-mc" id="EX10"></div>
+                            </div>
+                            <button
+                                class="hint-toggle"
+                                onclick="toggleHint(10)"
+                            >
+                                💡 ดู Hint
+                            </button>
+                            <div class="hint-box" id="HINT10">
+                                <code>def min_remove(intervals):</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >intervals.sort(key=lambda x: x[1])</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >keep, last_end = 0, float('-inf')</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >for start, end in intervals:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >if start >= last_end:</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >keep += 1</code
+                                ><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code
+                                    >last_end = end</code
+                                ><br />&nbsp;&nbsp;<code
+                                    >return len(intervals) - keep</code
+                                >
+                            </div>
+                            <div class="verdict" id="VD10"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end .content -->
+        </div>
+        <!-- end .main -->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+        <script>
+            // ════════════════════════════════
+            //  PYODIDE INIT
+            // ════════════════════════════════
+            let pyodide = null;
+            let pyReady = false;
+
+            async function initPyodide() {
+                const dot = document.getElementById("pyDot");
+                const st = document.getElementById("pyStatus");
+                dot.className = "dot loading";
+                st.textContent = "กำลังโหลด Pyodide...";
+                try {
+                    pyodide = await loadPyodide({
+                        indexURL:
+                            "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/",
+                    });
+                    pyReady = true;
+                    dot.className = "dot ready";
+                    st.textContent = "Pyodide พร้อมแล้ว ✓";
+                    setTimeout(() => {
+                        st.textContent = "Python พร้อม";
+                    }, 2000);
+                } catch (e) {
+                    dot.className = "dot error";
+                    st.textContent = "โหลด Pyodide ไม่สำเร็จ";
+                    console.error(e);
+                }
+            }
+            const pyScript = document.createElement("script");
+            pyScript.src =
+                "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
+            pyScript.onload = initPyodide;
+            document.head.appendChild(pyScript);
+
+            // ════════════════════════════════
+            //  MONACO INIT
+            // ════════════════════════════════
+            const monacoEditors = {};
+
+            const LESSON_CODE = {
+                L1: `# Greedy Algorithm: Coin Change
+# เหรียญ [10, 5, 2, 1] — หยิบใหญ่สุดก่อน
+`,
+                L2: `# Greedy Algorithm: นักช้อปงบน้อย
+# ซื้อให้ได้จำนวนชิ้นมากที่สุด
+
+budget = 100                     # มีเงิน 100 บาท
+prices = [50, 20, 10, 80, 30]   # ราคาสินค้า
+
+
+`,
+            };
+
+            const EXERCISE_STARTERS = {
+                1: `def coin_change(amount):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(coin_change(18))
+print(coin_change(7))
+print(coin_change(23))`,
+                2: `def max_items(budget, prices):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(max_items(100, [50, 20, 10, 80, 30]))
+print(max_items(50, [30, 10, 20]))
+print(max_items(5, [10, 20, 30]))`,
+                3: `def assign_cookies(greed, size):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(assign_cookies([1,2,3], [1,1]))
+print(assign_cookies([1,2], [1,2,3]))
+print(assign_cookies([2,3], [1,2]))`,
+                4: `def max_movies(intervals):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(max_movies([[1,3],[2,4],[3,5]]))
+print(max_movies([[1,2],[2,3],[3,4]]))
+print(max_movies([[1,5],[2,3],[4,6]]))`,
+                5: `def min_cost_trip(costs, k):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(min_cost_trip([50,30,20,80,10], 3))
+print(min_cost_trip([100,200,300], 2))
+print(min_cost_trip([5,5,5,5], 4))`,
+                6: `def pack_bag(capacity, weights):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(pack_bag(10, [4,3,2,5,1]))
+print(pack_bag(5, [2,2,2,2]))
+print(pack_bag(3, [5,10,15]))`,
+                7: `def min_jobs(tasks, time_limit):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(min_jobs([3,5,2,7,1], 10))
+print(min_jobs([10,10,10], 20))
+print(min_jobs([1,2,3,4,5], 6))`,
+                8: `def share_candy(candies, n):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(share_candy([5,3,2], 3))
+print(share_candy([10,2,3], 2))
+print(share_candy([1,2], 7))`,
+                9: `def greedy_coins(coins, amount):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(greedy_coins([25,10,5,1], 47))
+print(greedy_coins([10,5,2,1], 18))
+print(greedy_coins([1,5,10,25], 36))`,
+                10: `def min_remove(intervals):
+    # เขียนโค้ดที่นี่
+    pass
+
+print(min_remove([[1,2],[2,3],[3,4],[1,3]]))
+print(min_remove([[1,2],[1,2],[1,2]]))
+print(min_remove([[1,2],[2,3]]))`,
+            };
+
+            const EXERCISE_TESTS = {
+                1: [
+                    {
+                        call: "coin_change(18)",
+                        expected: "4",
+                        desc: "coin_change(18)",
+                    },
+                    {
+                        call: "coin_change(7)",
+                        expected: "3",
+                        desc: "coin_change(7)",
+                    },
+                    {
+                        call: "coin_change(23)",
+                        expected: "4",
+                        desc: "coin_change(23)",
+                    },
+                    {
+                        call: "coin_change(1)",
+                        expected: "1",
+                        desc: "coin_change(1)",
+                    },
+                    {
+                        call: "coin_change(99)",
+                        expected: "14",
+                        desc: "coin_change(99)",
+                    },
+                ],
+                2: [
+                    {
+                        call: "max_items(100, [50,20,10,80,30])",
+                        expected: "3",
+                        desc: "max_items(100, [50,20,10,80,30])",
+                    },
+                    {
+                        call: "max_items(50, [30,10,20])",
+                        expected: "2",
+                        desc: "max_items(50, [30,10,20])",
+                    },
+                    {
+                        call: "max_items(5, [10,20,30])",
+                        expected: "0",
+                        desc: "max_items(5, [10,20,30])",
+                    },
+                    {
+                        call: "max_items(10, [1,2,3,4,5])",
+                        expected: "4",
+                        desc: "max_items(10, [1,2,3,4,5])",
+                    },
+                ],
+                3: [
+                    {
+                        call: "assign_cookies([1,2,3], [1,1])",
+                        expected: "1",
+                        desc: "assign_cookies([1,2,3],[1,1])",
+                    },
+                    {
+                        call: "assign_cookies([1,2], [1,2,3])",
+                        expected: "2",
+                        desc: "assign_cookies([1,2],[1,2,3])",
+                    },
+                    {
+                        call: "assign_cookies([2,3], [1,2])",
+                        expected: "1",
+                        desc: "assign_cookies([2,3],[1,2])",
+                    },
+                    {
+                        call: "assign_cookies([1,1,1], [1,1,1])",
+                        expected: "3",
+                        desc: "assign_cookies([1,1,1],[1,1,1])",
+                    },
+                ],
+                4: [
+                    {
+                        call: "max_movies([[1,3],[2,4],[3,5]])",
+                        expected: "2",
+                        desc: "max_movies([[1,3],[2,4],[3,5]])",
+                    },
+                    {
+                        call: "max_movies([[1,2],[2,3],[3,4]])",
+                        expected: "3",
+                        desc: "max_movies([[1,2],[2,3],[3,4]])",
+                    },
+                    {
+                        call: "max_movies([[1,5],[2,3],[4,6]])",
+                        expected: "2",
+                        desc: "max_movies([[1,5],[2,3],[4,6]])",
+                    },
+                    {
+                        call: "max_movies([[1,10],[2,3],[4,5]])",
+                        expected: "2",
+                        desc: "max_movies([[1,10],[2,3],[4,5]])",
+                    },
+                ],
+                5: [
+                    {
+                        call: "min_cost_trip([50,30,20,80,10], 3)",
+                        expected: "60",
+                        desc: "min_cost_trip([50,30,20,80,10],3)",
+                    },
+                    {
+                        call: "min_cost_trip([100,200,300], 2)",
+                        expected: "300",
+                        desc: "min_cost_trip([100,200,300],2)",
+                    },
+                    {
+                        call: "min_cost_trip([5,5,5,5], 4)",
+                        expected: "20",
+                        desc: "min_cost_trip([5,5,5,5],4)",
+                    },
+                    {
+                        call: "min_cost_trip([3,1,4,1,5,9], 3)",
+                        expected: "5",
+                        desc: "min_cost_trip([3,1,4,1,5,9],3)",
+                    },
+                ],
+                6: [
+                    {
+                        call: "pack_bag(10, [4,3,2,5,1])",
+                        expected: "4",
+                        desc: "pack_bag(10,[4,3,2,5,1])",
+                    },
+                    {
+                        call: "pack_bag(5, [2,2,2,2])",
+                        expected: "2",
+                        desc: "pack_bag(5,[2,2,2,2])",
+                    },
+                    {
+                        call: "pack_bag(3, [5,10,15])",
+                        expected: "0",
+                        desc: "pack_bag(3,[5,10,15])",
+                    },
+                    {
+                        call: "pack_bag(6, [1,2,3,4])",
+                        expected: "3",
+                        desc: "pack_bag(6,[1,2,3,4])",
+                    },
+                ],
+                7: [
+                    {
+                        call: "min_jobs([3,5,2,7,1], 10)",
+                        expected: "4",
+                        desc: "min_jobs([3,5,2,7,1],10)",
+                    },
+                    {
+                        call: "min_jobs([10,10,10], 20)",
+                        expected: "2",
+                        desc: "min_jobs([10,10,10],20)",
+                    },
+                    {
+                        call: "min_jobs([1,2,3,4,5], 6)",
+                        expected: "3",
+                        desc: "min_jobs([1,2,3,4,5],6)",
+                    },
+                    {
+                        call: "min_jobs([5,5,5,5], 5)",
+                        expected: "1",
+                        desc: "min_jobs([5,5,5,5],5)",
+                    },
+                ],
+                8: [
+                    {
+                        call: "share_candy([5,3,2], 3)",
+                        expected: "3",
+                        desc: "share_candy([5,3,2],3)",
+                    },
+                    {
+                        call: "share_candy([10,2,3], 2)",
+                        expected: "7",
+                        desc: "share_candy([10,2,3],2)",
+                    },
+                    {
+                        call: "share_candy([1,2], 7)",
+                        expected: "0",
+                        desc: "share_candy([1,2],7)",
+                    },
+                    {
+                        call: "share_candy([6,4,2], 3)",
+                        expected: "4",
+                        desc: "share_candy([6,4,2],3)",
+                    },
+                ],
+                9: [
+                    {
+                        call: "greedy_coins([25,10,5,1], 47)",
+                        expected: "5",
+                        desc: "greedy_coins([25,10,5,1],47)",
+                    },
+                    {
+                        call: "greedy_coins([10,5,2,1], 18)",
+                        expected: "4",
+                        desc: "greedy_coins([10,5,2,1],18)",
+                    },
+                    {
+                        call: "greedy_coins([1,5,10,25], 36)",
+                        expected: "3",
+                        desc: "greedy_coins([1,5,10,25],36)",
+                    },
+                    {
+                        call: "greedy_coins([50,20,10,5,1], 87)",
+                        expected: "6",
+                        desc: "greedy_coins([50,20,10,5,1],87)",
+                    },
+                ],
+                10: [
+                    {
+                        call: "min_remove([[1,2],[2,3],[3,4],[1,3]])",
+                        expected: "1",
+                        desc: "min_remove([[1,2],[2,3],[3,4],[1,3]])",
+                    },
+                    {
+                        call: "min_remove([[1,2],[1,2],[1,2]])",
+                        expected: "2",
+                        desc: "min_remove([[1,2],[1,2],[1,2]])",
+                    },
+                    {
+                        call: "min_remove([[1,2],[2,3]])",
+                        expected: "0",
+                        desc: "min_remove([[1,2],[2,3]])",
+                    },
+                    {
+                        call: "min_remove([[1,5],[2,3],[4,8],[6,7]])",
+                        expected: "1",
+                        desc: "min_remove([[1,5],[2,3],[4,8],[6,7]])",
+                    },
+                ],
+            };
+
+            require.config({
+                paths: {
+                    vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs",
+                },
+            });
+
+            require(["vs/editor/editor.main"], () => {
+                monaco.editor.defineTheme("gdd-dark", {
+                    base: "vs-dark",
+                    inherit: true,
+                    rules: [
+                        {
+                            token: "keyword",
+                            foreground: "f59e0b",
+                            fontStyle: "bold",
+                        },
+                        {
+                            token: "comment",
+                            foreground: "4a5535",
+                            fontStyle: "italic",
+                        },
+                        { token: "string", foreground: "c9f575" },
+                        { token: "number", foreground: "22d3ee" },
+                        { token: "identifier", foreground: "edeee8" },
+                    ],
+                    colors: {
+                        "editor.background": "#0a0c08",
+                        "editor.foreground": "#edeee8",
+                        "editorLineNumber.foreground": "#4a5535",
+                        "editor.lineHighlightBackground": "#131610",
+                        "editorCursor.foreground": "#f59e0b",
+                        "editor.selectionBackground": "#242b1c",
+                    },
+                });
+
+                const cfg = {
+                    theme: "gdd-dark",
+                    language: "python",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    fontSize: 13,
+                    fontFamily: "'JetBrains Mono',monospace",
+                    lineNumbers: "on",
+                    wordWrap: "on",
+                    automaticLayout: true,
+                };
+
+                Object.entries(LESSON_CODE).forEach(([id, code]) => {
+                    const el = document.getElementById(id);
+                    if (el)
+                        monacoEditors[id] = monaco.editor.create(el, {
+                            ...cfg,
+                            value: code,
+                        });
+                });
+
+                Object.entries(EXERCISE_STARTERS).forEach(([num, code]) => {
+                    const id = "EX" + num;
+                    const el = document.getElementById(id);
+                    if (el)
+                        monacoEditors[id] = monaco.editor.create(el, {
+                            ...cfg,
+                            value: code,
+                            lineNumbers: "off",
+                        });
+                });
+            });
+
+            // ════════════════════════════════
+            //  RUN LESSON CODE
+            // ════════════════════════════════
+            async function runLesson(btn, edId, outId) {
+                if (!pyReady) {
+                    alert("Pyodide ยังโหลดไม่เสร็จ กรุณารอสักครู่");
+                    return;
+                }
+                const code = monacoEditors[edId]?.getValue() || "";
+                const out = document.getElementById(outId);
+                btn.disabled = true;
+                btn.textContent = "⏳ กำลังรัน...";
+                out.className = "out-txt";
+                out.textContent = "";
+                try {
+                    let captured = "";
+                    pyodide.globals.set("__print_buf", (s) => {
+                        captured += s + "\n";
+                    });
+                    await pyodide.runPythonAsync(`
+import sys, io
+_old = sys.stdout
+sys.stdout = io.StringIO()
+try:
+${code
+    .split("\n")
+    .map((l) => "    " + l)
+    .join("\n")}
+except Exception as e:
+    print(f"Error: {e}")
+finally:
+    __print_buf(sys.stdout.getvalue())
+    sys.stdout = _old
+`);
+                    out.className = "out-txt ok";
+                    out.textContent = captured.trim() || "(ไม่มี output)";
+                } catch (e) {
+                    out.className = "out-txt err";
+                    out.textContent = String(e);
+                }
+                btn.disabled = false;
+                btn.textContent = "▶ รันโค้ด";
+            }
+
+            // ════════════════════════════════
+            //  CHECK EXERCISE
+            // ════════════════════════════════
+            async function checkEx(num) {
+                if (!pyReady) {
+                    alert("Pyodide ยังโหลดไม่เสร็จ");
+                    return;
+                }
+                const edId = "EX" + num;
+                const code = monacoEditors[edId]?.getValue() || "";
+                const tests = EXERCISE_TESTS[num] || [];
+                const vd = document.getElementById("VD" + num);
+                const btn = vd.closest(".ex-body").querySelector(".check-btn");
+                vd.style.display = "block";
+                vd.innerHTML =
+                    '<div class="vd-hd running">⏳ กำลังตรวจ...</div>';
+                if (btn) btn.disabled = true;
+
+                const results = [];
+                for (const t of tests) {
+                    try {
+                        const fullCode =
+                            code + "\n__result__ = str(" + t.call + ")";
+                        await pyodide.runPythonAsync(fullCode);
+                        const got = pyodide.globals.get("__result__");
+                        results.push({
+                            ...t,
+                            got: String(got),
+                            pass: String(got).trim() === t.expected.trim(),
+                        });
+                    } catch (e) {
+                        results.push({ ...t, got: "Error: " + e, pass: false });
+                    }
+                }
+
+                const allPass = results.every((r) => r.pass);
+                const passCount = results.filter((r) => r.pass).length;
+                const label = allPass
+                    ? "🎉 ผ่านทุก Testcase!"
+                    : "❌ ผ่าน " +
+                      passCount +
+                      "/" +
+                      results.length +
+                      " Testcase";
+
+                let html =
+                    '<div class="vd-hd ' +
+                    (allPass ? "pass" : "fail") +
+                    '">' +
+                    label +
+                    '</div><div class="vd-body">';
+                for (const r of results) {
+                    html +=
+                        '<div class="vd-row">' +
+                        '<div class="vd-icon">' +
+                        (r.pass ? "✅" : "❌") +
+                        "</div>" +
+                        '<div class="vd-content">' +
+                        '<div class="vd-title">' +
+                        r.desc +
+                        "</div>" +
+                        '<div class="vd-row-inner">' +
+                        '<div><div class="vd-label">ได้</div><div class="vd-got ' +
+                        (r.pass ? "" : "wrong") +
+                        '">' +
+                        r.got +
+                        "</div></div>" +
+                        '<div><div class="vd-label">คาดหวัง</div><div class="vd-expect">' +
+                        r.expected +
+                        "</div></div>" +
+                        "</div>" +
+                        "</div>" +
+                        "</div>";
+                }
+                html += "</div>";
+                vd.innerHTML = html;
+                if (btn) btn.disabled = false;
+            }
+
+            // ════════════════════════════════
+            //  HINT TOGGLE
+            // ════════════════════════════════
+            function toggleHint(num) {
+                const h = document.getElementById("HINT" + num);
+                h.style.display =
+                    h.style.display === "block" ? "none" : "block";
+            }
+
+            // ════════════════════════════════
+            //  GREEDY COIN VISUALIZER
+            // ════════════════════════════════
+            const VIZ_COINS = [10, 5, 2, 1];
+            let vzCurrentAmt = 18;
+            let vzSteps = [],
+                vzCursor = 0,
+                vzTimer = null;
+
+            function buildVizSteps(amount) {
+                const steps = [];
+                let rem = amount;
+                steps.push({
+                    type: "start",
+                    rem,
+                    picked: [],
+                    msg: "เริ่มต้น: ต้องทอน " + amount + " บาท",
+                    active: null,
+                });
+                for (let ci = 0; ci < VIZ_COINS.length; ci++) {
+                    const coin = VIZ_COINS[ci];
+                    if (rem <= 0) break;
+                    if (rem < coin) {
+                        steps.push({
+                            type: "skip",
+                            rem,
+                            picked: [...steps[steps.length - 1].picked],
+                            msg: "เหรียญ " + coin + " บาท → ใหญ่เกินไป ข้ามไป",
+                            active: coin,
+                        });
+                    } else {
+                        const n = Math.floor(rem / coin);
+                        for (let k = 0; k < n; k++) {
+                            rem -= coin;
+                            const newPicked = [
+                                ...steps[steps.length - 1].picked,
+                                coin,
+                            ];
+                            steps.push({
+                                type: "pick",
+                                rem,
+                                picked: newPicked,
+                                msg:
+                                    "หยิบเหรียญ " +
+                                    coin +
+                                    " บาท ✓ → เหลือ " +
+                                    rem +
+                                    " บาท",
+                                active: coin,
+                            });
+                        }
+                    }
+                }
+                steps.push({
+                    type: "done",
+                    rem: 0,
+                    picked: steps[steps.length - 1].picked,
+                    msg:
+                        "🎉 เสร็จ! ใช้ " +
+                        steps[steps.length - 1].picked.length +
+                        " เหรียญ",
+                    active: null,
+                });
+                return steps;
+            }
+
+            function setVizAmount(a) {
+                vzCurrentAmt = a;
+                vzSteps = buildVizSteps(a);
+                vzCursor = 0;
+                if (vzTimer) {
+                    clearInterval(vzTimer);
+                    vzTimer = null;
+                    document.getElementById("vzPlayBtn").textContent =
+                        "▶ Auto Play";
+                }
+                renderVizStep(vzSteps[0]);
+                document.getElementById("vzStepBtn").disabled = false;
+                document.getElementById("vzStepBtn").textContent = "⏭ Step";
+            }
+
+            function renderVizStep(step) {
+                document.getElementById("vzAmt").textContent = step.rem;
+                document.getElementById("vzCnt").textContent =
+                    step.picked.length;
+                const msg = document.getElementById("vzMsg");
+                msg.textContent = step.msg;
+                msg.className =
+                    "gstep-msg" + (step.type === "pick" ? " active" : "");
+                VIZ_COINS.forEach((c) => {
+                    const el = document.getElementById("vc" + c);
+                    if (!el) return;
+                    if (step.active === c)
+                        el.className =
+                            step.type === "skip" ? "coin skip" : "coin active";
+                    else if (step.picked.includes(c))
+                        el.className = "coin used";
+                    else el.className = "coin idle";
+                });
+                const basket = document.getElementById("vzBasket");
+                basket.innerHTML = step.picked
+                    .map((c) => '<div class="basket-coin">' + c + "</div>")
+                    .join("");
+            }
+
+            function vizStep() {
+                if (!vzSteps.length) vzSteps = buildVizSteps(vzCurrentAmt);
+                if (vzCursor >= vzSteps.length) {
+                    setVizAmount(vzCurrentAmt);
+                    return;
+                }
+                renderVizStep(vzSteps[vzCursor++]);
+                if (vzCursor >= vzSteps.length)
+                    document.getElementById("vzStepBtn").textContent =
+                        "↺ Reset";
+            }
+
+            function vizPlay() {
+                if (vzTimer) {
+                    clearInterval(vzTimer);
+                    vzTimer = null;
+                    document.getElementById("vzPlayBtn").textContent =
+                        "▶ Auto Play";
+                    return;
+                }
+                if (!vzSteps.length) vzSteps = buildVizSteps(vzCurrentAmt);
+                document.getElementById("vzPlayBtn").textContent = "⏸ Pause";
+                vzTimer = setInterval(() => {
+                    if (vzCursor >= vzSteps.length) {
+                        clearInterval(vzTimer);
+                        vzTimer = null;
+                        document.getElementById("vzPlayBtn").textContent =
+                            "↺ Play Again";
+                        return;
+                    }
+                    renderVizStep(vzSteps[vzCursor++]);
+                }, 600);
+            }
+
+            window.addEventListener("load", () => setVizAmount(18));
+
+            // ════════════════════════════════
+            //  SIDEBAR ACTIVE + PROGRESS
+            // ════════════════════════════════
+            const navAs = document.querySelectorAll(".na");
+            const secs = document.querySelectorAll(".sec[id]");
+            const obs = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((e) => {
+                        if (!e.isIntersecting) return;
+                        navAs.forEach((a) => a.classList.remove("active"));
+                        const a = document.querySelector(
+                            '.na[href="#' + e.target.id + '"]',
+                        );
+                        if (a) a.classList.add("active");
+                        const idx = [...secs].indexOf(e.target);
+                        document.getElementById("prog").style.width =
+                            ((idx + 1) / secs.length) * 100 + "%";
+                    });
+                },
+                { rootMargin: "-15% 0px -75% 0px" },
+            );
+            secs.forEach((s) => obs.observe(s));
+        </script>
+    </body>
+</html>
