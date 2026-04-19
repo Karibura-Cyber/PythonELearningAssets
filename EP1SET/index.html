@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python L1.11 — Set (เซต)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sf:#13161e;--sf2:#1a1e2a;--bd:#242836;
+  --ac:#e879f9;--ac2:#06b6d4;--ac3:#10b981;--red:#ef4444;--warn:#f59e0b;--or:#f97316;
+  --tx:#e8eaf0;--mu:#7b82a0;--di:#4a5168
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;font-size:15px}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--sf);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-hd{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:5px}
+.sb-title{font-size:13px;font-weight:600;color:var(--tx);line-height:1.4}
+.prog-bar{height:3px;background:var(--bd);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0%;transition:width .4s}
+.sb-nav{padding:10px 0;flex:1}
+.nav-sec{padding:8px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di)}
+.na{display:block;padding:6px 16px;font-size:12.5px;color:var(--mu);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.na:hover{color:var(--tx);background:var(--sf2);border-left-color:var(--bd)}
+.na.active{color:var(--ac);background:rgba(232,121,249,.08);border-left-color:var(--ac);font-weight:600}
+.na.sub{padding-left:28px;font-size:12px}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;margin-left:5px;font-weight:700;vertical-align:middle}
+.bg{background:rgba(16,185,129,.15);color:var(--ac3)}
+.bb{background:rgba(6,182,212,.15);color:var(--ac2)}
+.br{background:rgba(239,68,68,.15);color:var(--red)}
+.bp{background:rgba(232,121,249,.15);color:var(--ac)}
+.bo{background:rgba(249,115,22,.15);color:var(--or)}
+
+/* MAIN */
+.main{margin-left:252px;min-height:100vh}
+.topbar{position:sticky;top:0;background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 36px;height:50px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.bc{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.bc span{color:var(--di)}
+.py-st{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--di);transition:background .3s;flex-shrink:0}
+.dot.loading{background:var(--ac);animation:pulse 1s infinite}
+.dot.ready{background:var(--ac3)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{max-width:840px;margin:0 auto;padding:44px 36px 100px}
+
+/* HERO */
+.hero{padding:52px 0 44px;border-bottom:1px solid var(--bd);margin-bottom:52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);pointer-events:none}
+.hw{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:10px}
+.ht{font-size:36px;font-weight:800;line-height:1.15;margin-bottom:10px;background:linear-gradient(135deg,#e8eaf0,#a78bfa,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hs{font-size:17px;font-weight:500;color:var(--ac);margin-bottom:18px}
+.hm{font-size:13px;color:var(--mu)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);font-weight:500}
+
+/* SECTION */
+.sec{margin-bottom:60px;scroll-margin-top:66px}
+.sl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin-bottom:8px}
+h2{font-size:24px;font-weight:700;color:var(--tx);margin-bottom:18px;line-height:1.3}
+h3{font-size:16px;font-weight:600;color:var(--tx);margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:600;color:var(--ac2);margin:18px 0 7px;font-family:'JetBrains Mono',monospace}
+p{color:#c5c9d8;margin-bottom:12px;line-height:1.8}
+strong{color:var(--tx);font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--sf2);padding:2px 6px;border-radius:4px;color:var(--ac2)}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:#c5c9d8;line-height:1.7}
+hr.div{border:none;border-top:1px solid var(--bd);margin:44px 0}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--ac);background:rgba(232,121,249,.06);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:#c5c9d8}
+.callout.info{border-left-color:var(--ac2);background:rgba(6,182,212,.06)}
+.callout.ok{border-left-color:var(--ac3);background:rgba(16,185,129,.06)}
+.callout.warn{border-left-color:var(--warn);background:rgba(245,158,11,.06)}
+.callout.or{border-left-color:var(--or);background:rgba(249,115,22,.06)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.tbl th{background:var(--sf2);padding:9px 13px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--mu);border-bottom:2px solid var(--bd)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:#c5c9d8;vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl td:first-child{font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.concept-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.concept-card.outer{border-color:rgba(232,121,249,.3)}
+.concept-card.inner{border-color:rgba(6,182,212,.3)}
+.concept-card.compare{border-color:rgba(16,185,129,.3)}
+.concept-card.perf{border-color:rgba(249,115,22,.3)}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.concept-card.outer::before{background:linear-gradient(90deg,var(--ac),transparent)}
+.concept-card.inner::before{background:linear-gradient(90deg,var(--ac2),transparent)}
+.concept-card.compare::before{background:linear-gradient(90deg,var(--ac3),transparent)}
+.concept-card.perf::before{background:linear-gradient(90deg,var(--or),transparent)}
+.cc-icon{font-size:28px;margin-bottom:10px}
+.cc-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.concept-card.outer .cc-title{color:var(--ac)}
+.concept-card.inner .cc-title{color:var(--ac2)}
+.concept-card.compare .cc-title{color:var(--ac3)}
+.concept-card.perf .cc-title{color:var(--or)}
+.cc-desc{font-size:13px;color:var(--mu);line-height:1.6}
+
+/* SET VISUALIZER */
+.viz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:18px 0}
+.viz-hd{background:var(--sf2);padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.viz-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.viz-body{padding:20px}
+.viz-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.viz-inp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12.5px;font-family:'JetBrains Mono',monospace;outline:none;width:100%}
+.viz-inp:focus{border-color:var(--ac)}
+.viz-btn{border:none;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.viz-btn.run{background:rgba(16,185,129,.15);color:var(--ac3);border:1px solid rgba(16,185,129,.3)}
+.viz-btn.run:hover{background:rgba(16,185,129,.25)}
+.viz-btn.rst{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
+.viz-btn.rst:hover{color:var(--tx)}
+.viz-label{font-size:11px;color:var(--mu);font-weight:600}
+
+/* SET DISPLAY */
+.set-display{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:12px;min-height:80px}
+.set-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.set-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);min-width:60px}
+.set-members{display:flex;gap:6px;flex-wrap:wrap}
+.set-chip{background:var(--sf);border:1px solid var(--bd);border-radius:6px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tx);transition:all .3s}
+.set-chip.dup{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:var(--red);text-decoration:line-through}
+.set-chip.kept{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:var(--ac3)}
+.set-chip.union{background:rgba(232,121,249,.12);border-color:rgba(232,121,249,.4);color:var(--ac)}
+.set-chip.inter{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.4);color:var(--ac2)}
+.set-chip.diff{background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.4);color:var(--or)}
+.set-op-result{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:12px 16px;margin-top:12px;font-size:13px}
+.op-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.op-result{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.venn-svg{width:100%;max-width:320px;margin:10px auto;display:block}
+
+/* OPERATION TABS */
+.op-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.op-tab{border:1px solid var(--bd);background:var(--sf2);color:var(--mu);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s;font-weight:600}
+.op-tab:hover{color:var(--tx);border-color:var(--ac)}
+.op-tab.active{background:rgba(232,121,249,.12);color:var(--ac);border-color:rgba(232,121,249,.5)}
+
+/* LESSON EDITOR */
+.ed-block{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ed-hl{display:flex;align-items:center;gap:9px}
+.ed-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
+.ed-fn{font-size:11.5px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.run-btn{background:var(--ac3);color:#000;border:none;padding:5px 14px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.run-btn:hover{background:#34d399;transform:translateY(-1px)}
+.run-btn:active{transform:none}
+.run-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+.mc{width:100%}
+.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}
+.out-panel{border-top:1px solid var(--bd);background:#0a0c10}
+.out-lbl{padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--di);border-bottom:1px solid var(--bd)}
+.out-txt{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;min-height:46px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.out-txt.idle{color:var(--di);font-style:italic}
+.out-txt.ok{color:#a8ff78}
+.out-txt.err{color:#ff6b6b}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.ex-hd{padding:14px 18px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:12px}
+.ex-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px}
+.ex-num.g{background:rgba(16,185,129,.15);color:var(--ac3)}
+.ex-num.b{background:rgba(6,182,212,.15);color:var(--ac2)}
+.ex-num.r{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-num.p{background:rgba(232,121,249,.15);color:var(--ac)}
+.ex-num.o{background:rgba(249,115,22,.15);color:var(--or)}
+.ex-info h3{font-size:14.5px;font-weight:700;color:var(--tx);margin:0 0 3px}
+.ex-info p{font-size:12.5px;color:var(--mu);margin:0;line-height:1.5}
+.ex-body{padding:18px}
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.io-box{background:#0a0c10;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.io-lbl{padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.io-lbl.inp{color:var(--ac2)}.io-lbl.out{color:var(--ac3)}
+.io-txt{padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#c5c9d8;white-space:pre}
+.full-col{grid-column:1/-1}
+.ex-ed{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ex-ed-hd{background:var(--sf2);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ex-mc{width:100%;height:220px}
+.check-btn{background:var(--ac2);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Noto Sans Thai',sans-serif;white-space:nowrap}
+.check-btn:hover{background:#38bdf8;transform:translateY(-1px)}
+.check-btn:active{transform:none}
+.check-btn:disabled{background:var(--di);cursor:not-allowed;transform:none}
+
+/* VERDICT */
+.verdict{margin-top:12px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;display:none}
+.vd-hd{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.vd-hd.pass{background:rgba(16,185,129,.12);color:var(--ac3);border-bottom:1px solid rgba(16,185,129,.2)}
+.vd-hd.fail{background:rgba(239,68,68,.1);color:var(--red);border-bottom:1px solid rgba(239,68,68,.15)}
+.vd-hd.running{background:rgba(232,121,249,.08);color:var(--ac)}
+.vd-body{background:#0a0c10;padding:2px 0}
+.vd-row{padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px;display:flex;align-items:flex-start;gap:10px}
+.vd-row:last-child{border-bottom:none}
+.vd-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.vd-content{flex:1;min-width:0}
+.vd-title{font-weight:600;margin-bottom:4px;color:var(--tx)}
+.vd-in{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--di);margin-bottom:3px;white-space:pre-wrap}
+.vd-row-inner{display:flex;gap:20px;flex-wrap:wrap}
+.vd-got{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#c5c9d8;white-space:pre-wrap}
+.vd-got.wrong{color:var(--red)}
+.vd-expect{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ac3);white-space:pre-wrap}
+.vd-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--di);margin-bottom:2px}
+
+/* QUIZ */
+.quiz-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.quiz-hd{background:var(--sf2);padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.quiz-title{font-size:14px;font-weight:700;color:var(--tx)}
+.quiz-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;color:var(--tx);font-weight:600;margin-bottom:14px;line-height:1.6;white-space:pre-wrap}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:#c5c9d8;background:var(--sf2)}
+.quiz-opt:hover{border-color:var(--ac);color:var(--tx)}
+.quiz-opt.selected{border-color:var(--ac2);background:rgba(6,182,212,.08);color:var(--ac2)}
+.quiz-opt.correct{border-color:var(--ac3);background:rgba(16,185,129,.1);color:var(--ac3)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.08);color:var(--red)}
+.quiz-opt-key{width:22px;height:22px;border-radius:6px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.quiz-fb{padding:12px 14px;border-radius:8px;font-size:13px;margin-top:8px;display:none}
+.quiz-fb.correct{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--ac3)}
+.quiz-fb.wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.quiz-submit{background:var(--ac2);color:#fff;border:none;padding:7px 20px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-submit:hover{background:#38bdf8}
+.quiz-submit:disabled{background:var(--di);cursor:not-allowed}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.quiz-prog-text{font-size:11px;color:var(--mu)}
+.quiz-nav-btns{display:flex;gap:8px}
+.quiz-nav-btn{background:var(--sf2);border:1px solid var(--bd);color:var(--mu);padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Noto Sans Thai',sans-serif}
+.quiz-nav-btn:hover:not(:disabled){color:var(--tx);border-color:var(--ac)}
+.quiz-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.quiz-score-wrap{text-align:center;padding:30px 20px;display:none}
+.quiz-score-num{font-size:52px;font-weight:800;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.quiz-score-label{font-size:14px;color:var(--mu);margin-bottom:20px}
+.quiz-retry{background:rgba(232,121,249,.15);color:var(--ac);border:1px solid rgba(232,121,249,.3);padding:8px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans Thai',sans-serif;transition:all .15s}
+.quiz-retry:hover{background:rgba(232,121,249,.25)}
+.quiz-dots{display:flex;gap:5px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.quiz-dot{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:all .3s}
+.quiz-dot.answered{background:var(--ac2)}
+.quiz-dot.current{background:var(--ac);transform:scale(1.3)}
+.quiz-dot.correct-d{background:var(--ac3)}
+.quiz-dot.wrong-d{background:var(--red)}
+
+/* COMPARISON TABLE */
+.comp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.comp-box{background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.comp-box-hd{padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.comp-box-hd.list{background:rgba(16,185,129,.07);color:var(--ac3)}
+.comp-box-hd.setc{background:rgba(232,121,249,.07);color:var(--ac)}
+.comp-box-body{padding:14px;font-size:12.5px;color:#c5c9d8;line-height:1.7}
+.comp-box-body code{font-family:'JetBrains Mono',monospace;display:block;white-space:pre;background:none;padding:0;font-size:12px;margin:8px 0;color:#c5c9d8}
+
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.tech-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tc-head{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.tc-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.tc-badge.s{background:rgba(232,121,249,.15);color:var(--ac)}
+.tc-badge.q{background:rgba(6,182,212,.15);color:var(--ac2)}
+.tc-badge.b{background:rgba(16,185,129,.15);color:var(--ac3)}
+.tc-badge.o{background:rgba(249,115,22,.15);color:var(--or)}
+.tc-desc{font-size:12.5px;color:var(--mu);line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--di)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px 80px}.concept-grid,.tech-grid,.comp-row,.io-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-hd">
+    <div class="sb-logo">MECHANEX</div>
+    <div class="sb-title">Python L1 · Week 11</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">เนื้อหา</div>
+    <a class="na" href="#intro">Introduction — Set คืออะไร?</a>
+    <a class="na" href="#create">Part 1 — การสร้าง Set</a>
+    <a class="na sub" href="#create-brace">· สร้างด้วย { }</a>
+    <a class="na sub" href="#create-func">· สร้างด้วย set()</a>
+    <a class="na" href="#manage">Part 2 — เพิ่ม/ลบ/จัดการ</a>
+    <a class="na sub" href="#add-methods">· .add() / .update()</a>
+    <a class="na sub" href="#remove-methods">· .remove() / .discard()</a>
+    <a class="na" href="#operations">Part 3 — Set Operations</a>
+    <a class="na sub" href="#union">· Union |</a>
+    <a class="na sub" href="#intersection">· Intersection &</a>
+    <a class="na sub" href="#difference">· Difference -</a>
+    <a class="na sub" href="#sym-diff">· Symmetric Difference ^</a>
+    <a class="na" href="#viz">🎮 Set Visualizer</a>
+    <a class="na" href="#compare">Part 4 — เปรียบเทียบ Set</a>
+    <div class="nav-sec" style="margin-top:6px">โจทย์ฝึกหัด</div>
+    <a class="na sub" href="#ex1">1. กรองค่าซ้ำ <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex2">2. ตัดค่าซ้ำออก <span class="badge bg">Basic</span></a>
+    <a class="na sub" href="#ex3">3. Union ของ 2 List <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex4">4. Intersection <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex5">5. Difference <span class="badge bb">Mid</span></a>
+    <a class="na sub" href="#ex6">6. Subset Check <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex7">7. Symmetric Diff <span class="badge br">Harder</span></a>
+    <a class="na sub" href="#ex8">8. หาคะแนนเฉพาะ <span class="badge bp">Expert</span></a>
+    <div class="nav-sec" style="margin-top:6px">แบบทดสอบ</div>
+    <a class="na" href="#quiz">🧠 Quiz 10 ข้อ</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="bc">Python <span>›</span> Level 1 <span>›</span> Week 11 — Set</div>
+    <div class="py-st"><div class="dot loading" id="dot"></div><span id="dotTxt" style="color:var(--mu)">กำลังโหลด Python...</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hw">Python Level 1 · Week 11</div>
+      <div class="ht">Set<br>เซต</div>
+      <div class="hs">โครงสร้างข้อมูลที่ไม่ซ้ำ — Union, Intersection, Difference</div>
+      <div class="hm">เรียนรู้การใช้ Set สำหรับเก็บสมาชิกที่ไม่ซ้ำกัน ทำ Set Operations ทางคณิตศาสตร์ และเปรียบเทียบความสัมพันธ์ระหว่างเซต</div>
+      <div class="tags">
+        <span class="tag">Set</span>
+        <span class="tag">Unique</span>
+        <span class="tag">Unordered</span>
+        <span class="tag">Union / Intersection</span>
+        <span class="tag">Difference</span>
+        <span class="tag">Subset / Superset</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="sec" id="intro">
+      <div class="sl">บทนำ</div>
+      <h2>Set คืออะไร?</h2>
+      <p><strong>Set (เซต)</strong> คือโครงสร้างข้อมูลในภาษา Python สำหรับเก็บชุดของสมาชิกที่ <strong>ไม่ซ้ำกัน</strong> และ<strong>ไม่มีลำดับ</strong> เหมาะสำหรับงานที่ต้องการกรองข้อมูลซ้ำ หรือทำ Set Operations ทางคณิตศาสตร์</p>
+      <div class="concept-grid">
+        <div class="concept-card outer">
+          <div class="cc-icon">🔮</div>
+          <div class="cc-title">Unique (ไม่ซ้ำ)</div>
+          <div class="cc-desc">สมาชิกแต่ละตัวใน Set จะ<strong>ไม่ซ้ำกัน</strong> ถ้าใส่ค่าซ้ำ Python จะเก็บไว้เพียงหนึ่งเดียวโดยอัตโนมัติ</div>
+        </div>
+        <div class="concept-card inner">
+          <div class="cc-icon">🔀</div>
+          <div class="cc-title">Unordered (ไม่มีลำดับ)</div>
+          <div class="cc-desc">Set <strong>ไม่มีลำดับ Index</strong> ไม่สามารถใช้ <code>my_set[0]</code> ได้ และลำดับการแสดงผลอาจเปลี่ยนไปทุกครั้ง</div>
+        </div>
+        <div class="concept-card compare">
+          <div class="cc-icon">⚡</div>
+          <div class="cc-title">Fast Lookup O(1)</div>
+          <div class="cc-desc">การตรวจสอบว่าสมาชิกอยู่ใน Set หรือไม่ (<code>in</code>) ทำได้เร็วมาก เร็วกว่า List มาก</div>
+        </div>
+        <div class="concept-card perf">
+          <div class="cc-icon">🧮</div>
+          <div class="cc-title">Set Operations</div>
+          <div class="cc-desc">รองรับ Union, Intersection, Difference, Symmetric Difference เหมือน Set ทางคณิตศาสตร์</div>
+        </div>
+      </div>
+
+      <h3>ข้อแตกต่างระหว่าง List, Dictionary และ Set</h3>
+      <table class="tbl">
+        <thead><tr><th>คุณสมบัติ</th><th>List [ ]</th><th>Dictionary { }</th><th>Set { }</th></tr></thead>
+        <tbody>
+          <tr><td>ลำดับ</td><td>✅ Ordered</td><td>❌ Unordered</td><td>❌ Unordered</td></tr>
+          <tr><td>ค่าซ้ำ</td><td>✅ อนุญาต</td><td>Key ซ้ำไม่ได้ / Value ซ้ำได้</td><td>❌ ไม่อนุญาต</td></tr>
+          <tr><td>เข้าถึงด้วย Index</td><td>✅ list[0]</td><td>✅ dict["key"]</td><td>❌ ไม่ได้</td></tr>
+          <tr><td>วงเล็บ</td><td>[ ]</td><td>{ key: value }</td><td>{ value }</td></tr>
+          <tr><td>Mutable</td><td>✅</td><td>✅</td><td>✅ (เซตเอง) แต่สมาชิกต้องเป็น Immutable</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout info"><strong>💡 เมื่อไหรควรใช้ Set?</strong> ใช้เมื่อต้องการ (1) กรองค่าซ้ำออก (2) ตรวจสอบการมีอยู่ด้วย <code>in</code> อย่างรวดเร็ว (3) ทำ Set Operations เช่น หาข้อมูลที่ตัดกัน (Intersection) หรือรวมกัน (Union)</div>
+    </div>
+
+    <!-- PART 1: CREATE -->
+    <div class="sec" id="create">
+      <div class="sl">Part 1</div>
+      <h2>การสร้าง Set</h2>
+      <p>ใน Python มี 2 วิธีในการสร้าง Set ได้แก่ การใช้วงเล็บปีกกา <code>{ }</code> และการใช้ฟังก์ชัน <code>set()</code></p>
+    </div>
+
+    <div class="sec" id="create-brace">
+      <h3>การสร้างด้วยเครื่องหมาย { } (ปีกกา)</h3>
+      <p>นำข้อมูลทั้งหมดใส่ไว้ภายในวงเล็บปีกกา <code>{...}</code> คั่นด้วยเครื่องหมาย comma (,) Python จะลบข้อมูลที่ซ้ำกันออกโดยอัตโนมัติ และลำดับการแสดงผลอาจไม่ตรงกับที่กำหนด เพราะ Set เป็น Unordered</p>
+      <div class="callout warn"><strong>⚠️ ข้อควรระวัง:</strong> <code>{}</code> เปล่า ๆ ใน Python หมายถึง <strong>Dictionary ว่าง</strong> ไม่ใช่ Set ว่าง! ต้องใช้ <code>set()</code> ถ้าต้องการ Set ว่าง</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">create_set_brace.py</span></div><button class="run-btn" onclick="runLesson(this,'L1','LO1')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L1"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO1">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="create-func">
+      <h3>การสร้างด้วยฟังก์ชัน set()</h3>
+      <p>ใช้ <code>set()</code> เพื่อแปลง List, Tuple หรือ String ให้เป็น Set รวมถึงสร้าง Set ว่าง และกรองค่าซ้ำออกจากข้อมูลที่มีอยู่</p>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge s">int / float</span>ตัวเลข</div>
+          <div class="tc-desc">Set สามารถเก็บ int, float ได้ — เป็น Immutable จึงใช้เป็นสมาชิกได้</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge q">str</span>ข้อความ</div>
+          <div class="tc-desc">String เป็น Immutable จึงเก็บใน Set ได้ ระวัง: <code>set("abc")</code> → <code>{'a','b','c'}</code></div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge b">tuple</span>Tuple</div>
+          <div class="tc-desc">Tuple เป็น Immutable ใช้เป็นสมาชิกของ Set ได้ แต่ List ไม่ได้ (Mutable)</div>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><span class="tc-badge o">⚠️</span>ห้ามใช้</div>
+          <div class="tc-desc">List, Set, Dictionary <strong>ไม่สามารถ</strong>เป็นสมาชิกของ Set ได้ เพราะเป็น Mutable</div>
+        </div>
+      </div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">create_set_func.py</span></div><button class="run-btn" onclick="runLesson(this,'L2','LO2')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L2"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO2">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- PART 2: MANAGE -->
+    <div class="sec" id="manage">
+      <div class="sl">Part 2</div>
+      <h2>การเพิ่ม, ลบ และจัดการข้อมูลใน Set</h2>
+      <p>เนื่องจาก Set เป็นโครงสร้างแบบ Mutable จึงสามารถจัดการสมาชิกได้ด้วย Method ต่าง ๆ แต่ <strong>ไม่มี Index</strong> จึงไม่สามารถแก้ไขสมาชิกโดยตรงได้</p>
+    </div>
+
+    <div class="sec" id="add-methods">
+      <h3>Method สำหรับเพิ่มสมาชิก</h3>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>การทำงาน</th><th>ตัวอย่าง</th><th>หมายเหตุ</th></tr></thead>
+        <tbody>
+          <tr><td>.add(element)</td><td>เพิ่มสมาชิก 1 ตัว</td><td><code>s.add(3)</code></td><td>ถ้าซ้ำ จะละเลย (ไม่ error)</td></tr>
+          <tr><td>.update(iterable)</td><td>เพิ่มสมาชิกหลายตัวจาก List/Tuple/Set</td><td><code>s.update([4,5])</code></td><td>รวมหลายชุดพร้อมกัน</td></tr>
+        </tbody>
+      </table>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_add.py</span></div><button class="run-btn" onclick="runLesson(this,'L3','LO3')">▶ รันโค้ด</button></div>
+        <div class="mc h240" id="L3"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO3">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="remove-methods">
+      <h3>Method สำหรับลบสมาชิก</h3>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>การทำงาน</th><th>ตัวอย่าง</th><th>ข้อแตกต่าง (สำคัญ!)</th></tr></thead>
+        <tbody>
+          <tr><td>.remove(x)</td><td>ลบสมาชิกที่ระบุ</td><td><code>s.remove(2)</code></td><td>ถ้าไม่พบ → <strong>KeyError!</strong></td></tr>
+          <tr><td>.discard(x)</td><td>ลบสมาชิกที่ระบุ</td><td><code>s.discard(99)</code></td><td>ถ้าไม่พบ → <strong>ไม่เกิด Error</strong> (ปลอดภัยกว่า)</td></tr>
+          <tr><td>.pop()</td><td>ลบและคืนค่าสมาชิกแบบสุ่ม</td><td><code>item = s.pop()</code></td><td>ไม่สามารถระบุได้ว่าจะลบตัวไหน</td></tr>
+          <tr><td>.clear()</td><td>ลบสมาชิกทั้งหมด</td><td><code>s.clear()</code></td><td>Set จะกลายเป็น <code>set()</code></td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><strong>⚠️ ข้อควรจำ:</strong> ใช้ <code>.discard()</code> เมื่อไม่แน่ใจว่าสมาชิกมีอยู่หรือไม่ เพราะ <code>.remove()</code> จะเกิด <strong>KeyError</strong> ถ้าหาไม่พบ</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_remove.py</span></div><button class="run-btn" onclick="runLesson(this,'L4','LO4')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L4"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO4">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- PART 3: OPERATIONS -->
+    <div class="sec" id="operations">
+      <div class="sl">Part 3</div>
+      <h2>การดำเนินการทางคณิตศาสตร์ของ Set (Set Operations)</h2>
+      <p>Set ใน Python รองรับ Operations เหมือนเซตในคณิตศาสตร์ สามารถใช้ได้ทั้ง <strong>เครื่องหมาย Operator</strong> และ <strong>Method</strong></p>
+    </div>
+
+    <div class="sec" id="union">
+      <h3>Union (ยูเนียน) — รวมข้อมูลทั้งหมด</h3>
+      <p>การรวมข้อมูลทุกตัวจากทั้งสองเซต ถ้ามีข้อมูลซ้ำกัน จะเก็บไว้เพียงหนึ่งครั้ง ใช้เครื่องหมาย <code>|</code> หรือ method <code>.union()</code></p>
+      <div class="callout info"><strong>สูตร:</strong> <code>A | B</code> หรือ <code>A.union(B)</code> → สมาชิกของ A รวมกับสมาชิกของ B (ไม่ซ้ำ)</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_union.py</span></div><button class="run-btn" onclick="runLesson(this,'L5','LO5')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L5"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO5">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="intersection">
+      <h3>Intersection (อินเตอร์เซคชัน) — ข้อมูลที่ตัดกัน</h3>
+      <p>เลือกเฉพาะข้อมูลที่มีอยู่ใน<strong>ทั้งสองเซต</strong> ใช้เครื่องหมาย <code>&</code> หรือ method <code>.intersection()</code></p>
+      <div class="callout info"><strong>สูตร:</strong> <code>A & B</code> หรือ <code>A.intersection(B)</code> → สมาชิกที่อยู่ใน A และ B พร้อมกัน</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_intersection.py</span></div><button class="run-btn" onclick="runLesson(this,'L6','LO6')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L6"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO6">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="difference">
+      <h3>Difference (ดิฟเฟอเรนซ์) — ข้อมูลเฉพาะของเซตหนึ่ง</h3>
+      <p>เลือกข้อมูลที่อยู่ใน<strong>เซตแรก แต่ไม่อยู่ในเซตที่สอง</strong> ใช้เครื่องหมาย <code>-</code> หรือ method <code>.difference()</code></p>
+      <div class="callout or"><strong>⚠️ Difference ไม่ commutative:</strong> <code>A - B</code> ≠ <code>B - A</code> ลำดับมีความสำคัญ!</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_difference.py</span></div><button class="run-btn" onclick="runLesson(this,'L7','LO7')">▶ รันโค้ด</button></div>
+        <div class="mc h220" id="L7"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO7">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="sym-diff">
+      <h3>Symmetric Difference — ข้อมูลที่ไม่ร่วมกัน</h3>
+      <p>เลือกข้อมูลที่อยู่ใน<strong>เซตใดเซตหนึ่ง แต่ไม่อยู่ในทั้งสองเซตพร้อมกัน</strong> กล่าวคือ Union ลบ Intersection ใช้เครื่องหมาย <code>^</code> หรือ method <code>.symmetric_difference()</code></p>
+      <div class="callout info"><strong>สูตร:</strong> <code>A ^ B</code> = <code>(A | B) - (A & B)</code> → สมาชิกที่ไม่ร่วมกัน</div>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_sym_diff.py</span></div><button class="run-btn" onclick="runLesson(this,'L8','LO8')">▶ รันโค้ด</button></div>
+        <div class="mc h200" id="L8"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO8">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <!-- SET VISUALIZER -->
+    <div class="sec" id="viz">
+      <div class="sl">Interactive</div>
+      <h2>🎮 Set Operations Visualizer</h2>
+      <p>ใส่สมาชิกของ Set A และ Set B แล้วเลือก Operation เพื่อดูผลลัพธ์พร้อมแผนภาพ Venn</p>
+      <div class="viz-wrap">
+        <div class="viz-hd">
+          <span class="viz-title" style="color:var(--ac)">⚙️ SET VISUALIZER</span>
+          <span style="font-size:11px;color:var(--mu)" id="vizInfo">กรอกข้อมูลแล้วกดคำนวณ</span>
+        </div>
+        <div class="viz-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <label class="viz-label" style="display:block;margin-bottom:6px">Set A (คั่นด้วยช่องว่าง)</label>
+              <input class="viz-inp" id="setAInput" placeholder="เช่น 1 2 3 4 5" value="1 2 3 4 5">
+            </div>
+            <div>
+              <label class="viz-label" style="display:block;margin-bottom:6px">Set B (คั่นด้วยช่องว่าง)</label>
+              <input class="viz-inp" id="setBInput" placeholder="เช่น 3 4 5 6 7" value="3 4 5 6 7">
+            </div>
+          </div>
+          <div class="op-tabs">
+            <button class="op-tab active" onclick="runViz('union', this)">| Union</button>
+            <button class="op-tab" onclick="runViz('intersection', this)">&amp; Intersection</button>
+            <button class="op-tab" onclick="runViz('difference', this)">- Difference (A-B)</button>
+            <button class="op-tab" onclick="runViz('rdiff', this)">- Difference (B-A)</button>
+            <button class="op-tab" onclick="runViz('symdiff', this)">^ Symmetric Diff</button>
+          </div>
+          <div class="set-display" id="setDisplay">
+            <div class="set-row"><span class="set-label">Set A</span><div class="set-members" id="setAViz"></div></div>
+            <div class="set-row"><span class="set-label">Set B</span><div class="set-members" id="setBViz"></div></div>
+            <div class="set-op-result" id="setResult">
+              <div class="op-label" style="color:var(--ac)">RESULT</div>
+              <div class="op-result" id="opResultTxt" style="color:var(--ac)">กด Operation ด้านบนเพื่อดูผล</div>
+            </div>
+          </div>
+          <!-- Venn SVG -->
+          <svg class="venn-svg" viewBox="0 0 320 160" id="vennSvg">
+            <circle id="vA" cx="120" cy="80" r="65" fill="rgba(232,121,249,0.12)" stroke="rgba(232,121,249,0.5)" stroke-width="1.5"/>
+            <circle id="vB" cx="200" cy="80" r="65" fill="rgba(6,182,212,0.12)" stroke="rgba(6,182,212,0.5)" stroke-width="1.5"/>
+            <text x="90" y="55" font-size="13" fill="#e879f9" font-weight="700" font-family="JetBrains Mono">A</text>
+            <text x="220" y="55" font-size="13" fill="#06b6d4" font-weight="700" font-family="JetBrains Mono">B</text>
+            <text id="vennLabel" x="160" y="150" font-size="11" fill="#7b82a0" text-anchor="middle" font-family="Noto Sans Thai">Union = A ∪ B</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 4: COMPARE -->
+    <div class="sec" id="compare">
+      <div class="sl">Part 4</div>
+      <h2>การเปรียบเทียบ Set — Subset &amp; Superset</h2>
+      <p>เราสามารถตรวจสอบความสัมพันธ์ระหว่างสองเซตได้ว่าเป็น Subset (เซตย่อย) หรือ Superset (เซตครอบคลุม) โดยใช้ Method ต่อไปนี้</p>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>การทำงาน</th><th>ตัวอย่าง</th><th>ผลลัพธ์</th></tr></thead>
+        <tbody>
+          <tr><td>.issubset(other)</td><td>ตรวจว่า Set นี้เป็น subset ของ other หรือไม่</td><td><code>{1,2}.issubset({1,2,3})</code></td><td>True</td></tr>
+          <tr><td>.issuperset(other)</td><td>ตรวจว่า Set นี้เป็น superset ของ other หรือไม่</td><td><code>{1,2,3}.issuperset({1,2})</code></td><td>True</td></tr>
+          <tr><td>.isdisjoint(other)</td><td>ตรวจว่าไม่มีสมาชิกร่วมกันเลยหรือไม่</td><td><code>{1,2}.isdisjoint({3,4})</code></td><td>True</td></tr>
+          <tr><td>A == B</td><td>ตรวจว่า Set เท่ากันหรือไม่ (สมาชิกเหมือนกันทุกตัว)</td><td><code>{1,2} == {2,1}</code></td><td>True (ลำดับไม่สำคัญ)</td></tr>
+        </tbody>
+      </table>
+      <div class="ed-block">
+        <div class="ed-hd"><div class="ed-hl"><span class="ed-lbl">ลองรัน</span><span class="ed-fn">set_compare.py</span></div><button class="run-btn" onclick="runLesson(this,'L9','LO9')">▶ รันโค้ด</button></div>
+        <div class="mc h280" id="L9"></div>
+        <div class="out-panel"><div class="out-lbl">Output</div><div class="out-txt idle" id="LO9">กด "รันโค้ด" เพื่อดูผลลัพธ์</div></div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- EXERCISE 1 -->
+    <div class="sec" id="ex1">
+      <div class="sl">โจทย์ที่ 1 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">1</div>
+          <div class="ex-info"><h3>กรองค่าซ้ำ</h3><p>รับตัวเลข n ตัว แล้วพิมพ์จำนวนสมาชิกที่ไม่ซ้ำกัน (ใช้ Set)</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">6
+1 2 2 3 3 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">3</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+5 5 5 5 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex1.py</span><button class="check-btn" onclick="checkEx(this,'EX1')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX1"></div>
+          </div>
+          <div class="verdict" id="VEX1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="sec" id="ex2">
+      <div class="sl">โจทย์ที่ 2 — Basic</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num g">2</div>
+          <div class="ex-info"><h3>ตัดค่าซ้ำ แล้วเรียงจากน้อยไปมาก</h3><p>รับตัวเลข n ตัว แล้วพิมพ์ค่าที่ไม่ซ้ำเรียงจากน้อยไปมาก</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">7
+4 2 7 2 1 4 9</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1 2 4 7 9</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4
+3 3 3 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">3</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex2.py</span><button class="check-btn" onclick="checkEx(this,'EX2')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX2"></div>
+          </div>
+          <div class="verdict" id="VEX2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="sec" id="ex3">
+      <div class="sl">โจทย์ที่ 3 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">3</div>
+          <div class="ex-info"><h3>Union ของ 2 List</h3><p>รับ List 2 ชุด แล้วพิมพ์ค่าไม่ซ้ำทั้งหมด (Union) เรียงจากน้อยไปมาก</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+1 2 3
+3
+3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1 2 3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2
+10 20
+2
+20 30</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">10 20 30</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex3.py</span><button class="check-btn" onclick="checkEx(this,'EX3')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX3"></div>
+          </div>
+          <div class="verdict" id="VEX3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 4 -->
+    <div class="sec" id="ex4">
+      <div class="sl">โจทย์ที่ 4 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">4</div>
+          <div class="ex-info"><h3>Intersection — ค่าที่มีในทั้งสอง List</h3><p>รับ List 2 ชุด แล้วพิมพ์ค่าที่มีในทั้งสองชุด (Intersection) เรียงจากน้อยไปมาก ถ้าไม่มีพิมพ์ NONE</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4
+1 2 3 4
+4
+3 4 5 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">3 4</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+1 2 3
+3
+4 5 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">NONE</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex4.py</span><button class="check-btn" onclick="checkEx(this,'EX4')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX4"></div>
+          </div>
+          <div class="verdict" id="VEX4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 5 -->
+    <div class="sec" id="ex5">
+      <div class="sl">โจทย์ที่ 5 — Mid</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num b">5</div>
+          <div class="ex-info"><h3>Difference — ค่าเฉพาะใน A แต่ไม่มีใน B</h3><p>รับ List 2 ชุด แล้วพิมพ์ค่าที่มีใน A แต่ไม่มีใน B เรียงจากน้อยไปมาก</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">5
+1 2 3 4 5
+3
+3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1 2</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+7 8 9
+3
+7 8 9</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">NONE</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex5.py</span><button class="check-btn" onclick="checkEx(this,'EX5')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX5"></div>
+          </div>
+          <div class="verdict" id="VEX5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 6 -->
+    <div class="sec" id="ex6">
+      <div class="sl">โจทย์ที่ 6 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">6</div>
+          <div class="ex-info"><h3>Subset Check</h3><p>รับ 2 List แล้วตรวจว่า List แรกเป็น Subset ของ List ที่สองหรือไม่ พิมพ์ YES หรือ NO</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+1 2 3
+5
+1 2 3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">YES</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+1 2 6
+5
+1 2 3 4 5</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">NO</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex6.py</span><button class="check-btn" onclick="checkEx(this,'EX6')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX6"></div>
+          </div>
+          <div class="verdict" id="VEX6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 7 -->
+    <div class="sec" id="ex7">
+      <div class="sl">โจทย์ที่ 7 — Harder</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num r">7</div>
+          <div class="ex-info"><h3>Symmetric Difference</h3><p>รับ 2 List แล้วพิมพ์ Symmetric Difference (ค่าที่อยู่ในเซตหนึ่งแต่ไม่อยู่ในทั้งสองพร้อมกัน) เรียงจากน้อยไปมาก</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4
+1 2 3 4
+4
+3 4 5 6</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">1 2 5 6</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">3
+1 2 3
+3
+1 2 3</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">NONE</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex7.py</span><button class="check-btn" onclick="checkEx(this,'EX7')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX7"></div>
+          </div>
+          <div class="verdict" id="VEX7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE 8 -->
+    <div class="sec" id="ex8">
+      <div class="sl">โจทย์ที่ 8 — Expert</div>
+      <div class="ex-card">
+        <div class="ex-hd">
+          <div class="ex-num p">8</div>
+          <div class="ex-info"><h3>หานักเรียนที่สอบผ่านทุกวิชา</h3><p>รับ 3 รายชื่อ (ชื่อนักเรียนที่ผ่านวิชา A, B, C) แล้วพิมพ์ชื่อที่ผ่านทุกวิชา เรียง Alphabetical ถ้าไม่มีพิมพ์ NONE</p></div>
+        </div>
+        <div class="ex-body">
+          <div class="io-grid">
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">4
+Alice Bob Charlie Dave
+3
+Alice Bob Eve
+3
+Bob Alice Frank</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">Alice Bob</div></div>
+            <div class="io-box"><div class="io-lbl inp">Input</div><div class="io-txt">2
+Alice Bob
+2
+Charlie Dave
+2
+Eve Frank</div></div>
+            <div class="io-box"><div class="io-lbl out">Output</div><div class="io-txt">NONE</div></div>
+          </div>
+          <div class="ex-ed">
+            <div class="ex-ed-hd"><span style="font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace">solution_ex8.py</span><button class="check-btn" onclick="checkEx(this,'EX8')">✓ ตรวจคำตอบ</button></div>
+            <div class="ex-mc" id="EX8"></div>
+          </div>
+          <div class="verdict" id="VEX8"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="div">
+
+    <!-- QUIZ -->
+    <div class="sec" id="quiz">
+      <div class="sl">แบบทดสอบ</div>
+      <h2>🧠 Quiz — Python Set 10 ข้อ</h2>
+      <p>ทดสอบความเข้าใจเกี่ยวกับ Set ทั้งทฤษฎีและการใช้งาน</p>
+      <div class="quiz-wrap">
+        <div class="quiz-hd">
+          <span class="quiz-title" id="quizTitle">ข้อที่ 1 จาก 10</span>
+          <span class="quiz-badge bp" id="quizScoreBadge">0 / 10</span>
+        </div>
+        <div class="quiz-body">
+          <div class="quiz-dots" id="quizDots"></div>
+          <div id="quizContent">
+            <div class="quiz-q" id="quizQ"></div>
+            <div class="quiz-opts" id="quizOpts"></div>
+            <div class="quiz-fb" id="quizFb"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+              <button class="quiz-submit" id="quizSubmit" onclick="submitQuiz()">ยืนยันคำตอบ</button>
+            </div>
+            <div class="quiz-nav">
+              <span class="quiz-prog-text" id="quizProg">ข้อ 1 / 10</span>
+              <div class="quiz-nav-btns">
+                <button class="quiz-nav-btn" id="quizPrev" onclick="quizNav(-1)" disabled>← ก่อนหน้า</button>
+                <button class="quiz-nav-btn" id="quizNext" onclick="quizNav(1)" disabled>ถัดไป →</button>
+              </div>
+            </div>
+          </div>
+          <div class="quiz-score-wrap" id="quizScore">
+            <div class="quiz-score-num" id="scoreTxt"></div>
+            <div class="quiz-score-label" id="scoreLbl"></div>
+            <button class="quiz-retry" onclick="restartQuiz()">🔄 ทำใหม่อีกครั้ง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ════════════════════════════════
+//  MONACO + PYODIDE
+// ════════════════════════════════
+let pyodide = null, pyReady = false;
+const EDITORS = {}, EX_EDITORS = {};
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+require(['vs/editor/editor.main'], () => {
+  monaco.editor.defineTheme('dark9', {
+    base: 'vs-dark', inherit: true,
+    rules: [
+      {token:'keyword',foreground:'c084fc',fontStyle:'bold'},
+      {token:'string',foreground:'86efac'},
+      {token:'comment',foreground:'4a5168',fontStyle:'italic'},
+      {token:'number',foreground:'fbbf24'},
+      {token:'delimiter',foreground:'7b82a0'},
+    ],
+    colors: { 'editor.background':'#0a0c10','editor.foreground':'#c5c9d8','editorLineNumber.foreground':'#2e3347','editor.lineHighlightBackground':'#13161e','editorCursor.foreground':'#e879f9' }
+  });
+  const opts = { theme:'dark9', language:'python', minimap:{enabled:false}, fontSize:13, lineHeight:22, fontFamily:"'JetBrains Mono',monospace", scrollBeyondLastLine:false, automaticLayout:true, tabSize:4, padding:{top:10,bottom:10} };
+
+  const LCODES = {
+    1: `# การสร้าง Set ด้วย { }
+my_numbers = {1, 5, 2, 5, 8, 2}
+print("Set ตัวเลข:", my_numbers)   # ตัวซ้ำหายไป, ลำดับไม่แน่นอน
+
+set1 = {"pop", "rock", "soul", "hard rock", "rock", "R&B", "rock", "disco"}
+print("Set เพลง:", set1)            # "rock" ซ้ำ → เก็บแค่ตัวเดียว
+
+# ตรวจสอบ type
+print("ประเภทข้อมูล:", type(my_numbers))
+
+# ตรวจสอบสมาชิก
+print("มี 5 ใน Set?", 5 in my_numbers)
+print("มี 99 ใน Set?", 99 in my_numbers)`,
+    2: `# การสร้าง Set ด้วย set()
+# แปลง List → Set (กรองซ้ำ)
+my_list = ['a', 'b', 'c', 'a', 'b']
+my_set = set(my_list)
+print("จาก List:", my_set)
+
+# แปลง Tuple → Set
+my_tuple = (1, 2, 2, 3, 3, 3)
+print("จาก Tuple:", set(my_tuple))
+
+# set() จาก String → แตก char
+print("จาก String:", set("hello"))
+
+# Set ว่าง (ต้องใช้ set() ไม่ใช้ {})
+empty = set()
+print("Set ว่าง:", empty, type(empty))
+
+# {} คือ Dictionary ว่าง!
+not_set = {}
+print("ใช้ {} :", not_set, type(not_set))`,
+    3: `# .add() — เพิ่มทีละตัว
+genres = {"rock", "pop"}
+genres.add("jazz")
+print("หลัง add:", genres)
+
+genres.add("rock")   # ซ้ำ → ไม่เกิดอะไร
+print("add ซ้ำ:", genres)
+
+# .update() — เพิ่มหลายตัวพร้อมกัน
+genres.update(["blues", "soul", "pop"])  # pop ซ้ำ → เพิ่มแค่ blues, soul
+print("หลัง update:", genres)
+
+# update หลายชุดพร้อมกัน
+s = {1, 2, 3}
+s.update([4, 5], {6, 7}, (8,))
+print("update หลายชุด:", s)`,
+    4: `# การลบสมาชิก
+s = {1, 2, 3, 4, 5}
+
+# .remove() — ลบ (เกิด KeyError ถ้าไม่พบ)
+s.remove(3)
+print("หลัง remove(3):", s)
+
+# .discard() — ลบ (ปลอดภัย ไม่เกิด error)
+s.discard(99)      # ไม่มี 99 แต่ไม่ error
+print("หลัง discard(99):", s)
+
+# .pop() — ลบแบบสุ่ม
+popped = s.pop()
+print("pop ได้:", popped, "| เหลือ:", s)
+
+# .clear() — ล้างทั้งหมด
+s.clear()
+print("หลัง clear:", s)
+
+# KeyError จาก remove
+try:
+    test = {10, 20}
+    test.remove(99)
+except KeyError as e:
+    print("KeyError:", e)`,
+    5: `# Union — รวมข้อมูล
+A = {"Thriller", "AC/DC", "Back in Black"}
+B = {"AC/DC", "Back in Black", "Imagine Dragons"}
+
+# ด้วย operator |
+union1 = A | B
+print("A | B:", union1)
+
+# ด้วย method .union()
+union2 = A.union(B)
+print("A.union(B):", union2)
+
+# Union หลาย Set
+C = {"One More Time", "AC/DC"}
+print("A | B | C:", A | B | C)`,
+    6: `# Intersection — ข้อมูลที่ตัดกัน
+A = {"Thriller", "AC/DC", "Back in Black"}
+B = {"AC/DC", "Back in Black", "Imagine Dragons"}
+
+# ด้วย operator &
+inter1 = A & B
+print("A & B:", inter1)
+
+# ด้วย method .intersection()
+inter2 = A.intersection(B)
+print("A.intersection(B):", inter2)
+
+# Intersection 3 Set
+C = {"AC/DC", "Jazz", "Back in Black"}
+print("A & B & C:", A & B & C)`,
+    7: `# Difference — ข้อมูลเฉพาะ
+A = {"Thriller", "AC/DC", "Back in Black"}
+B = {"AC/DC", "Back in Black", "Imagine Dragons"}
+
+# A - B (อยู่ใน A แต่ไม่อยู่ใน B)
+diff1 = A - B
+print("A - B:", diff1)   # Thriller
+
+# B - A (อยู่ใน B แต่ไม่อยู่ใน A)
+diff2 = B - A
+print("B - A:", diff2)   # Imagine Dragons
+
+# ด้วย method
+print("A.difference(B):", A.difference(B))
+print("B.difference(A):", B.difference(A))`,
+    8: `# Symmetric Difference — เฉพาะของแต่ละ Set
+A = {"Thriller", "AC/DC", "Back in Black"}
+B = {"AC/DC", "Back in Black", "Imagine Dragons"}
+
+# ด้วย operator ^
+sym1 = A ^ B
+print("A ^ B:", sym1)    # {'Thriller', 'Imagine Dragons'}
+
+# ด้วย method
+sym2 = A.symmetric_difference(B)
+print("method:", sym2)
+
+# เปรียบเทียบ: sym_diff = (A|B) - (A&B)
+print("ตรวจสอบ:", (A | B) - (A & B) == sym1)`,
+    9: `# การเปรียบเทียบ Set
+A = {"Back in Black", "AC/DC", "Thriller"}
+small = {"Back in Black", "AC/DC"}
+other = {"Jazz", "Blues"}
+
+# issubset — small เป็น subset ของ A?
+print("small ⊆ A:", small.issubset(A))          # True
+print("A ⊆ small:", A.issubset(small))           # False
+
+# issuperset — A เป็น superset ของ small?
+print("A ⊇ small:", A.issuperset(small))         # True
+
+# isdisjoint — ไม่มีสมาชิกร่วมกันเลย?
+print("A และ other disjoint?", A.isdisjoint(other))  # True
+print("A และ small disjoint?", A.isdisjoint(small))  # False
+
+# เปรียบ equality
+print("{1,2} == {2,1}:", {1,2} == {2,1})        # True (ลำดับไม่สำคัญ)
+print("{1,2} == {1,2,3}:", {1,2} == {1,2,3})    # False`
+  };
+
+  for (let id = 1; id <= 9; id++) {
+    const el = document.getElementById('L' + id);
+    if (!el) continue;
+    EDITORS[id] = monaco.editor.create(el, { ...opts, value: LCODES[id] });
+  }
+
+  const EX_STARTERS = {
+    EX1: `n = int(input())
+data = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่ (ใช้ Set)
+`,
+    EX2: `n = int(input())
+data = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX3: `na = int(input())
+a = list(map(int, input().split()))
+nb = int(input())
+b = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX4: `na = int(input())
+a = list(map(int, input().split()))
+nb = int(input())
+b = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX5: `na = int(input())
+a = list(map(int, input().split()))
+nb = int(input())
+b = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX6: `na = int(input())
+a = list(map(int, input().split()))
+nb = int(input())
+b = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX7: `na = int(input())
+a = list(map(int, input().split()))
+nb = int(input())
+b = list(map(int, input().split()))
+# เขียนโค้ดของคุณที่นี่
+`,
+    EX8: `na = int(input())
+a = set(input().split())
+nb = int(input())
+b = set(input().split())
+nc = int(input())
+c = set(input().split())
+# เขียนโค้ดของคุณที่นี่
+`
+  };
+
+  for (const [id, code] of Object.entries(EX_STARTERS)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    EX_EDITORS[id] = monaco.editor.create(el, { ...opts, value: code });
+  }
+});
+
+// Load Pyodide
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload = async () => {
+    try {
+      dot('loading','กำลังโหลด Python...','var(--ac)');
+      pyodide = await window.loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+      pyReady = true;
+      dot('ready','Python พร้อมใช้งาน ✓','var(--ac3)');
+    } catch(e) {
+      dot('error','โหลด Python ไม่สำเร็จ — ลองรีเฟรช','var(--red)');
+    }
+  };
+  s.onerror = () => dot('error','โหลด Pyodide ไม่ได้','var(--red)');
+  document.head.appendChild(s);
+})();
+
+function dot(cls, txt, col) {
+  document.getElementById('dot').className = 'dot ' + cls;
+  const t = document.getElementById('dotTxt');
+  t.textContent = txt; t.style.color = col;
+}
+
+async function runPy(code, stdin = '') {
+  if (!pyReady) throw new Error('Python ยังโหลดไม่เสร็จ กรุณารอสักครู่');
+  pyodide.runPython(`
+import sys, io as _io
+sys.stdin  = _io.StringIO(${JSON.stringify(stdin)})
+sys.stdout = _io.StringIO()
+sys.stderr = sys.stdout
+`);
+  try { pyodide.runPython(code); }
+  catch(err) {
+    const captured = pyodide.runPython('sys.stdout.getvalue()');
+    const lines = (err.message || String(err)).split('\n');
+    const short = lines.filter((l,i) => i===lines.length-1 || !l.includes('File "<exec>"')).slice(-5).join('\n');
+    throw new Error((captured ? captured+'\n' : '') + short);
+  }
+  return pyodide.runPython('sys.stdout.getvalue()').trimEnd();
+}
+
+async function runLesson(btn, edId, outId) {
+  const ed  = EDITORS[parseInt(edId.replace('L',''))];
+  const out = document.getElementById(outId);
+  if (!ed || !out) return;
+  setBusy(btn, true, '▶ รันโค้ด');
+  out.className = 'out-txt idle'; out.textContent = 'กำลังรัน...';
+  try {
+    const result = await runPy(ed.getValue());
+    out.textContent = result || '(ไม่มี output)';
+    out.className = 'out-txt ok';
+  } catch(e) { out.textContent = e.message; out.className = 'out-txt err'; }
+  setBusy(btn, false, '▶ รันโค้ด');
+}
+
+// Exercise definitions
+const EX = {
+  EX1: { tests: [
+    { inp:'6\n1 2 2 3 3 3', exp:'3' },
+    { inp:'5\n5 5 5 5 5', exp:'1' },
+    { inp:'4\n1 2 3 4', exp:'4' }
+  ]},
+  EX2: { tests: [
+    { inp:'7\n4 2 7 2 1 4 9', exp:'1 2 4 7 9' },
+    { inp:'4\n3 3 3 3', exp:'3' },
+    { inp:'5\n10 5 3 10 5', exp:'3 5 10' }
+  ]},
+  EX3: { tests: [
+    { inp:'3\n1 2 3\n3\n3 4 5', exp:'1 2 3 4 5' },
+    { inp:'2\n10 20\n2\n20 30', exp:'10 20 30' },
+    { inp:'3\n1 1 1\n3\n1 1 1', exp:'1' }
+  ]},
+  EX4: { tests: [
+    { inp:'4\n1 2 3 4\n4\n3 4 5 6', exp:'3 4' },
+    { inp:'3\n1 2 3\n3\n4 5 6', exp:'NONE' },
+    { inp:'5\n1 2 3 4 5\n3\n2 4 6', exp:'2 4' }
+  ]},
+  EX5: { tests: [
+    { inp:'5\n1 2 3 4 5\n3\n3 4 5', exp:'1 2' },
+    { inp:'3\n7 8 9\n3\n7 8 9', exp:'NONE' },
+    { inp:'4\n1 2 3 4\n2\n5 6', exp:'1 2 3 4' }
+  ]},
+  EX6: { tests: [
+    { inp:'3\n1 2 3\n5\n1 2 3 4 5', exp:'YES' },
+    { inp:'3\n1 2 6\n5\n1 2 3 4 5', exp:'NO' },
+    { inp:'3\n1 2 3\n3\n1 2 3', exp:'YES' }
+  ]},
+  EX7: { tests: [
+    { inp:'4\n1 2 3 4\n4\n3 4 5 6', exp:'1 2 5 6' },
+    { inp:'3\n1 2 3\n3\n1 2 3', exp:'NONE' },
+    { inp:'3\n10 20 30\n2\n20 40', exp:'10 30 40' }
+  ]},
+  EX8: { tests: [
+    { inp:'4\nAlice Bob Charlie Dave\n3\nAlice Bob Eve\n3\nBob Alice Frank', exp:'Alice Bob' },
+    { inp:'2\nAlice Bob\n2\nCharlie Dave\n2\nEve Frank', exp:'NONE' },
+    { inp:'3\nAnn Ben Carl\n3\nBen Carl Dan\n2\nCarl Ben', exp:'Ben Carl' }
+  ]}
+};
+
+async function checkEx(btn, id) {
+  const ed  = EX_EDITORS[id];
+  const vEl = document.getElementById('V'+id);
+  if (!ed || !vEl) return;
+  setBusy(btn, true, '✓ ตรวจคำตอบ');
+  vEl.style.display = 'block';
+  vEl.innerHTML = `<div class="vd-hd running">⏳ กำลังตรวจ Test Cases...</div>`;
+  const code  = ed.getValue();
+  const tests = EX[id].tests;
+  let allPass = true;
+  const rows  = [];
+  for (let i = 0; i < tests.length; i++) {
+    const {inp, exp} = tests[i];
+    let got = '', pass = false;
+    try {
+      got  = await runPy(code, inp);
+      pass = got.trim() === exp.trim();
+    } catch(e) { got = e.message; pass = false; }
+    if (!pass) allPass = false;
+    const inpDisplay = esc(inp).replace(/\n/g,'↵\n');
+    rows.push(`<div class="vd-row"><span class="vd-icon">${pass?'✅':'❌'}</span><div class="vd-content"><div class="vd-title">Test Case ${i+1}</div><div class="vd-in">Input: ${inpDisplay}</div><div class="vd-row-inner"><div><div class="vd-label">ผลลัพธ์ที่ได้</div><div class="${pass?'vd-got':'vd-got wrong'}">${esc(got.trim()||'(ว่าง)')}</div></div>${!pass?`<div><div class="vd-label">ผลลัพธ์ที่ถูกต้อง</div><div class="vd-expect">${esc(exp.trim())}</div></div>`:''}</div></div></div>`);
+  }
+  let passCount = rows.filter(r => r.includes('✅')).length;
+  const hdCls = allPass ? 'pass' : 'fail';
+  const hdTxt = allPass ? `✅ ผ่านทั้งหมด ${tests.length}/${tests.length} Test Cases!` : `❌ ผ่าน ${passCount}/${tests.length} — แก้โค้ดแล้วลองใหม่ได้เลย`;
+  vEl.innerHTML = `<div class="vd-hd ${hdCls}">${hdTxt}</div><div class="vd-body">${rows.join('')}</div>`;
+  setBusy(btn, false, '✓ ตรวจคำตอบ');
+}
+
+function setBusy(btn, busy, label) { btn.disabled = busy; btn.textContent = busy ? 'กำลังทำงาน...' : label; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ════════════════════════════════
+//  SET VISUALIZER
+// ════════════════════════════════
+let currentOp = 'union';
+
+function parseInput(str) {
+  return str.trim().split(/\s+/).filter(Boolean);
+}
+
+function runViz(op, btn) {
+  currentOp = op;
+  document.querySelectorAll('.op-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  computeViz();
+}
+
+function computeViz() {
+  const rawA = document.getElementById('setAInput').value;
+  const rawB = document.getElementById('setBInput').value;
+  const arrA = parseInput(rawA);
+  const arrB = parseInput(rawB);
+  const setA = new Set(arrA);
+  const setB = new Set(arrB);
+
+  let result, colorA, colorB, colorInter, label;
+  switch(currentOp) {
+    case 'union':
+      result = new Set([...setA, ...setB]);
+      colorA = 'union'; colorB = 'union'; colorInter = 'union';
+      label = 'Union  A ∪ B';
+      break;
+    case 'intersection':
+      result = new Set([...setA].filter(x => setB.has(x)));
+      colorA = ''; colorB = ''; colorInter = 'inter';
+      label = 'Intersection  A ∩ B';
+      break;
+    case 'difference':
+      result = new Set([...setA].filter(x => !setB.has(x)));
+      colorA = 'diff'; colorB = ''; colorInter = '';
+      label = 'Difference  A - B';
+      break;
+    case 'rdiff':
+      result = new Set([...setB].filter(x => !setA.has(x)));
+      colorA = ''; colorB = 'diff'; colorInter = '';
+      label = 'Difference  B - A';
+      break;
+    case 'symdiff':
+      result = new Set([...setA].filter(x => !setB.has(x)).concat([...setB].filter(x => !setA.has(x))));
+      colorA = 'diff'; colorB = 'diff'; colorInter = '';
+      label = 'Symmetric Difference  A △ B';
+      break;
+  }
+
+  // Render Set A chips
+  const aEl = document.getElementById('setAViz');
+  aEl.innerHTML = '';
+  [...setA].forEach(v => {
+    const inB = setB.has(v);
+    const chip = document.createElement('span');
+    chip.className = 'set-chip ' + (inB ? (colorInter || '') : colorA);
+    chip.textContent = v;
+    aEl.appendChild(chip);
+  });
+
+  // Render Set B chips
+  const bEl = document.getElementById('setBViz');
+  bEl.innerHTML = '';
+  [...setB].forEach(v => {
+    const inA = setA.has(v);
+    const chip = document.createElement('span');
+    chip.className = 'set-chip ' + (inA ? (colorInter || '') : colorB);
+    chip.textContent = v;
+    bEl.appendChild(chip);
+  });
+
+  // Result
+  const resTxt = document.getElementById('opResultTxt');
+  const resStr = result.size > 0 ? '{' + [...result].join(', ') + '}' : '∅ (Empty Set)';
+  resTxt.textContent = `${label} = ${resStr}`;
+
+  // Venn diagram highlight
+  updateVenn(currentOp);
+  document.getElementById('vizInfo').textContent = `|A|=${setA.size}  |B|=${setB.size}  |Result|=${result.size}`;
+}
+
+function updateVenn(op) {
+  const vA = document.getElementById('vA');
+  const vB = document.getElementById('vB');
+  const vLabel = document.getElementById('vennLabel');
+  const base = 'rgba(%s,0.12)';
+  const bright = 'rgba(%s,0.45)';
+  const pink = '232,121,249';
+  const cyan = '6,182,212';
+  const mix = '100,150,200';
+
+  const configs = {
+    union:        { a: bright.replace('%s',pink), b: bright.replace('%s',cyan), lbl: 'Union = A ∪ B' },
+    intersection: { a: base.replace('%s',pink),   b: base.replace('%s',cyan),   lbl: 'Intersection = A ∩ B', inter: true },
+    difference:   { a: bright.replace('%s',pink), b: base.replace('%s',cyan),   lbl: 'Difference = A - B' },
+    rdiff:        { a: base.replace('%s',pink),   b: bright.replace('%s',cyan), lbl: 'Difference = B - A' },
+    symdiff:      { a: bright.replace('%s',pink), b: bright.replace('%s',cyan), lbl: 'Symmetric Difference = A △ B', sym: true }
+  };
+
+  const cfg = configs[op] || configs.union;
+  vA.setAttribute('fill', cfg.a);
+  vB.setAttribute('fill', cfg.b);
+  vLabel.textContent = cfg.lbl;
+}
+
+// Initial compute
+document.getElementById('setAInput').addEventListener('input', computeViz);
+document.getElementById('setBInput').addEventListener('input', computeViz);
+computeViz();
+
+// ════════════════════════════════
+//  QUIZ
+// ════════════════════════════════
+const QUIZ = [
+  {
+    q: "ข้อใดคือคุณสมบัติพื้นฐานของ Set ใน Python?",
+    opts: ["มีลำดับ (Ordered) และไม่ซ้ำ", "ไม่มีลำดับ (Unordered) และไม่ซ้ำ", "มีลำดับ (Ordered) และซ้ำได้", "ไม่มีลำดับ (Unordered) และซ้ำได้"],
+    ans: 1,
+    fb: "Set เป็น Unordered (ไม่มีลำดับ Index) และ Unique (สมาชิกไม่ซ้ำกัน) — นี่คือคุณสมบัติหลักของ Set"
+  },
+  {
+    q: "โค้ดต่อไปนี้ให้ผลลัพธ์กี่สมาชิก?\n\ns = {1, 2, 2, 3, 3, 3, 4}\nprint(len(s))",
+    opts: ["7", "4", "3", "6"],
+    ans: 1,
+    fb: "Set ลบค่าซ้ำออกอัตโนมัติ: {1, 2, 3, 4} → มี 4 สมาชิก"
+  },
+  {
+    q: "ข้อใดสร้าง Set ว่างได้ถูกต้อง?",
+    opts: ["empty = {}", "empty = set()", "empty = []", "empty = set{}"],
+    ans: 1,
+    fb: "{} ใน Python สร้าง Dictionary ว่าง ไม่ใช่ Set ว่าง ต้องใช้ set() เพื่อสร้าง Set ว่าง"
+  },
+  {
+    q: "Method ใดปลอดภัยกว่าเมื่อลบสมาชิกที่อาจไม่มีอยู่ใน Set?",
+    opts: [".remove()", ".delete()", ".discard()", ".pop()"],
+    ans: 2,
+    fb: ".discard() จะไม่เกิด Error ถ้าไม่พบสมาชิก แต่ .remove() จะเกิด KeyError"
+  },
+  {
+    q: "ผลลัพธ์ของ A & B คือ operation ใด?\n\nA = {1, 2, 3, 4}\nB = {3, 4, 5, 6}",
+    opts: ["Union: {1, 2, 3, 4, 5, 6}", "Intersection: {3, 4}", "Difference: {1, 2}", "Symmetric Difference: {1, 2, 5, 6}"],
+    ans: 1,
+    fb: "& คือ Intersection — เลือกเฉพาะสมาชิกที่มีในทั้งสองเซต → {3, 4}"
+  },
+  {
+    q: "A | B ให้ผลลัพธ์อะไร?\n\nA = {'rock', 'pop'}\nB = {'pop', 'jazz'}",
+    opts: ["{'pop'}", "{'rock', 'jazz'}", "{'rock', 'pop', 'jazz'}", "{'rock', 'pop', 'pop', 'jazz'}"],
+    ans: 2,
+    fb: "| คือ Union — รวมสมาชิกทั้งหมด ไม่ซ้ำ → {'rock', 'pop', 'jazz'}"
+  },
+  {
+    q: "A - B หมายความว่าอะไร?\n\nA = {1, 2, 3, 4, 5}\nB = {3, 4, 5, 6, 7}",
+    opts: ["สมาชิกที่อยู่ในทั้ง A และ B", "สมาชิกที่อยู่ใน A แต่ไม่อยู่ใน B", "สมาชิกที่อยู่ใน B แต่ไม่อยู่ใน A", "สมาชิกที่ไม่ร่วมกันของทั้งสอง"],
+    ans: 1,
+    fb: "A - B (Difference) = สมาชิกใน A ที่ไม่มีใน B → {1, 2}"
+  },
+  {
+    q: "ผลลัพธ์ของ A ^ B คืออะไร?\n\nA = {1, 2, 3}\nB = {2, 3, 4}",
+    opts: ["{1, 4}", "{2, 3}", "{1, 2, 3, 4}", "{1}"],
+    ans: 0,
+    fb: "^ คือ Symmetric Difference = (A|B) - (A&B) = {1,2,3,4} - {2,3} = {1, 4}"
+  },
+  {
+    q: "ข้อใดเป็นจริงเกี่ยวกับ {1,2}.issubset({1,2,3})?",
+    opts: ["คืนค่า False เพราะขนาดต่างกัน", "คืนค่า True เพราะทุกสมาชิกของ {1,2} อยู่ใน {1,2,3}", "เกิด TypeError", "คืนค่า None"],
+    ans: 1,
+    fb: "issubset() คืนค่า True ถ้าทุกสมาชิกของ Set นี้อยู่ในอีก Set → {1,2} ⊆ {1,2,3} เป็น True"
+  },
+  {
+    q: "ข้อมูลประเภทใดไม่สามารถใส่เป็นสมาชิกของ Set ได้?",
+    opts: ["int (ตัวเลข)", "str (ข้อความ)", "list (ลิสต์)", "tuple (ทูเพิล)"],
+    ans: 2,
+    fb: "สมาชิกของ Set ต้องเป็น Immutable (ไม่สามารถเปลี่ยนแปลงได้) แต่ List เป็น Mutable จึงไม่สามารถเป็นสมาชิกได้"
+  }
+];
+
+let quizIdx = 0, quizAnswers = Array(10).fill(null), quizSubmitted = Array(10).fill(false);
+
+function buildQuizDots() {
+  const d = document.getElementById('quizDots');
+  d.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'quiz-dot' + (i === quizIdx ? ' current' : '') +
+      (quizSubmitted[i] ? (quizAnswers[i] === QUIZ[i].ans ? ' correct-d' : ' wrong-d') : (quizAnswers[i] !== null ? ' answered' : ''));
+    d.appendChild(dot);
+  }
+}
+
+function renderQuiz() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quizTitle').textContent = `ข้อที่ ${quizIdx+1} จาก 10`;
+  document.getElementById('quizProg').textContent = `ข้อ ${quizIdx+1} / 10`;
+  const correct = quizAnswers.filter((a,i) => quizSubmitted[i] && a === QUIZ[i].ans).length;
+  document.getElementById('quizScoreBadge').textContent = `${correct} / 10`;
+  document.getElementById('quizQ').textContent = q.q;
+  const optsEl = document.getElementById('quizOpts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    let cls = 'quiz-opt';
+    if (quizSubmitted[quizIdx]) {
+      if (i === q.ans) cls += ' correct';
+      else if (i === quizAnswers[quizIdx] && i !== q.ans) cls += ' wrong';
+    } else if (quizAnswers[quizIdx] === i) cls += ' selected';
+    div.className = cls;
+    div.innerHTML = `<span class="quiz-opt-key">${String.fromCharCode(65+i)}</span>${opt}`;
+    if (!quizSubmitted[quizIdx]) div.onclick = () => selectOpt(i);
+    optsEl.appendChild(div);
+  });
+  const fb = document.getElementById('quizFb');
+  if (quizSubmitted[quizIdx]) {
+    fb.textContent = (quizAnswers[quizIdx] === q.ans ? '✅ ถูกต้อง! ' : '❌ ผิด! ') + q.fb;
+    fb.className = 'quiz-fb ' + (quizAnswers[quizIdx] === q.ans ? 'correct' : 'wrong');
+    fb.style.display = 'block';
+  } else { fb.style.display = 'none'; }
+  document.getElementById('quizSubmit').disabled = quizAnswers[quizIdx] === null || quizSubmitted[quizIdx];
+  document.getElementById('quizSubmit').textContent = quizSubmitted[quizIdx] ? 'ตอบแล้ว' : 'ยืนยันคำตอบ';
+  document.getElementById('quizPrev').disabled = quizIdx === 0;
+  document.getElementById('quizNext').disabled = quizIdx === 9;
+  buildQuizDots();
+}
+
+function selectOpt(i) {
+  if (quizSubmitted[quizIdx]) return;
+  quizAnswers[quizIdx] = i;
+  renderQuiz();
+}
+
+function submitQuiz() {
+  if (quizAnswers[quizIdx] === null || quizSubmitted[quizIdx]) return;
+  quizSubmitted[quizIdx] = true;
+  renderQuiz();
+  if (quizSubmitted.every(Boolean)) setTimeout(showFinalScore, 600);
+}
+
+function quizNav(dir) {
+  quizIdx = Math.max(0, Math.min(9, quizIdx + dir));
+  renderQuiz();
+}
+
+function showFinalScore() {
+  const correct = quizAnswers.filter((a,i) => a === QUIZ[i].ans).length;
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizScore').style.display = 'block';
+  document.getElementById('scoreTxt').textContent = `${correct} / 10`;
+  const lbl = correct >= 9 ? '🏆 ยอดเยี่ยม! เข้าใจ Set อย่างลึกซึ้ง!' :
+              correct >= 7 ? '🎉 ดีมาก! เกือบสมบูรณ์แล้ว' :
+              correct >= 5 ? '👍 ผ่านแล้ว! ลองทบทวนส่วนที่ผิด' :
+              '💪 ยังต้องฝึกอีกนิด ลองอ่านเนื้อหาอีกครั้ง';
+  document.getElementById('scoreLbl').textContent = lbl;
+}
+
+function restartQuiz() {
+  quizIdx = 0; quizAnswers = Array(10).fill(null); quizSubmitted = Array(10).fill(false);
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizScore').style.display = 'none';
+  renderQuiz();
+}
+
+renderQuiz();
+
+// ════════════════════════════════
+//  SIDEBAR ACTIVE + PROGRESS
+// ════════════════════════════════
+const navAs = document.querySelectorAll('.na');
+const secs  = document.querySelectorAll('.sec[id]');
+const obs   = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navAs.forEach(a => a.classList.remove('active'));
+    const a = document.querySelector(`.na[href="#${e.target.id}"]`);
+    if (a) a.classList.add('active');
+    const idx = [...secs].indexOf(e.target);
+    document.getElementById('prog').style.width = ((idx+1)/secs.length*100)+'%';
+  });
+}, { rootMargin:'-15% 0px -75% 0px' });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
