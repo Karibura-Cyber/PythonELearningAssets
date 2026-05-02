@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python OOP — เรียนรู้แบบภาพ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --border: #e8e6e0;
+    --text: #1a1916;
+    --muted: #8a8680;
+    --accent: #2563eb;
+    --accent-light: #eff4ff;
+    --accent-dim: #93b4f8;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --orange: #d97706;
+    --orange-light: #fffbeb;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --code-bg: #f4f3ef;
+    --radius: 10px;
+    --font: 'Noto Sans Thai', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* Layout */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo span { color: var(--muted); font-weight: 400; }
+  .nav-section { padding: 8px 20px 4px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 20px;
+    font-size: 13.5px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg); }
+  .nav-item.active { color: var(--accent); background: var(--accent-light); border-left-color: var(--accent); font-weight: 500; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  .main {
+    margin-left: 220px;
+    padding: 48px 48px 80px;
+    max-width: 900px;
+  }
+
+  /* Typography */
+  .page-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+  h2 { font-size: 17px; font-weight: 600; margin-bottom: 14px; margin-top: 36px; }
+  h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  p { color: #3a3834; margin-bottom: 14px; font-size: 14.5px; }
+
+  /* Code */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  .kw { color: #7c3aed; font-weight: 600; }
+  .cls { color: #0369a1; font-weight: 600; }
+  .fn { color: #2563eb; }
+  .str { color: #16a34a; }
+  .cm { color: #9ca3af; font-style: italic; }
+  .num { color: #d97706; }
+  .self { color: #db2777; }
+
+  /* Concept Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .badge {
+    font-size: 11px; font-weight: 600; padding: 3px 8px;
+    border-radius: 20px; letter-spacing: 0.04em;
+  }
+  .badge-blue { background: var(--accent-light); color: var(--accent); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-orange { background: var(--orange-light); color: var(--orange); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* Viz: Class Diagram */
+  .class-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: inline-block;
+    min-width: 180px;
+    font-size: 13px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .class-name {
+    background: var(--accent);
+    color: white;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+  .class-section { padding: 8px 14px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 12px; line-height: 1.8; }
+  .attr { color: #2563eb; }
+  .method { color: #7c3aed; }
+  .plus { color: var(--green); margin-right: 4px; }
+
+  .diagram-area {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .arrow-down { text-align: center; color: var(--muted); font-size: 20px; margin: 8px 0; }
+
+  /* Interactive Object Builder */
+  .obj-builder {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .obj-builder-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .obj-builder-body { padding: 20px; }
+  .form-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .form-label { font-size: 13px; font-weight: 500; width: 90px; flex-shrink: 0; }
+  input[type=text], input[type=number], select {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    background: var(--bg);
+    outline: none;
+    transition: border 0.15s;
+    flex: 1;
+    min-width: 120px;
+  }
+  input:focus, select:focus { border-color: var(--accent); background: white; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.85; }
+  button.secondary {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* Object visualization */
+  .obj-visual {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    margin-top: 14px;
+    position: relative;
+  }
+  .obj-visual-label {
+    position: absolute; top: -10px; left: 12px;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: var(--font);
+  }
+
+  /* Instance list */
+  .instance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 14px; }
+  .instance-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    font-family: var(--mono);
+    animation: popIn 0.2s ease;
+  }
+  .instance-card-name {
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* Inheritance viz */
+  .inherit-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .inherit-node {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .inherit-node:hover { border-color: var(--accent); color: var(--accent); }
+  .inherit-node.parent { background: var(--accent); color: white; border-color: var(--accent); }
+  .inherit-node.child { border-color: var(--accent-dim); color: var(--accent); }
+  .inherit-arrow {
+    width: 2px; height: 28px;
+    background: var(--accent-dim);
+    position: relative;
+  }
+  .inherit-arrow::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--accent-dim);
+  }
+  .children-row { display: flex; gap: 20px; align-items: flex-start; }
+  .child-branch { display: flex; flex-direction: column; align-items: center; }
+
+  /* Encapsulation viz */
+  .capsule {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 2px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .capsule-outer { background: #f0fdf4; padding: 14px 18px; border-bottom: 2px dashed var(--border); }
+  .capsule-inner { background: #fef2f2; padding: 14px 18px; }
+  .capsule-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .capsule-outer .capsule-label { color: var(--green); }
+  .capsule-inner .capsule-label { color: var(--red); }
+
+  /* Polymorphism demo */
+  .poly-demo { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .poly-animal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex: 1; min-width: 140px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .poly-animal:hover { border-color: var(--accent); }
+  .poly-animal .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .poly-animal .animal-class { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .poly-animal .animal-name { font-weight: 600; font-size: 13px; }
+  .poly-animal .sound-output {
+    margin-top: 10px; padding: 6px 10px;
+    background: var(--accent-light);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: all 0.2s;
+  }
+  .poly-animal:hover .sound-output { opacity: 1; transform: translateY(0); }
+
+  /* Quiz */
+  .quiz-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-top: 24px; }
+  .quiz-q { font-weight: 600; font-size: 14.5px; margin-bottom: 14px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13.5px;
+    transition: all 0.15s;
+    background: var(--bg);
+  }
+  .quiz-opt:hover:not(.disabled) { border-color: var(--accent); background: var(--accent-light); }
+  .quiz-opt.correct { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .quiz-opt.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .quiz-opt.disabled { cursor: default; pointer-events: none; }
+  .quiz-feedback { margin-top: 12px; font-size: 13.5px; font-weight: 500; padding: 10px 14px; border-radius: 7px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: var(--green-light); color: var(--green); }
+  .quiz-feedback.bad { background: var(--red-light); color: var(--red); }
+
+  /* Section nav */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Progress */
+  .progress-bar-wrap { background: var(--border); border-radius: 20px; height: 4px; margin-bottom: 36px; }
+  .progress-bar { height: 4px; border-radius: 20px; background: var(--accent); transition: width 0.4s ease; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* Tip */
+  .tip {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    color: #1e40af;
+  }
+  .tip-icon { flex-shrink: 0; font-size: 15px; }
+
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">Python OOP <span>/ ภาพ</span></div>
+  <div class="nav-section">บทเรียน</div>
+  <div class="nav-item active" onclick="showSection('class')"><span class="nav-dot"></span>Class & Object</div>
+  <div class="nav-item" onclick="showSection('init')"><span class="nav-dot"></span>__init__ & Attributes</div>
+  <div class="nav-item" onclick="showSection('encap')"><span class="nav-dot"></span>Encapsulation</div>
+  <div class="nav-item" onclick="showSection('inherit')"><span class="nav-dot"></span>Inheritance</div>
+  <div class="nav-item" onclick="showSection('poly')"><span class="nav-dot"></span>Polymorphism</div>
+  <div class="nav-item" onclick="showSection('quiz')"><span class="nav-dot"></span>แบบทดสอบ</div>
+</nav>
+
+<main class="main">
+
+  <!-- Progress -->
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:16%"></div></div>
+
+  <!-- 1. Class & Object -->
+  <section class="section active" id="sec-class">
+    <p class="page-sub">บทที่ 1 / 5</p>
+    <div class="page-title">Class & Object</div>
+    <p>ในโลกจริง สิ่งของทุกอย่างเป็น <strong>Object</strong> — แมว, รถยนต์, บัญชีธนาคาร<br>
+    <strong>Class</strong> คือ "แม่พิมพ์" ที่ใช้สร้าง Object เหล่านั้น</p>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <span><strong>Class</strong> = แบบแปลน &nbsp;|&nbsp; <strong>Object</strong> = บ้านที่สร้างจากแบบแปลนนั้น</span>
+    </div>
+
+    <!-- Diagram -->
+    <h2>โครงสร้าง Class</h2>
+    <div class="diagram-area">
+      <div>
+        <div class="class-box">
+          <div class="class-name">🐱 Cat</div>
+          <div class="class-section">
+            <div><span class="plus">+</span><span class="attr">name</span>: str</div>
+            <div><span class="plus">+</span><span class="attr">age</span>: int</div>
+            <div><span class="plus">+</span><span class="attr">color</span>: str</div>
+          </div>
+          <div class="class-section">
+            <div><span class="plus">+</span><span class="method">meow()</span></div>
+            <div><span class="plus">+</span><span class="method">eat(food)</span></div>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:10px; font-size:12px; color:var(--muted)">Class (แม่พิมพ์)</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding-top:20px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600">สร้าง Object</div>
+        <div style="font-size:22px;color:var(--accent-dim)">→</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="instance-card" style="animation:none; background:var(--accent-light); border-color:var(--accent-dim)">
+          <div class="instance-card-name">🐱 obj: whiskers</div>
+          <div>name = <span style="color:var(--green)">"Whiskers"</span></div>
+          <div>age = <span style="color:var(--orange)">3</span></div>
+          <div>color = <span style="color:var(--green)">"orange"</span></div>
+        </div>
+        <div class="instance-card" style="animation:none; background:#faf5ff; border-color:#d8b4fe">
+          <div class="instance-card-name" style="color:var(--purple)">🐱 obj: midnight</div>
+          <div>name = <span style="color:var(--green)">"Midnight"</span></div>
+          <div>age = <span style="color:var(--orange)">1</span></div>
+          <div>color = <span style="color:var(--green)">"black"</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code -->
+    <h2>โค้ดตัวอย่าง</h2>
+    <pre><span class="kw">class</span> <span class="cls">Cat</span>:
+    <span class="cm"># __init__ คือ constructor — รันอัตโนมัติเมื่อสร้าง object</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, name, age, color):
+        <span class="self">self</span>.name  = name
+        <span class="self">self</span>.age   = age
+        <span class="self">self</span>.color = color
+
+    <span class="kw">def</span> <span class="fn">meow</span>(<span class="self">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="cls">{self.name}</span> says: Meow! 🐱"</span>
+
+<span class="cm"># สร้าง Object จาก Class</span>
+whiskers = <span class="cls">Cat</span>(<span class="str">"Whiskers"</span>, <span class="num">3</span>, <span class="str">"orange"</span>)
+midnight  = <span class="cls">Cat</span>(<span class="str">"Midnight"</span>,  <span class="num">1</span>, <span class="str">"black"</span>)</pre>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="showSection('init')">ถัดไป: __init__ →</button>
+    </div>
+  </section>
+
+  <!-- 2. __init__ & Attributes -->
+  <section class="section" id="sec-init">
+    <p class="page-sub">บทที่ 2 / 5</p>
+    <div class="page-title">__init__ & Attributes</div>
+    <p><code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:12px">__init__</code> คือ <strong>constructor</strong> — ฟังก์ชันพิเศษที่ Python เรียกอัตโนมัติทุกครั้งที่สร้าง object ใหม่</p>
+    <p><strong>self</strong> คือตัวแทนของ object ตัวเอง ใช้เข้าถึง attributes และ methods ภายใน class</p>
+
+    <!-- Interactive object builder -->
+    <h2>🛠 ลองสร้าง Object เอง</h2>
+    <div class="obj-builder">
+      <div class="obj-builder-header">
+        <span class="badge badge-blue">INTERACTIVE</span>
+        สร้าง Object จาก Class Student
+      </div>
+      <div class="obj-builder-body">
+        <pre style="margin-bottom:18px"><span class="kw">class</span> <span class="cls">Student</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, name, grade, score):
+        <span class="self">self</span>.name  = name
+        <span class="self">self</span>.grade = grade
+        <span class="self">self</span>.score = score
+
+    <span class="kw">def</span> <span class="fn">get_status</span>(<span class="self">self</span>):
+        <span class="kw">return</span> <span class="str">"ผ่าน ✅"</span> <span class="kw">if</span> <span class="self">self</span>.score &gt;= <span class="num">50</span> <span class="kw">else</span> <span class="str">"ไม่ผ่าน ❌"</span></pre>
+
+        <div class="form-row">
+          <span class="form-label">name</span>
+          <input type="text" id="in-name" placeholder="ชื่อนักเรียน" value="สมชาย">
+        </div>
+        <div class="form-row">
+          <span class="form-label">grade</span>
+          <select id="in-grade">
+            <option value="ม.1">ม.1</option>
+            <option value="ม.2">ม.2</option>
+            <option value="ม.3" selected>ม.3</option>
+            <option value="ม.4">ม.4</option>
+            <option value="ม.5">ม.5</option>
+            <option value="ม.6">ม.6</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <span class="form-label">score</span>
+          <input type="number" id="in-score" placeholder="0–100" value="75" min="0" max="100">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="createStudent()">สร้าง Object</button>
+          <button class="secondary" onclick="clearStudents()">ล้างทั้งหมด</button>
+        </div>
+
+        <div id="obj-output"></div>
+        <div id="instance-list" class="instance-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Encapsulation -->
+  <section class="section" id="sec-encap">
+    <p class="page-sub">บทที่ 3 / 5</p>
+    <div class="page-title">Encapsulation</div>
+    <p><strong>Encapsulation</strong> คือการซ่อนรายละเอียดภายในของ object และเปิดเผยเฉพาะสิ่งที่จำเป็น ผ่าน <em>public interface</em></p>
+
+    <!-- Visual capsule -->
+    <h2>🔒 Public vs Private</h2>
+    <div class="capsule">
+      <div class="capsule-outer">
+        <div class="capsule-label">✅ Public — เข้าถึงได้จากภายนอก</div>
+        <code style="font-family:var(--mono);font-size:12.5px">self.name &nbsp;&nbsp;&nbsp;→ account.name<br>deposit() &nbsp;&nbsp;→ account.deposit(500)<br>get_balance() → account.get_balance()</code>
+      </div>
+      <div class="capsule-inner">
+        <div class="capsule-label">🔒 Private — เข้าถึงได้เฉพาะภายใน class</div>
+        <code style="font-family:var(--mono);font-size:12.5px">self.__balance &nbsp;&nbsp;&nbsp;→ ❌ account.__balance (ERROR)<br>self.__pin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ ❌ ห้ามเข้าถึงโดยตรง</code>
+      </div>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🔑</span>
+      <span>ขึ้นต้นด้วย <strong>__</strong> (double underscore) = private &nbsp;|&nbsp; ไม่มี underscore = public</span>
+    </div>
+
+    <h2>โค้ดตัวอย่าง — บัญชีธนาคาร</h2>
+    <pre><span class="kw">class</span> <span class="cls">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, owner, initial):
+        <span class="self">self</span>.owner    = owner           <span class="cm"># public</span>
+        <span class="self">self</span>.__balance = initial         <span class="cm"># private 🔒</span>
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="self">self</span>, amount):         <span class="cm"># public method</span>
+        <span class="kw">if</span> amount &gt; <span class="num">0</span>:
+            <span class="self">self</span>.__balance += amount
+            <span class="kw">return</span> <span class="str">f"ฝาก {amount} บาท ✅"</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(<span class="self">self</span>):             <span class="cm"># getter</span>
+        <span class="kw">return</span> <span class="self">self</span>.__balance</pre>
+
+    <!-- Interactive bank account -->
+    <h2>🏦 ทดลองใช้งาน</h2>
+    <div class="obj-builder">
+      <div class="obj-builder-header"><span class="badge badge-green">DEMO</span> BankAccount</div>
+      <div class="obj-builder-body">
+        <div class="form-row">
+          <span class="form-label">เจ้าของ</span>
+          <input type="text" id="bank-owner" value="สมหญิง">
+          <span class="form-label" style="width:60px">เงินเริ่มต้น</span>
+          <input type="number" id="bank-init" value="1000">
+          <button onclick="initBank()">เปิดบัญชี</button>
+        </div>
+        <div class="form-row" id="bank-actions" style="display:none">
+          <input type="number" id="bank-amount" placeholder="จำนวนเงิน" style="max-width:140px">
+          <button onclick="bankDeposit()">ฝากเงิน</button>
+          <button onclick="bankWithdraw()" style="background:var(--red)">ถอนเงิน</button>
+          <button class="secondary" onclick="bankBalance()">ดูยอด</button>
+          <button onclick="tryPrivate()" style="background:var(--orange)">เข้าถึง __balance โดยตรง</button>
+        </div>
+        <div id="bank-log" style="margin-top:12px; font-family:var(--mono); font-size:12.5px; line-height:2; max-height:160px; overflow-y:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Inheritance -->
+  <section class="section" id="sec-inherit">
+    <p class="page-sub">บทที่ 4 / 5</p>
+    <div class="page-title">Inheritance</div>
+    <p><strong>Inheritance</strong> ช่วยให้ class ลูก (child) สืบทอด attributes และ methods จาก class แม่ (parent) ได้ ลดการเขียนโค้ดซ้ำ</p>
+
+    <h2>🌳 แผนภูมิ Inheritance</h2>
+    <div class="diagram-area" style="justify-content:center">
+      <div class="inherit-tree">
+        <div class="inherit-node parent" onclick="showInheritInfo('animal')">Animal</div>
+        <div class="inherit-arrow"></div>
+        <div class="children-row">
+          <div class="child-branch">
+            <div class="inherit-node child" onclick="showInheritInfo('dog')">Dog 🐕</div>
+          </div>
+          <div style="width:40px"></div>
+          <div class="child-branch">
+            <div class="inherit-node child" onclick="showInheritInfo('cat')">Cat 🐱</div>
+          </div>
+          <div style="width:40px"></div>
+          <div class="child-branch">
+            <div class="inherit-node child" onclick="showInheritInfo('bird')">Bird 🐦</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="inherit-info" class="obj-visual" style="display:none">
+      <div class="obj-visual-label" id="inherit-label">info</div>
+      <div id="inherit-content"></div>
+    </div>
+
+    <h2>โค้ดตัวอย่าง</h2>
+    <pre><span class="kw">class</span> <span class="cls">Animal</span>:                          <span class="cm"># Parent class</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, name, age):
+        <span class="self">self</span>.name = name
+        <span class="self">self</span>.age  = age
+
+    <span class="kw">def</span> <span class="fn">breathe</span>(<span class="self">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="cls">{self.name}</span> หายใจ... 🫁"</span>
+
+<span class="kw">class</span> <span class="cls">Dog</span>(<span class="cls">Animal</span>):                     <span class="cm"># Child class</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, name, age, breed):
+        <span class="kw">super</span>().<span class="fn">__init__</span>(name, age)      <span class="cm"># เรียก parent __init__</span>
+        <span class="self">self</span>.breed = breed
+
+    <span class="kw">def</span> <span class="fn">bark</span>(<span class="self">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="cls">{self.name}</span>: Woof! 🐕"</span>
+
+buddy = <span class="cls">Dog</span>(<span class="str">"Buddy"</span>, <span class="num">4</span>, <span class="str">"Golden Retriever"</span>)
+<span class="fn">print</span>(buddy.breathe())  <span class="cm"># สืบทอดจาก Animal</span>
+<span class="fn">print</span>(buddy.bark())     <span class="cm"># method ของ Dog เอง</span></pre>
+  </section>
+
+  <!-- 5. Polymorphism -->
+  <section class="section" id="sec-poly">
+    <p class="page-sub">บทที่ 5 / 5</p>
+    <div class="page-title">Polymorphism</div>
+    <p><strong>Polymorphism</strong> (พหุสัณฐาน) คือความสามารถที่ objects ต่างชนิดกัน ตอบสนองต่อ method เดียวกัน (<code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:12px">speak()</code>) ในแบบของตัวเอง</p>
+
+    <h2>🔊 Hover เพื่อฟังเสียงสัตว์</h2>
+    <div class="poly-demo">
+      <div class="poly-animal">
+        <span class="emoji">🐕</span>
+        <div class="animal-class">class Dog(Animal)</div>
+        <div class="animal-name">Buddy</div>
+        <div class="sound-output">speak() → "Woof! 🐕"</div>
+      </div>
+      <div class="poly-animal">
+        <span class="emoji">🐱</span>
+        <div class="animal-class">class Cat(Animal)</div>
+        <div class="animal-name">Whiskers</div>
+        <div class="sound-output">speak() → "Meow! 🐱"</div>
+      </div>
+      <div class="poly-animal">
+        <span class="emoji">🐦</span>
+        <div class="animal-class">class Bird(Animal)</div>
+        <div class="animal-name">Tweety</div>
+        <div class="sound-output">speak() → "Tweet! 🐦"</div>
+      </div>
+      <div class="poly-animal">
+        <span class="emoji">🐄</span>
+        <div class="animal-class">class Cow(Animal)</div>
+        <div class="animal-name">Daisy</div>
+        <div class="sound-output">speak() → "Moo! 🐄"</div>
+      </div>
+    </div>
+
+    <h2>โค้ดตัวอย่าง</h2>
+    <pre><span class="kw">class</span> <span class="cls">Animal</span>:
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="self">self</span>): <span class="kw">pass</span>          <span class="cm"># Base method</span>
+
+<span class="kw">class</span> <span class="cls">Dog</span>(<span class="cls">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="self">self</span>): <span class="kw">return</span> <span class="str">"Woof! 🐕"</span>
+
+<span class="kw">class</span> <span class="cls">Cat</span>(<span class="cls">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="self">self</span>): <span class="kw">return</span> <span class="str">"Meow! 🐱"</span>
+
+<span class="kw">class</span> <span class="cls">Bird</span>(<span class="cls">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="self">self</span>): <span class="kw">return</span> <span class="str">"Tweet! 🐦"</span>
+
+<span class="cm"># Polymorphism ในการทำงาน</span>
+animals = [<span class="cls">Dog</span>(), <span class="cls">Cat</span>(), <span class="cls">Bird</span>()]
+<span class="kw">for</span> a <span class="kw">in</span> animals:
+    <span class="fn">print</span>(a.speak())   <span class="cm"># method เดียว → ผลลัพธ์ต่างกัน ✨</span></pre>
+
+    <div style="margin-top:24px">
+      <button onclick="showSection('quiz')">ทดสอบความรู้ →</button>
+    </div>
+  </section>
+
+  <!-- Quiz -->
+  <section class="section" id="sec-quiz">
+    <p class="page-sub">แบบทดสอบ</p>
+    <div class="page-title">ทดสอบความรู้ OOP 🧠</div>
+    <p>เลือกคำตอบที่ถูกต้องสำหรับแต่ละข้อ</p>
+
+    <div id="quiz-container"></div>
+    <div id="quiz-score" style="display:none; margin-top:20px; padding:20px 24px; background:var(--accent-light); border-radius:var(--radius); font-weight:600; font-size:16px; color:var(--accent)"></div>
+  </section>
+
+</main>
+
+<script>
+// ---- Navigation ----
+const sections = ['class','init','encap','inherit','poly','quiz'];
+const progress = [16,32,48,64,80,100];
+
+function showSection(id) {
+  sections.forEach((s, i) => {
+    document.getElementById('sec-'+s).classList.toggle('active', s===id);
+    document.querySelectorAll('.nav-item')[i].classList.toggle('active', s===id);
+    if(s===id) document.getElementById('progressBar').style.width = progress[i]+'%';
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ---- Student Builder ----
+let students = [];
+function createStudent() {
+  const name  = document.getElementById('in-name').value.trim() || 'ไม่ระบุ';
+  const grade = document.getElementById('in-grade').value;
+  const score = parseInt(document.getElementById('in-score').value) || 0;
+  const status = score >= 50 ? 'ผ่าน ✅' : 'ไม่ผ่าน ❌';
+  const varName = name.toLowerCase().replace(/\s+/g,'_') || 'obj';
+
+  // Show created code
+  document.getElementById('obj-output').innerHTML = `
+    <div class="obj-visual">
+      <div class="obj-visual-label">OUTPUT</div>
+      <span class="cm"># สร้าง object ชื่อ ${varName}</span><br>
+      ${varName} = <span class="cls">Student</span>(<span class="str">"${name}"</span>, <span class="str">"${grade}"</span>, <span class="num">${score}</span>)<br>
+      ${varName}.get_status() <span class="cm">→</span> <span class="str">"${status}"</span>
+    </div>`;
+
+  students.push({name, grade, score, status});
+  renderStudents();
+}
+
+function renderStudents() {
+  const container = document.getElementById('instance-list');
+  container.innerHTML = students.map(s => `
+    <div class="instance-card">
+      <div class="instance-card-name">📚 ${s.name}</div>
+      <div>grade = <span style="color:var(--accent)">"${s.grade}"</span></div>
+      <div>score = <span style="color:var(--orange)">${s.score}</span></div>
+      <div>status = <span style="color:${s.score>=50?'var(--green)':'var(--red)'}">"${s.status}"</span></div>
+    </div>`).join('');
+}
+
+function clearStudents() {
+  students = [];
+  document.getElementById('obj-output').innerHTML = '';
+  document.getElementById('instance-list').innerHTML = '';
+}
+
+// ---- Bank Account ----
+let bankAcc = null;
+function log(msg, color='var(--text)') {
+  const el = document.getElementById('bank-log');
+  el.innerHTML += `<div style="color:${color}">» ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function initBank() {
+  const owner = document.getElementById('bank-owner').value.trim() || 'Unknown';
+  const init  = parseFloat(document.getElementById('bank-init').value) || 0;
+  bankAcc = { owner, balance: init };
+  document.getElementById('bank-log').innerHTML = '';
+  document.getElementById('bank-actions').style.display = 'flex';
+  log(`เปิดบัญชีให้ <strong>${owner}</strong> ยอดเริ่มต้น ${init.toLocaleString()} บาท ✅`, 'var(--green)');
+}
+function bankDeposit() {
+  if(!bankAcc) return;
+  const amt = parseFloat(document.getElementById('bank-amount').value) || 0;
+  if(amt <= 0) { log('จำนวนเงินต้องมากกว่า 0', 'var(--red)'); return; }
+  bankAcc.balance += amt;
+  log(`deposit(${amt}) → ฝาก ${amt.toLocaleString()} บาท ✅ ยอดคงเหลือ: ${bankAcc.balance.toLocaleString()} บาท`, 'var(--green)');
+}
+function bankWithdraw() {
+  if(!bankAcc) return;
+  const amt = parseFloat(document.getElementById('bank-amount').value) || 0;
+  if(amt > bankAcc.balance) { log(`withdraw(${amt}) → ❌ ยอดไม่พอ! มีแค่ ${bankAcc.balance.toLocaleString()} บาท`, 'var(--red)'); return; }
+  bankAcc.balance -= amt;
+  log(`withdraw(${amt}) → ถอน ${amt.toLocaleString()} บาท ✅ ยอดคงเหลือ: ${bankAcc.balance.toLocaleString()} บาท`, 'var(--orange)');
+}
+function bankBalance() {
+  if(!bankAcc) return;
+  log(`get_balance() → ${bankAcc.balance.toLocaleString()} บาท`, 'var(--accent)');
+}
+function tryPrivate() {
+  log(`account.__balance → AttributeError: 'BankAccount' object has no attribute '__balance' 🔒`, 'var(--red)');
+  log(`<span style="font-size:11px;color:var(--muted)">Python ป้องกันการเข้าถึง private attribute จากภายนอก class</span>`);
+}
+
+// ---- Inheritance Info ----
+const inheritData = {
+  animal: {
+    label: 'Animal (Parent)',
+    code: `<span class="kw">class</span> <span class="cls">Animal</span>:\n    name, age\n    <span class="fn">breathe</span>() → "หายใจ 🫁"\n    <span class="fn">eat</span>()    → "กิน 🍽"\n\n<span class="cm"># Base class ที่ Dog, Cat, Bird สืบทอด</span>`
+  },
+  dog: {
+    label: 'Dog (Child of Animal)',
+    code: `<span class="kw">class</span> <span class="cls">Dog</span>(<span class="cls">Animal</span>):\n    breed\n    <span class="fn">bark</span>() → "Woof! 🐕"\n\n<span class="cm"># สืบทอดจาก Animal:</span>\n<span class="cm"># breathe(), eat(), name, age</span>\n<span class="cm"># + เพิ่ม breed และ bark()</span>`
+  },
+  cat: {
+    label: 'Cat (Child of Animal)',
+    code: `<span class="kw">class</span> <span class="cls">Cat</span>(<span class="cls">Animal</span>):\n    indoor\n    <span class="fn">meow</span>() → "Meow! 🐱"\n\n<span class="cm"># สืบทอดจาก Animal:</span>\n<span class="cm"># breathe(), eat(), name, age</span>\n<span class="cm"># + เพิ่ม indoor และ meow()</span>`
+  },
+  bird: {
+    label: 'Bird (Child of Animal)',
+    code: `<span class="kw">class</span> <span class="cls">Bird</span>(<span class="cls">Animal</span>):\n    can_fly\n    <span class="fn">chirp</span>() → "Tweet! 🐦"\n\n<span class="cm"># สืบทอดจาก Animal:</span>\n<span class="cm"># breathe(), eat(), name, age</span>\n<span class="cm"># + เพิ่ม can_fly และ chirp()</span>`
+  }
+};
+
+function showInheritInfo(type) {
+  const d = inheritData[type];
+  document.getElementById('inherit-info').style.display = 'block';
+  document.getElementById('inherit-label').textContent = d.label;
+  document.getElementById('inherit-content').innerHTML = d.code;
+}
+
+// ---- Quiz ----
+const quizData = [
+  {
+    q: 'ข้อใดคือ "แม่พิมพ์" สำหรับสร้าง Object ใน OOP?',
+    opts: ['Object', 'Class', 'Method', 'Function'],
+    ans: 1,
+    explain: 'ถูกต้อง! Class คือ "แม่พิมพ์" หรือ template สำหรับสร้าง Object ✅'
+  },
+  {
+    q: 'self ใน Python OOP หมายถึงอะไร?',
+    opts: ['ชื่อ method', 'ตัวแทนของ object ปัจจุบัน', 'ชื่อ class', 'Parameter พิเศษที่ไม่มีความหมาย'],
+    ans: 1,
+    explain: 'self คือตัวแทนของ instance/object ปัจจุบัน ใช้เข้าถึง attributes และ methods ✅'
+  },
+  {
+    q: 'การขึ้นต้นด้วย __ (double underscore) ใน Python หมายถึงอะไร?',
+    opts: ['Public attribute', 'Protected attribute', 'Private attribute', 'Class method'],
+    ans: 2,
+    explain: 'สัญลักษณ์ __ นำหน้า = private attribute/method ป้องกันการเข้าถึงจากภายนอก class ✅'
+  },
+  {
+    q: 'super().__init__() ใน Inheritance ใช้ทำอะไร?',
+    opts: ['สร้าง class ใหม่', 'เรียก constructor ของ parent class', 'ลบ object', 'Override method'],
+    ans: 1,
+    explain: 'super().__init__() เรียก constructor ของ parent class เพื่อ initialize attributes ที่สืบทอดมา ✅'
+  },
+  {
+    q: 'Polymorphism หมายถึงอะไร?',
+    opts: ['การซ่อนข้อมูลภายใน class', 'การสืบทอด attributes', 'Objects ต่างชนิดตอบสนองต่อ method เดียวกันต่างกัน', 'การสร้าง Object หลายตัว'],
+    ans: 2,
+    explain: 'Polymorphism = objects หลายชนิดใช้ method ชื่อเดียวกัน แต่ให้ผลลัพธ์ต่างกันตามชนิดของมัน ✅'
+  }
+];
+
+let answers = new Array(quizData.length).fill(null);
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = quizData.map((q, qi) => `
+    <div class="quiz-wrap" style="margin-bottom:16px">
+      <div class="quiz-q">ข้อ ${qi+1}. ${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((opt, oi) => `
+          <div class="quiz-opt" id="opt-${qi}-${oi}" onclick="answerQuiz(${qi},${oi})">
+            ${String.fromCharCode(65+oi)}. ${opt}
+          </div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="fb-${qi}"></div>
+    </div>`).join('');
+}
+
+function answerQuiz(qi, oi) {
+  if(answers[qi] !== null) return;
+  answers[qi] = oi;
+  const q = quizData[qi];
+  document.querySelectorAll(`[id^="opt-${qi}-"]`).forEach(el => el.classList.add('disabled'));
+  document.getElementById(`opt-${qi}-${oi}`).classList.add(oi === q.ans ? 'correct' : 'wrong');
+  if(oi !== q.ans) document.getElementById(`opt-${qi}-${q.ans}`).classList.add('correct');
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.textContent = oi === q.ans ? q.explain : `❌ คำตอบที่ถูกคือ ${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}`;
+  fb.className = `quiz-feedback show ${oi === q.ans ? 'ok' : 'bad'}`;
+
+  if(answers.every(a => a !== null)) {
+    const score = answers.filter((a,i) => a === quizData[i].ans).length;
+    const el = document.getElementById('quiz-score');
+    el.style.display = 'block';
+    el.innerHTML = `🎉 คะแนนของคุณ: <strong>${score}/${quizData.length}</strong> &nbsp;${score===quizData.length?'เยี่ยมมาก! 🏆':score>=3?'ดีมาก! 👍':'ลองเรียนใหม่อีกรอบนะ 📚'}`;
+    el.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
