@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python OOP — เรียนรู้การเขียนโปรแกรมเชิงวัตถุ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f1ee;
+    --border: #e8e6e1;
+    --text: #1a1916;
+    --text-muted: #8a8880;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --accent2: #e76f51;
+    --accent2-light: #fde8e3;
+    --accent3: #457b9d;
+    --accent3-light: #dbeafe;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --font-thai: 'Noto Sans Thai', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --r: 12px;
+    --r-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,.10), 0 12px 32px rgba(0,0,0,.06);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-thai);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+    min-height: 100vh;
+  }
+
+  /* ─── LAYOUT ─── */
+  .page { display: flex; min-height: 100vh; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    padding: 4px 10px;
+    border-radius: 99px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .sidebar-brand h1 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .sidebar-brand p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .sidebar-nav { padding: 12px 12px; flex: 1; }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 12px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: all .18s ease;
+    margin-bottom: 2px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 400;
+  }
+
+  .nav-item:hover { background: var(--surface2); }
+
+  .nav-item.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .nav-item .nav-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .nav-progress {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width .5s ease;
+  }
+
+  /* ─── MAIN ─── */
+  .main { flex: 1; min-width: 0; }
+
+  .content-area {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; animation: fadeIn .3s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, var(--accent) 0%, #1b4332 100%);
+    border-radius: var(--r);
+    padding: 40px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: .7;
+    margin-bottom: 12px;
+  }
+
+  .hero h2 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    font-size: 15px;
+    opacity: .85;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .pill {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    color: white;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .section-icon.green { background: var(--accent-light); }
+  .section-icon.orange { background: var(--accent2-light); }
+  .section-icon.blue { background: var(--accent3-light); }
+
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .section-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ─── CONCEPT CARD ─── */
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: all .2s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .concept-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+
+  .concept-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .concept-card p {
+    font-size: 14px;
+    color: #3a3936;
+    line-height: 1.7;
+  }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table th {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    letter-spacing: .03em;
+  }
+
+  .compare-table th:first-child { background: #fff3f0; color: var(--accent2); }
+  .compare-table th:last-child { background: var(--accent-light); color: var(--accent); }
+
+  .compare-table td {
+    padding: 12px 20px;
+    font-size: 14px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .compare-table tr:hover td { background: var(--surface2); }
+
+  /* ─── CODE BLOCK ─── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+
+  .code-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .code-dots { display: flex; gap: 5px; }
+
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .code-filename {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(255,255,255,.4);
+    margin-left: 4px;
+  }
+
+  .copy-btn {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.5);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .18s;
+  }
+
+  .copy-btn:hover { background: rgba(255,255,255,.15); color: white; }
+  .copy-btn.copied { color: #28c840; border-color: #28c840; }
+
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .code-body pre {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--code-text);
+    margin: 0;
+    white-space: pre;
+  }
+
+  /* Syntax colors */
+  .kw { color: #cba6f7; }   /* keyword */
+  .cl { color: #89dceb; }   /* class name */
+  .fn { color: #89b4fa; }   /* function */
+  .st { color: #a6e3a1; }   /* string */
+  .cm { color: #585b70; }   /* comment */
+  .nb { color: #fab387; }   /* number/builtin */
+  .slf { color: #f38ba8; }  /* self */
+
+  /* ─── INTERACTIVE DEMO ─── */
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .demo-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .demo-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .demo-body { padding: 20px; }
+
+  .demo-run-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-thai);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .18s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .demo-run-btn:hover { background: #1b4332; transform: translateY(-1px); }
+  .demo-run-btn:active { transform: translateY(0); }
+
+  .demo-output {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #e6edf3;
+    min-height: 60px;
+    margin-top: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn .2s ease;
+  }
+
+  .demo-output.show { display: block; }
+
+  .output-line { margin-bottom: 3px; }
+  .output-line.success { color: #3fb950; }
+  .output-line.info { color: #58a6ff; }
+  .output-line.prompt { color: #bc8cff; }
+
+  /* ─── INTERACTIVE INPUTS ─── */
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font-thai);
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color .18s;
+    outline: none;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  /* ─── QUIZ ─── */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .quiz-question {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-option {
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all .18s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-thai);
+  }
+
+  .quiz-option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .quiz-option.correct {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .quiz-option.wrong {
+    border-color: var(--accent2);
+    background: var(--accent2-light);
+    color: var(--accent2);
+  }
+
+  .quiz-option.disabled { cursor: default; }
+
+  .option-label {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .quiz-feedback {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: var(--r-sm);
+    font-size: 13.5px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; animation: fadeIn .2s ease; }
+  .quiz-feedback.correct { background: var(--accent-light); color: #1b4332; border: 1px solid #95d5b2; }
+  .quiz-feedback.wrong { background: var(--accent2-light); color: #c4440b; border: 1px solid #f4a27d; }
+
+  /* ─── CONCEPT DIAGRAM ─── */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .class-box {
+    border: 2px solid var(--accent);
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .class-box-header {
+    background: var(--accent);
+    color: white;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    text-align: center;
+  }
+
+  .class-box-section {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .class-box-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .class-attr {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 4px 0;
+    color: #3a3936;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .attr-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .attr-dot.orange { background: var(--accent2); }
+
+  .objects-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .object-card {
+    background: var(--accent-light);
+    border: 1.5px solid #95d5b2;
+    border-radius: var(--r-sm);
+    padding: 12px 16px;
+    min-width: 100px;
+    text-align: center;
+    transition: transform .18s;
+    cursor: default;
+  }
+
+  .object-card:hover { transform: translateY(-2px); }
+
+  .object-emoji { font-size: 24px; margin-bottom: 4px; }
+  .object-name { font-size: 12px; font-weight: 600; color: var(--accent); font-family: var(--font-mono); }
+
+  .arrow-down {
+    text-align: center;
+    font-size: 24px;
+    color: var(--text-muted);
+    margin: 12px 0;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  /* ─── ACCESS MODIFIER TABLE ─── */
+  .access-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .access-card {
+    padding: 20px;
+    border-radius: var(--r);
+    border: 1.5px solid;
+    text-align: center;
+  }
+
+  .access-card.public { background: #f0fdf4; border-color: #86efac; }
+  .access-card.protected { background: #fffbeb; border-color: #fcd34d; }
+  .access-card.private { background: #fff1f2; border-color: #fda4af; }
+
+  .access-badge {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .access-badge.public { color: #15803d; }
+  .access-badge.protected { color: #92400e; }
+  .access-badge.private { color: #be123c; }
+
+  .access-card p { font-size: 12.5px; line-height: 1.5; color: #4a4a48; }
+
+  /* ─── INHERITANCE TREE ─── */
+  .inherit-tree {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .tree-node {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .tree-node.parent {
+    background: var(--accent);
+    color: white;
+  }
+
+  .tree-node.child {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .tree-connector {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    position: relative;
+    margin: 0;
+  }
+
+  .tree-connector::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .tree-line-down {
+    height: 20px;
+    width: 1px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  .tree-children {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tree-child-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tree-child-line { height: 24px; width: 1px; background: var(--border); }
+
+  /* ─── STEP FLOW ─── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 20px;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .step-left { display: flex; flex-direction: column; align-items: center; }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-line {
+    width: 1px;
+    flex: 1;
+    min-height: 24px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .step-content {
+    flex: 1;
+    padding-bottom: 24px;
+  }
+
+  .step-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .step-content p { font-size: 13.5px; color: #4a4948; line-height: 1.6; }
+
+  /* ─── INFO BOX ─── */
+  .info-box {
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .info-box.tip { background: var(--accent-light); border: 1px solid #95d5b2; color: #1b4332; }
+  .info-box.note { background: var(--accent3-light); border: 1px solid #93c5fd; color: #1e3a5f; }
+  .info-box.warn { background: var(--accent2-light); border: 1px solid #f4a27d; color: #7c2d12; }
+
+  .info-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+
+  /* ─── TAG ─── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .tag.green { background: var(--accent-light); color: var(--accent); }
+  .tag.orange { background: var(--accent2-light); color: var(--accent2); }
+  .tag.blue { background: var(--accent3-light); color: var(--accent3); }
+
+  /* ─── BREADCRUMB ─── */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb span { color: var(--text); font-weight: 500; }
+
+  /* ─── SECTION NAV ─── */
+  .section-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-family: var(--font-thai);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .18s;
+  }
+
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .nav-btn.primary:hover { background: #1b4332; }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content-area { padding: 24px 20px 60px; }
+    .access-grid { grid-template-columns: 1fr; }
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  .badge.mono { background: var(--code-bg); color: #89dceb; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">🐍 Python Course</div>
+      <h1>Object Oriented<br>Programming</h1>
+      <p>เรียนรู้ OOP ด้วย Python</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">บทเรียน</div>
+      <a class="nav-item active" onclick="showSection('s0', this)">
+        <div class="nav-icon" style="background:#d8f3dc">🏠</div>
+        ภาพรวม OOP
+      </a>
+      <a class="nav-item" onclick="showSection('s1', this)">
+        <div class="nav-icon" style="background:#dbeafe">⚔️</div>
+        Procedural vs OOP
+      </a>
+      <a class="nav-item" onclick="showSection('s2', this)">
+        <div class="nav-icon" style="background:#fde8e3">🧱</div>
+        Class & Object
+      </a>
+      <a class="nav-item" onclick="showSection('s3', this)">
+        <div class="nav-icon" style="background:#fef9c3">🔧</div>
+        Attribute & Method
+      </a>
+      <a class="nav-item" onclick="showSection('s4', this)">
+        <div class="nav-icon" style="background:#f3e8ff">🔐</div>
+        Encapsulation
+      </a>
+      <a class="nav-item" onclick="showSection('s5', this)">
+        <div class="nav-icon" style="background:#d8f3dc">🌳</div>
+        Inheritance
+      </a>
+      <a class="nav-item" onclick="showSection('s6', this)">
+        <div class="nav-icon" style="background:#fde8e3">🔀</div>
+        Polymorphism
+      </a>
+      <a class="nav-item" onclick="showSection('s7', this)">
+        <div class="nav-icon" style="background:#dbeafe">🎯</div>
+        แบบทดสอบ
+      </a>
+    </nav>
+    <div class="nav-progress">
+      <div class="progress-label">
+        <span>ความคืบหน้า</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main">
+    <div class="content-area">
+
+      <!-- ════════ S0: OVERVIEW ════════ -->
+      <div id="s0" class="section active">
+        <div class="breadcrumb">บทเรียน <span>ภาพรวม OOP</span></div>
+
+        <div class="hero">
+          <div class="hero-label">Python — Object Oriented Programming</div>
+          <h2>การเขียนโปรแกรม<br>เชิงวัตถุ</h2>
+          <p>OOP คือการเขียนโปรแกรมโดยมองสิ่งต่างๆ เป็น "วัตถุ" ที่มีคุณสมบัติและพฤติกรรม ซึ่งได้แรงบันดาลใจจากโลกความเป็นจริง</p>
+          <div class="hero-pills">
+            <span class="pill">🧱 Class & Object</span>
+            <span class="pill">🔐 Encapsulation</span>
+            <span class="pill">🌳 Inheritance</span>
+            <span class="pill">🔀 Polymorphism</span>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-icon green">📚</div>
+          <div>
+            <h2>องค์ประกอบพื้นฐานของ OOP</h2>
+            <p>หัวใจหลักของการเขียนโปรแกรมเชิงวัตถุมี 4 ส่วนสำคัญ</p>
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h3><span>🧱</span> 1. Class & Object</h3>
+          <p><strong>Class</strong> คือต้นแบบ (blueprint) ของวัตถุ เปรียบเหมือนแบบแปลนบ้าน ส่วน <strong>Object</strong> คือสิ่งที่สร้างขึ้นจาก Class เปรียบเหมือนบ้านที่สร้างแล้ว — Object ประกอบด้วย <em>คุณลักษณะ (Attribute)</em> และ <em>พฤติกรรม (Method)</em></p>
+        </div>
+
+        <div class="concept-card">
+          <h3><span>🔐</span> 2. Encapsulation (การห่อหุ้ม)</h3>
+          <p>การซ่อนรายละเอียดการทำงานและข้อมูลภายใน ไม่ให้ภายนอกเข้าถึงโดยตรง ช่วยสร้างความปลอดภัยและป้องกันการแก้ไขข้อมูลที่ไม่ต้องการ</p>
+        </div>
+
+        <div class="concept-card">
+          <h3><span>🌳</span> 3. Inheritance (การสืบทอด)</h3>
+          <p>คลาสลูกสามารถ "รับช่วง" คุณสมบัติจากคลาสแม่ได้ ช่วยให้นำโค้ดกลับมาใช้ซ้ำ (reuse) และประหยัดเวลาในการพัฒนา</p>
+        </div>
+
+        <div class="concept-card">
+          <h3><span>🔀</span> 4. Polymorphism (การพ้องรูป)</h3>
+          <p>Method ชื่อเดียวกันสามารถทำงานได้หลายรูปแบบ ขึ้นอยู่กับ Object ที่เรียกใช้ ทำให้โปรแกรมยืดหยุ่นและขยายได้ง่าย</p>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-icon">💡</span>
+          <div>OOP ช่วยให้เราจัดระเบียบโค้ดได้ดีขึ้น เปรียบเหมือนการจัดลิ้นชักที่แยกของออกเป็นหมวดหมู่ แทนที่จะกองรวมกัน</div>
+        </div>
+
+        <div class="section-nav">
+          <div></div>
+          <button class="nav-btn primary" onclick="showSection('s1', document.querySelectorAll('.nav-item')[1])">
+            บทถัดไป: Procedural vs OOP →
+          </button>
+        </div>
+      </div>
+
+      <!-- ════════ S1: PROCEDURAL vs OOP ════════ -->
+      <div id="s1" class="section">
+        <div class="breadcrumb">บทเรียน <span>Procedural vs OOP</span></div>
+
+        <div class="section-header">
+          <div class="section-icon blue">⚔️</div>
+          <div>
+            <h2>เชิงกระบวนการ vs เชิงวัตถุ</h2>
+            <p>เปรียบเทียบแนวคิดการเขียนโปรแกรมสองรูปแบบ</p>
+          </div>
+        </div>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>🔴 ภาษาเชิงกระบวนการ (Procedural)</th>
+              <th>🟢 ภาษาเชิงวัตถุ (OOP)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>กำหนดขั้นตอนการแก้ปัญหาเป็นลำดับ</td>
+              <td>กำหนดปัญหาเป็นองค์ประกอบ (วัตถุ)</td>
+            </tr>
+            <tr>
+              <td>โปรแกรมและข้อมูลอยู่คนละส่วนกัน</td>
+              <td>รวมโปรแกรมและข้อมูลไว้ด้วยกันใน Object</td>
+            </tr>
+            <tr>
+              <td>ออกแบบจากล่างขึ้นบน (Bottom-up)</td>
+              <td>ออกแบบเป็นวัตถุ (Object-based design)</td>
+            </tr>
+            <tr>
+              <td>แก้ไขยาก เพราะแต่ละส่วนมีความสัมพันธ์กัน</td>
+              <td>แก้ไขไม่กระทบส่วนอื่น เพราะ Object สมบูรณ์ในตัวเอง</td>
+            </tr>
+            <tr>
+              <td>นำโค้ดกลับมาใช้ซ้ำได้ยาก</td>
+              <td>Reuse ได้ง่ายผ่าน Inheritance</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="info-box note">
+          <span class="info-icon">📝</span>
+          <div>ทั้งสองแนวคิดมีจุดแข็งของตัวเอง OOP เหมาะกับโปรแกรมขนาดใหญ่ที่ต้องการความยืดหยุ่น ส่วน Procedural เหมาะกับงานง่ายๆ ที่ไม่ซับซ้อน</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-header">
+          <div class="section-icon blue">🔄</div>
+          <div>
+            <h2>วิวัฒนาการของภาษาโปรแกรม</h2>
+            <p>จาก Machine Code จนถึง OOP และ Functional</p>
+          </div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <h4>Machine Language</h4>
+              <p>ภาษาระดับต่ำสุด ประกอบด้วย 0 และ 1 เท่านั้น คอมพิวเตอร์เข้าใจโดยตรงแต่มนุษย์อ่านยากมาก</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <h4>Assembly Language</h4>
+              <p>ใช้ตัวย่อ (Mnemonic) แทนคำสั่ง เช่น MOV, ADD ทำให้อ่านง่ายขึ้น แต่ยังใกล้ Hardware อยู่มาก</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <h4>Procedural Language (C, Pascal)</h4>
+              <p>เขียนโค้ดเป็นลำดับขั้นตอน มีฟังก์ชัน แบ่งโปรแกรมเป็น Module ย่อยๆ อ่านง่ายกว่า Assembly มาก</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <h4>Object Oriented (Python, Java, C++)</h4>
+              <p>มองโปรแกรมเป็น Object ที่มีคุณสมบัติและพฤติกรรม ใกล้เคียงโลกความเป็นจริง จัดการโค้ดขนาดใหญ่ได้ดี</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-num">5</div></div>
+            <div class="step-content">
+              <h4>Functional Language (Haskell, Elixir)</h4>
+              <p>มองทุกอย่างเป็น Function หลีกเลี่ยง state และ side effects เหมาะกับ concurrent programming</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s0', document.querySelectorAll('.nav-item')[0])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s2', document.querySelectorAll('.nav-item')[2])">บทถัดไป: Class & Object →</button>
+        </div>
+      </div>
+
+      <!-- ════════ S2: CLASS & OBJECT ════════ -->
+      <div id="s2" class="section">
+        <div class="breadcrumb">บทเรียน <span>Class & Object</span></div>
+
+        <div class="section-header">
+          <div class="section-icon orange">🧱</div>
+          <div>
+            <h2>Class & Object</h2>
+            <p>แม่แบบและสิ่งที่ถูกสร้างจากแม่แบบ</p>
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h3>🏗️ Class คืออะไร?</h3>
+          <p><strong>Class</strong> คือ ต้นแบบ (Template / Prototype / Blueprint) ของวัตถุ ก่อนจะสร้างวัตถุได้ ต้องสร้าง Class ขึ้นมาก่อนเสมอ เปรียบเหมือน "แบบแปลนบ้าน" ที่บอกว่าบ้านมีกี่ห้อง หน้าตาเป็นอย่างไร</p>
+        </div>
+
+        <div class="concept-card">
+          <h3>📦 Object คืออะไร?</h3>
+          <p><strong>Object</strong> (วัตถุ / Instance) คือสิ่งที่ถูกสร้างขึ้นจาก Class ประกอบด้วย 2 ส่วนคือ คุณลักษณะ (Attribute) และ พฤติกรรม (Method) เปรียบเหมือน "บ้านจริงๆ" ที่สร้างจากแบบแปลนนั้น</p>
+        </div>
+
+        <div class="diagram">
+          <div style="text-align:center;margin-bottom:20px">
+            <span class="tag green">Class Animal → Object หลายตัว</span>
+          </div>
+          <div class="class-box">
+            <div class="class-box-header">class Animal</div>
+            <div class="class-box-section">
+              <div class="class-box-section-label">Attributes</div>
+              <div class="class-attr"><span class="attr-dot"></span> name: str</div>
+              <div class="class-attr"><span class="attr-dot"></span> color: str</div>
+              <div class="class-attr"><span class="attr-dot"></span> weight: float</div>
+            </div>
+            <div class="class-box-section">
+              <div class="class-box-section-label">Methods</div>
+              <div class="class-attr"><span class="attr-dot orange"></span> run()</div>
+              <div class="class-attr"><span class="attr-dot orange"></span> sound()</div>
+            </div>
+          </div>
+          <div class="arrow-down">↓</div>
+          <div class="objects-row">
+            <div class="object-card"><div class="object-emoji">🦁</div><div class="object-name">lion</div></div>
+            <div class="object-card"><div class="object-emoji">🐘</div><div class="object-name">elephant</div></div>
+            <div class="object-card"><div class="object-emoji">🐦</div><div class="object-name">bird</div></div>
+            <div class="object-card"><div class="object-emoji">🐢</div><div class="object-name">turtle</div></div>
+            <div class="object-card"><div class="object-emoji">🐄</div><div class="object-name">cow</div></div>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">animal.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="cm"># สร้าง Class</span>
+<span class="kw">class</span> <span class="cl">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, name, color):
+        <span class="slf">self</span>.name = name
+        <span class="slf">self</span>.color = color
+
+    <span class="kw">def</span> <span class="fn">sound</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="st">f"{self.name} ส่งเสียงร้อง"</span>
+
+<span class="cm"># สร้าง Object จาก Class</span>
+lion = <span class="cl">Animal</span>(<span class="st">"สิงโต"</span>, <span class="st">"เหลือง"</span>)
+elephant = <span class="cl">Animal</span>(<span class="st">"ช้าง"</span>, <span class="st">"เทา"</span>)
+
+<span class="kw">print</span>(lion.sound())       <span class="cm"># สิงโต ส่งเสียงร้อง</span>
+<span class="kw">print</span>(elephant.name)     <span class="cm"># ช้าง</span></pre>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-header">
+            <h4>🧪 ทดลองสร้าง Object</h4>
+            <button class="demo-run-btn" onclick="runAnimalDemo()">▶ รันโค้ด</button>
+          </div>
+          <div class="demo-body">
+            <div class="form-group">
+              <label class="form-label">ชื่อสัตว์</label>
+              <input class="form-input" id="animal-name" value="แมว" placeholder="เช่น สุนัข">
+            </div>
+            <div class="form-group">
+              <label class="form-label">สี</label>
+              <input class="form-input" id="animal-color" value="ขาว" placeholder="เช่น ดำ">
+            </div>
+            <div class="demo-output" id="animal-output"></div>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s1', document.querySelectorAll('.nav-item')[1])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s3', document.querySelectorAll('.nav-item')[3])">บทถัดไป: Attribute & Method →</button>
+        </div>
+      </div>
+
+      <!-- ════════ S3: ATTRIBUTE & METHOD ════════ -->
+      <div id="s3" class="section">
+        <div class="breadcrumb">บทเรียน <span>Attribute & Method</span></div>
+
+        <div class="section-header">
+          <div class="section-icon green">🔧</div>
+          <div>
+            <h2>Attribute & Method</h2>
+            <p>คุณลักษณะและพฤติกรรมของ Object</p>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="concept-card" style="margin:0">
+            <h3>📋 Attribute</h3>
+            <p>สิ่งที่บ่งบอก <strong>คุณลักษณะ</strong> ของวัตถุ เช่น ชื่อ สี น้ำหนัก อายุ สร้างด้วย <code>self.ชื่อ = ค่า</code></p>
+          </div>
+          <div class="concept-card" style="margin:0">
+            <h3>⚡ Method</h3>
+            <p>สิ่งที่บ่งบอก <strong>พฤติกรรม</strong> ของวัตถุ เช่น วิ่ง กิน ร้องเพลง สร้างด้วย <code>def ชื่อ(self):</code></p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">employee.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="kw">class</span> <span class="cl">Employee</span>:
+    <span class="cm"># Constructor — เรียกอัตโนมัติตอนสร้าง Object</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, name, salary, age):
+        <span class="slf">self</span>.name = name       <span class="cm"># Attribute: ชื่อ</span>
+        <span class="slf">self</span>.salary = salary   <span class="cm"># Attribute: เงินเดือน</span>
+        <span class="slf">self</span>.age = age         <span class="cm"># Attribute: อายุ</span>
+
+    <span class="cm"># Method: คำนวณโบนัส</span>
+    <span class="kw">def</span> <span class="fn">get_bonus</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="slf">self</span>.salary * <span class="nb">0.1</span>
+
+    <span class="cm"># Method: แสดงรายละเอียด</span>
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="slf">self</span>):
+        <span class="kw">print</span>(<span class="st">f"ชื่อ: {self.name}"</span>)
+        <span class="kw">print</span>(<span class="st">f"เงินเดือน: {self.salary:,} บาท"</span>)
+        <span class="kw">print</span>(<span class="st">f"โบนัส: {self.get_bonus():,} บาท"</span>)
+
+    <span class="cm"># Destructor — เรียกตอน Object ถูกทำลาย</span>
+    <span class="kw">def</span> <span class="fn">__del__</span>(<span class="slf">self</span>):
+        <span class="kw">print</span>(<span class="st">f"ลบ {self.name} แล้ว"</span>)
+
+<span class="cm"># สร้าง Object</span>
+emp = <span class="cl">Employee</span>(<span class="st">"สมชาย"</span>, <span class="nb">25000</span>, <span class="nb">28</span>)
+emp.display()</pre>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-header">
+            <h4>🧪 ทดลองสร้าง Employee</h4>
+            <button class="demo-run-btn" onclick="runEmployeeDemo()">▶ รันโค้ด</button>
+          </div>
+          <div class="demo-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">ชื่อพนักงาน</label>
+                <input class="form-input" id="emp-name" value="สมหญิง">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">เงินเดือน (บาท)</label>
+                <input class="form-input" id="emp-salary" type="number" value="30000">
+              </div>
+            </div>
+            <div class="demo-output" id="emp-output"></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-header">
+          <div class="section-icon green">📦</div>
+          <div>
+            <h2>Class Variable vs Instance Variable</h2>
+            <p>ตัวแปรสองประเภทภายใน Class</p>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="concept-card" style="margin:0">
+            <h3>🏛️ Class Variable</h3>
+            <p>ตัวแปรที่ใช้ร่วมกันทุก Object ในคลาส ไม่ต้องสร้าง Object ก็เข้าถึงได้ เรียกอีกชื่อว่า <em>static attribute</em></p>
+          </div>
+          <div class="concept-card" style="margin:0">
+            <h3>👤 Instance Variable</h3>
+            <p>ตัวแปรที่อยู่ใน Object แต่ละตัว แต่ละ Object มีค่าของตัวเอง ต้องสร้าง Object ก่อนจึงเข้าถึงได้</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">variables.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="kw">class</span> <span class="cl">Dog</span>:
+    species = <span class="st">"Canis familiaris"</span>  <span class="cm"># Class Variable</span>
+    count = <span class="nb">0</span>                       <span class="cm"># Class Variable</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, name):
+        <span class="slf">self</span>.name = name  <span class="cm"># Instance Variable</span>
+        <span class="cl">Dog</span>.count += <span class="nb">1</span>
+
+<span class="cm"># เข้าถึง Class Variable โดยไม่สร้าง Object</span>
+<span class="kw">print</span>(<span class="cl">Dog</span>.species)   <span class="cm"># Canis familiaris</span>
+<span class="kw">print</span>(<span class="cl">Dog</span>.count)     <span class="cm"># 0</span>
+
+d1 = <span class="cl">Dog</span>(<span class="st">"บัดดี้"</span>)
+d2 = <span class="cl">Dog</span>(<span class="st">"แม็กซ์"</span>)
+
+<span class="kw">print</span>(<span class="cl">Dog</span>.count)     <span class="cm"># 2 — นับจำนวน Object</span>
+<span class="kw">print</span>(d1.name)       <span class="cm"># บัดดี้</span></pre>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s2', document.querySelectorAll('.nav-item')[2])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s4', document.querySelectorAll('.nav-item')[4])">บทถัดไป: Encapsulation →</button>
+        </div>
+      </div>
+
+      <!-- ════════ S4: ENCAPSULATION ════════ -->
+      <div id="s4" class="section">
+        <div class="breadcrumb">บทเรียน <span>Encapsulation</span></div>
+
+        <div class="section-header">
+          <div class="section-icon" style="background:#f3e8ff">🔐</div>
+          <div>
+            <h2>Encapsulation</h2>
+            <p>การห่อหุ้มข้อมูลและซ่อนรายละเอียดการทำงาน</p>
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h3>🔒 Encapsulation คืออะไร?</h3>
+          <p>กระบวนการ <strong>ซ่อนรายละเอียดการทำงาน</strong> และข้อมูลภายใน ไม่ให้ภายนอกเข้าถึงโดยตรง ทำให้ภายนอกไม่สามารถแก้ไขข้อมูลได้ตามใจชอบ ช่วยสร้างความปลอดภัยให้ข้อมูล เหมือนกับบัตรประชาชนที่เห็นแค่ข้อมูลบางส่วนเท่านั้น</p>
+        </div>
+
+        <div class="access-grid">
+          <div class="access-card public">
+            <div class="access-badge public">public</div>
+            <p>ใครก็เข้าถึงได้ ไม่มี prefix พิเศษ</p>
+            <br><code style="font-size:12px">self.name</code>
+          </div>
+          <div class="access-card protected">
+            <div class="access-badge protected">_protected</div>
+            <p>เข้าถึงได้เฉพาะคลาสตัวเองและคลาสลูก</p>
+            <br><code style="font-size:12px">self._name</code>
+          </div>
+          <div class="access-card private">
+            <div class="access-badge private">__private</div>
+            <p>เข้าถึงได้เฉพาะคลาสตัวเองเท่านั้น</p>
+            <br><code style="font-size:12px">self.__name</code>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">encapsulation.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="kw">class</span> <span class="cl">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, owner, balance):
+        <span class="slf">self</span>.owner = owner          <span class="cm"># public</span>
+        <span class="slf">self</span>._bank = <span class="st">"KBank"</span>        <span class="cm"># protected</span>
+        <span class="slf">self</span>.__balance = balance    <span class="cm"># private — ซ่อนยอดเงิน!</span>
+
+    <span class="cm"># Getter — ดึงค่า</span>
+    <span class="kw">def</span> <span class="fn">get_balance</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="slf">self</span>.__balance
+
+    <span class="cm"># Setter — กำหนดค่า (พร้อม validation)</span>
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="slf">self</span>, amount):
+        <span class="kw">if</span> amount > <span class="nb">0</span>:
+            <span class="slf">self</span>.__balance += amount
+            <span class="kw">return</span> <span class="st">f"ฝากเงิน {amount:,} บาท สำเร็จ"</span>
+        <span class="kw">return</span> <span class="st">"จำนวนเงินไม่ถูกต้อง"</span>
+
+acc = <span class="cl">BankAccount</span>(<span class="st">"สมชาย"</span>, <span class="nb">10000</span>)
+
+<span class="cm"># เข้าถึงผ่าน Getter ได้</span>
+<span class="kw">print</span>(acc.get_balance())  <span class="cm"># 10000</span>
+
+<span class="cm"># ❌ เข้าถึงโดยตรงไม่ได้!</span>
+<span class="cm"># print(acc.__balance)  → AttributeError!</span></pre>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-header">
+            <h4>🧪 ทดลองใช้ Getter & Setter</h4>
+            <button class="demo-run-btn" onclick="runBankDemo()">▶ รันโค้ด</button>
+          </div>
+          <div class="demo-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">ชื่อเจ้าของบัญชี</label>
+                <input class="form-input" id="bank-owner" value="สมหญิง">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">จำนวนเงินที่ฝาก (บาท)</label>
+                <input class="form-input" id="bank-deposit" type="number" value="5000">
+              </div>
+            </div>
+            <div class="demo-output" id="bank-output"></div>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s3', document.querySelectorAll('.nav-item')[3])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s5', document.querySelectorAll('.nav-item')[5])">บทถัดไป: Inheritance →</button>
+        </div>
+      </div>
+
+      <!-- ════════ S5: INHERITANCE ════════ -->
+      <div id="s5" class="section">
+        <div class="breadcrumb">บทเรียน <span>Inheritance</span></div>
+
+        <div class="section-header">
+          <div class="section-icon green">🌳</div>
+          <div>
+            <h2>Inheritance</h2>
+            <p>การสืบทอดคุณสมบัติจากคลาสแม่สู่คลาสลูก</p>
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h3>🧬 Inheritance คืออะไร?</h3>
+          <p>การสร้างคลาสใหม่โดย <strong>รับเอาคุณสมบัติ</strong> จากคลาสที่มีอยู่แล้ว คล้ายกับที่ลูกรับลักษณะจากพ่อแม่ ข้อดีคือสามารถ <strong>นำโค้ดกลับมาใช้ซ้ำ (reuse)</strong> ได้ ไม่ต้องเขียนใหม่ทั้งหมด</p>
+        </div>
+
+        <div class="diagram">
+          <div class="inherit-tree">
+            <div class="tree-node parent">Employee (แม่)</div>
+            <div class="tree-line-down"></div>
+            <div class="tree-children">
+              <div class="tree-child-wrap">
+                <div class="tree-child-line"></div>
+                <div class="tree-node child">Accounting</div>
+              </div>
+              <div class="tree-child-wrap">
+                <div class="tree-child-line"></div>
+                <div class="tree-node child">Programmer</div>
+              </div>
+              <div class="tree-child-wrap">
+                <div class="tree-child-line"></div>
+                <div class="tree-node child">Sale</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box tip" style="margin-top:16px;margin-bottom:0">
+            <span class="info-icon">💡</span>
+            <div>คลาสลูกรับ <strong>ทุก</strong> Attribute และ Method จากคลาสแม่ ยกเว้น <strong>Private</strong> Attribute และ Private Method</div>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">inheritance.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="cm"># คลาสแม่ (Superclass)</span>
+<span class="kw">class</span> <span class="cl">Employee</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, name, salary):
+        <span class="slf">self</span>.name = name
+        <span class="slf">self</span>.salary = salary
+
+    <span class="kw">def</span> <span class="fn">get_salary</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="slf">self</span>.salary
+
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="slf">self</span>):
+        <span class="kw">print</span>(<span class="st">f"ชื่อ: {self.name}, เงินเดือน: {self.salary:,}"</span>)
+
+
+<span class="cm"># คลาสลูก (Subclass) — สืบทอดจาก Employee</span>
+<span class="kw">class</span> <span class="cl">Programmer</span>(<span class="cl">Employee</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, name, salary, experience):
+        <span class="kw">super</span>().<span class="fn">__init__</span>(name, salary)  <span class="cm"># เรียก constructor แม่</span>
+        <span class="slf">self</span>.experience = experience
+
+    <span class="kw">def</span> <span class="fn">overtime</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="slf">self</span>.salary * <span class="nb">0.2</span>      <span class="cm"># ค่าล่วงเวลา</span>
+
+    <span class="cm"># Override method ของแม่</span>
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="slf">self</span>):
+        <span class="kw">super</span>().<span class="fn">display</span>()              <span class="cm"># เรียก display ของแม่</span>
+        <span class="kw">print</span>(<span class="st">f"ประสบการณ์: {self.experience} ปี"</span>)
+
+<span class="cm"># สร้าง Object</span>
+dev = <span class="cl">Programmer</span>(<span class="st">"อาร์ม"</span>, <span class="nb">45000</span>, <span class="nb">3</span>)
+dev.display()
+<span class="kw">print</span>(<span class="st">f"ค่าล่วงเวลา: {dev.overtime():,}"</span>)</pre>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-header">
+            <h4>🧪 ทดลอง Inheritance</h4>
+            <button class="demo-run-btn" onclick="runInheritDemo()">▶ รันโค้ด</button>
+          </div>
+          <div class="demo-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">ชื่อ Programmer</label>
+                <input class="form-input" id="prog-name" value="มิน">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">เงินเดือน</label>
+                <input class="form-input" id="prog-salary" type="number" value="50000">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">ประสบการณ์ (ปี)</label>
+                <input class="form-input" id="prog-exp" type="number" value="5">
+              </div>
+            </div>
+            <div class="demo-output" id="prog-output"></div>
+          </div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s4', document.querySelectorAll('.nav-item')[4])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s6', document.querySelectorAll('.nav-item')[6])">บทถัดไป: Polymorphism →</button>
+        </div>
+      </div>
+
+      <!-- ════════ S6: POLYMORPHISM ════════ -->
+      <div id="s6" class="section">
+        <div class="breadcrumb">บทเรียน <span>Polymorphism</span></div>
+
+        <div class="section-header">
+          <div class="section-icon orange">🔀</div>
+          <div>
+            <h2>Polymorphism</h2>
+            <p>การพ้องรูป — Method เดียวกัน ทำงานหลายรูปแบบ</p>
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h3>🎭 Polymorphism คืออะไร?</h3>
+          <p><strong>Poly</strong> (หลากหลาย) + <strong>Morphism</strong> (รูปแบบ) = การที่ Method ชื่อเดียวกันสามารถทำงานได้แตกต่างกัน ขึ้นอยู่กับ Object ที่เรียกใช้ เช่น คำว่า "กา" มีหลายความหมาย ขึ้นอยู่กับบริบท</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="concept-card" style="margin:0">
+            <h3>🔁 Overriding</h3>
+            <p>คลาสลูก <strong>เขียนทับ</strong> Method ของคลาสแม่ ชื่อ Method เหมือนกัน แต่ทำงานต่างกัน (ผลจาก Inheritance)</p>
+          </div>
+          <div class="concept-card" style="margin:0">
+            <h3>➕ Overloading</h3>
+            <p>Method ชื่อเดียวกัน ในคลาสเดียวกัน รับ argument ต่างกัน (ผลจาก Polymorphism) — Python ใช้ default args แทน</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-header-left">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span class="code-filename">polymorphism.py</span>
+            </div>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-body">
+<pre><span class="kw">class</span> <span class="cl">Shape</span>:
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="slf">self</span>):
+        <span class="kw">print</span>(<span class="st">"วาดรูปทรงทั่วไป"</span>)
+
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="nb">0</span>
+
+
+<span class="kw">class</span> <span class="cl">Circle</span>(<span class="cl">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, radius):
+        <span class="slf">self</span>.radius = radius
+
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="slf">self</span>):               <span class="cm"># Override!</span>
+        <span class="kw">print</span>(<span class="st">f"วาดวงกลม รัศมี {self.radius}"</span>)
+
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="slf">self</span>):               <span class="cm"># Override!</span>
+        <span class="kw">return</span> <span class="nb">3.14</span> * <span class="slf">self</span>.radius ** <span class="nb">2</span>
+
+
+<span class="kw">class</span> <span class="cl">Rectangle</span>(<span class="cl">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="slf">self</span>, w, h):
+        <span class="slf">self</span>.w = w; <span class="slf">self</span>.h = h
+
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="slf">self</span>):               <span class="cm"># Override!</span>
+        <span class="kw">print</span>(<span class="st">f"วาดสี่เหลี่ยม {self.w}x{self.h}"</span>)
+
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="slf">self</span>):
+        <span class="kw">return</span> <span class="slf">self</span>.w * <span class="slf">self</span>.h
+
+
+<span class="cm"># Polymorphism ในทางปฏิบัติ</span>
+shapes = [<span class="cl">Circle</span>(<span class="nb">5</span>), <span class="cl">Rectangle</span>(<span class="nb">4</span>, <span class="nb">6</span>), <span class="cl">Circle</span>(<span class="nb">3</span>)]
+
+<span class="kw">for</span> shape <span class="kw">in</span> shapes:
+    shape.draw()               <span class="cm"># Method เดียว ทำงานต่างกัน!</span>
+    <span class="kw">print</span>(<span class="st">f"พื้นที่: {shape.area()}"</span>)</pre>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-header">
+            <h4>🧪 ทดลอง Polymorphism</h4>
+            <button class="demo-run-btn" onclick="runPolyDemo()">▶ รันโค้ด</button>
+          </div>
+          <div class="demo-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">รัศมีวงกลม</label>
+                <input class="form-input" id="circle-r" type="number" value="7">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">กว้าง × สูง (เช่น 4,6)</label>
+                <input class="form-input" id="rect-wh" value="4,6">
+              </div>
+            </div>
+            <div class="demo-output" id="poly-output"></div>
+          </div>
+        </div>
+
+        <div class="info-box tip">
+          <span class="info-icon">💡</span>
+          <div><strong>ข้อดีของ Polymorphism:</strong> เราสามารถเขียน code ที่ทำงานกับ Object หลายประเภทโดยใช้ interface เดียวกัน ทำให้โปรแกรมขยายได้ง่ายและยืดหยุ่น</div>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s5', document.querySelectorAll('.nav-item')[5])">← ก่อนหน้า</button>
+          <button class="nav-btn primary" onclick="showSection('s7', document.querySelectorAll('.nav-item')[7])">ไปทำแบบทดสอบ 🎯</button>
+        </div>
+      </div>
+
+      <!-- ════════ S7: QUIZ ════════ -->
+      <div id="s7" class="section">
+        <div class="breadcrumb">บทเรียน <span>แบบทดสอบ</span></div>
+
+        <div class="section-header">
+          <div class="section-icon blue">🎯</div>
+          <div>
+            <h2>แบบทดสอบความเข้าใจ</h2>
+            <p>ทดสอบความรู้ OOP ที่เรียนมาทั้งหมด</p>
+          </div>
+        </div>
+
+        <div id="quiz-score-banner" style="display:none" class="info-box tip">
+          <span class="info-icon">🏆</span>
+          <div id="quiz-score-text"></div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="quiz-card">
+          <div class="quiz-question">1. Class ในการเขียนโปรแกรมเชิงวัตถุเปรียบเหมือนอะไร?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 0)"><span class="option-label">A</span>บ้านที่สร้างเสร็จแล้ว</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'correct', 0)"><span class="option-label">B</span>แบบแปลนบ้าน (Blueprint)</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 0)"><span class="option-label">C</span>วัสดุก่อสร้าง</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 0)"><span class="option-label">D</span>ช่างก่อสร้าง</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-0">✅ ถูกต้อง! Class คือ Template หรือ Blueprint ที่ใช้สร้าง Object เหมือนแบบแปลนที่ใช้สร้างบ้าน</div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-card">
+          <div class="quiz-question">2. Keyword ใดในภาษา Python ใช้สำหรับกำหนด Constructor?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 1)"><span class="option-label">A</span><code>def __start__(self)</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 1)"><span class="option-label">B</span><code>def __new__(self)</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'correct', 1)"><span class="option-label">C</span><code>def __init__(self)</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 1)"><span class="option-label">D</span><code>def __create__(self)</code></div>
+          </div>
+          <div class="quiz-feedback" id="feedback-1">✅ ถูกต้อง! <code>__init__</code> คือ Constructor ใน Python จะถูกเรียกอัตโนมัติทุกครั้งที่สร้าง Object ใหม่</div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-card">
+          <div class="quiz-question">3. ถ้าต้องการซ่อน Attribute ให้เป็น Private ใน Python ต้องทำอย่างไร?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 2)"><span class="option-label">A</span>ใช้ <code>private self.name</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 2)"><span class="option-label">B</span>ใช้ prefix <code>_name</code> (underscore เดียว)</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'correct', 2)"><span class="option-label">C</span>ใช้ prefix <code>__name</code> (underscore สอง)</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 2)"><span class="option-label">D</span>ใช้ <code>@private</code> decorator</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-2">✅ ถูกต้อง! ใน Python การใช้ <code>__</code> (double underscore) ข้างหน้าชื่อ Attribute จะทำให้กลายเป็น Private</div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-card">
+          <div class="quiz-question">4. ข้อใดคือความหมายที่ถูกต้องของ Inheritance?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 3)"><span class="option-label">A</span>การซ่อนข้อมูลภายใน Object</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'correct', 3)"><span class="option-label">B</span>คลาสลูกรับคุณสมบัติจากคลาสแม่</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 3)"><span class="option-label">C</span>Method ชื่อเดียวกันทำงานต่างกัน</div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 3)"><span class="option-label">D</span>การสร้าง Object จาก Class</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-3">✅ ถูกต้อง! Inheritance (การสืบทอด) คือการที่คลาสลูก (Subclass) รับเอาคุณสมบัติจากคลาสแม่ (Superclass)</div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-card">
+          <div class="quiz-question">5. Keyword ใดใช้เรียก Method หรือ Constructor ของคลาสแม่?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 4)"><span class="option-label">A</span><code>parent()</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 4)"><span class="option-label">B</span><code>base()</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'correct', 4)"><span class="option-label">C</span><code>super()</code></div>
+            <div class="quiz-option" onclick="answerQuiz(this, 'wrong', 4)"><span class="option-label">D</span><code>inherit()</code></div>
+          </div>
+          <div class="quiz-feedback" id="feedback-4">✅ ถูกต้อง! <code>super()</code> ใช้เรียกคุณสมบัติของคลาสแม่ เช่น <code>super().__init__()</code></div>
+        </div>
+
+        <div id="check-quiz-btn" style="text-align:center;margin-top:8px">
+          <button class="demo-run-btn" style="margin:0 auto" onclick="showQuizScore()">ดูคะแนน 🏆</button>
+        </div>
+
+        <div class="section-nav">
+          <button class="nav-btn" onclick="showSection('s6', document.querySelectorAll('.nav-item')[6])">← ก่อนหน้า</button>
+          <button class="nav-btn" onclick="resetQuiz()">🔄 ทำใหม่</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // ─── NAVIGATION ───
+  let visitedSections = new Set(['s0']);
+
+  function showSection(id, navEl) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (navEl) navEl.classList.add('active');
+    visitedSections.add(id);
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateProgress() {
+    const total = 8;
+    const pct = Math.round((visitedSections.size / total) * 100);
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  // ─── COPY CODE ───
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // ─── DEMO: ANIMAL ───
+  function runAnimalDemo() {
+    const name = document.getElementById('animal-name').value || 'แมว';
+    const color = document.getElementById('animal-color').value || 'ขาว';
+    const out = document.getElementById('animal-output');
+    out.innerHTML = `
+      <div class="output-line prompt">>>> animal = Animal("${name}", "${color}")</div>
+      <div class="output-line">สร้าง Object สำเร็จ!</div>
+      <div class="output-line info">animal.name = "${name}"</div>
+      <div class="output-line info">animal.color = "${color}"</div>
+      <div class="output-line success">animal.sound() → "${name} ส่งเสียงร้อง"</div>
+      <div class="output-line info">isinstance(animal, Animal) → True</div>
+    `;
+    out.classList.add('show');
+  }
+
+  // ─── DEMO: EMPLOYEE ───
+  function runEmployeeDemo() {
+    const name = document.getElementById('emp-name').value || 'สมชาย';
+    const salary = parseFloat(document.getElementById('emp-salary').value) || 30000;
+    const bonus = salary * 0.1;
+    const out = document.getElementById('emp-output');
+    out.innerHTML = `
+      <div class="output-line prompt">>>> emp = Employee("${name}", ${salary.toLocaleString()})</div>
+      <div class="output-line">emp.display():</div>
+      <div class="output-line info">ชื่อ: ${name}</div>
+      <div class="output-line info">เงินเดือน: ${salary.toLocaleString()} บาท</div>
+      <div class="output-line success">โบนัส: ${bonus.toLocaleString()} บาท</div>
+    `;
+    out.classList.add('show');
+  }
+
+  // ─── DEMO: BANK ───
+  function runBankDemo() {
+    const owner = document.getElementById('bank-owner').value || 'สมหญิง';
+    const deposit = parseFloat(document.getElementById('bank-deposit').value) || 5000;
+    const initial = 10000;
+    const total = initial + deposit;
+    const out = document.getElementById('bank-output');
+    out.innerHTML = `
+      <div class="output-line prompt">>>> acc = BankAccount("${owner}", ${initial.toLocaleString()})</div>
+      <div class="output-line info">acc.get_balance() → ${initial.toLocaleString()} บาท</div>
+      <div class="output-line prompt">>>> acc.deposit(${deposit.toLocaleString()})</div>
+      <div class="output-line success">ฝากเงิน ${deposit.toLocaleString()} บาท สำเร็จ</div>
+      <div class="output-line success">ยอดคงเหลือ: ${total.toLocaleString()} บาท</div>
+      <div class="output-line" style="color:#f38ba8">>>> acc.__balance   # ❌ Error!</div>
+      <div class="output-line" style="color:#f38ba8">AttributeError: '__balance' is private</div>
+    `;
+    out.classList.add('show');
+  }
+
+  // ─── DEMO: INHERITANCE ───
+  function runInheritDemo() {
+    const name = document.getElementById('prog-name').value || 'มิน';
+    const salary = parseFloat(document.getElementById('prog-salary').value) || 50000;
+    const exp = parseInt(document.getElementById('prog-exp').value) || 5;
+    const overtime = salary * 0.2;
+    const out = document.getElementById('prog-output');
+    out.innerHTML = `
+      <div class="output-line prompt">>>> dev = Programmer("${name}", ${salary.toLocaleString()}, ${exp})</div>
+      <div class="output-line">dev.display():</div>
+      <div class="output-line info">ชื่อ: ${name}, เงินเดือน: ${salary.toLocaleString()}</div>
+      <div class="output-line info">ประสบการณ์: ${exp} ปี</div>
+      <div class="output-line success">dev.overtime() → ${overtime.toLocaleString()} บาท</div>
+      <div class="output-line info">isinstance(dev, Programmer) → True</div>
+      <div class="output-line info">isinstance(dev, Employee) → True  ← สืบทอดมา!</div>
+    `;
+    out.classList.add('show');
+  }
+
+  // ─── DEMO: POLYMORPHISM ───
+  function runPolyDemo() {
+    const r = parseFloat(document.getElementById('circle-r').value) || 7;
+    const wh = document.getElementById('rect-wh').value.split(',');
+    const w = parseFloat(wh[0]) || 4;
+    const h = parseFloat(wh[1]) || 6;
+    const circleArea = (3.14 * r * r).toFixed(2);
+    const rectArea = (w * h).toFixed(2);
+    const out = document.getElementById('poly-output');
+    out.innerHTML = `
+      <div class="output-line prompt">>>> shapes = [Circle(${r}), Rectangle(${w}, ${h})]</div>
+      <div class="output-line prompt">>>> for shape in shapes: shape.draw()</div>
+      <div class="output-line info">วาดวงกลม รัศมี ${r}  ← Circle.draw() override!</div>
+      <div class="output-line info">วาดสี่เหลี่ยม ${w}x${h}  ← Rectangle.draw() override!</div>
+      <div class="output-line prompt">>>> [shape.area() for shape in shapes]</div>
+      <div class="output-line success">Circle area = ${circleArea}</div>
+      <div class="output-line success">Rectangle area = ${rectArea}</div>
+      <div class="output-line" style="color:#fab387">Method ชื่อ draw() และ area() เหมือนกัน แต่ทำงานต่างกัน! 🔀</div>
+    `;
+    out.classList.add('show');
+  }
+
+  // ─── QUIZ ───
+  let quizAnswers = new Array(5).fill(null);
+  let quizScore = 0;
+
+  function answerQuiz(el, result, qIdx) {
+    const card = el.closest('.quiz-card');
+    if (card.querySelector('.correct, .wrong')) return; // already answered
+
+    const opts = card.querySelectorAll('.quiz-option');
+    opts.forEach(o => o.classList.add('disabled'));
+    el.classList.add(result);
+    if (result === 'correct') quizScore++;
+    quizAnswers[qIdx] = result;
+
+    const fb = document.getElementById('feedback-' + qIdx);
+    fb.classList.add('show', result === 'correct' ? 'correct' : 'wrong');
+    if (result === 'wrong') {
+      fb.innerHTML = '❌ ยังไม่ถูก! ' + fb.innerHTML.replace('✅', '');
+      fb.innerHTML = '❌ ลองทบทวนอีกครั้ง — ' + [
+        'Class คือ Blueprint ที่ใช้สร้าง Object ไม่ใช่ Object ที่สร้างแล้ว',
+        'Constructor ใน Python คือ __init__ (init คือ initialization)',
+        'Private ใน Python ใช้ __ (double underscore) prefix',
+        'Inheritance คือการสืบทอดคุณสมบัติจากคลาสแม่ ไม่ใช่ Polymorphism',
+        'super() ใช้เรียก Method ของคลาสแม่ (parent/superclass)'
+      ][qIdx];
+      fb.classList.add('wrong');
+    }
+
+    // Show correct if wrong
+    if (result === 'wrong') {
+      opts.forEach(o => {
+        if (!o.classList.contains('wrong')) {
+          const idx = Array.from(opts).indexOf(o);
+          if (['correct-B','correct-C','correct-C','correct-B','correct-C'][qIdx] ===
+              ['A','B','C','D'][idx] + o.innerText.trim().charAt(0)) {
+            // skip complex detection
+          }
+        }
+      });
+    }
+  }
+
+  function showQuizScore() {
+    const answered = quizAnswers.filter(a => a !== null).length;
+    if (answered < 5) {
+      alert('กรุณาตอบคำถามให้ครบทุกข้อก่อนนะครับ!');
+      return;
+    }
+    const banner = document.getElementById('quiz-score-banner');
+    const text = document.getElementById('quiz-score-text');
+    banner.style.display = 'flex';
+    const messages = ['ยังต้องเรียนเพิ่มอีกนะ 📚', 'เกือบได้แล้ว ลองทบทวนอีกครั้ง 💪', 'ดีมาก! เข้าใจ OOP แล้ว 🎉', 'เยี่ยม! เกือบเต็ม ✨', 'เต็ม 100! OOP Master! 🏆'];
+    const idx = quizScore <= 1 ? 0 : quizScore <= 2 ? 1 : quizScore <= 3 ? 2 : quizScore <= 4 ? 3 : 4;
+    text.innerHTML = `<strong>คะแนนของคุณ: ${quizScore}/5</strong> — ${messages[idx]}`;
+    banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetQuiz() {
+    quizAnswers = new Array(5).fill(null);
+    quizScore = 0;
+    document.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('correct', 'wrong', 'disabled');
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(f => {
+      f.classList.remove('show', 'correct', 'wrong');
+    });
+    document.getElementById('quiz-score-banner').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
